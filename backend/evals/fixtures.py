@@ -57,3 +57,15 @@ def seed(store: Store) -> None:
         store.save_employee(Employee.model_validate(r))
     for m in load_memory_dir(DATA / "memory"):
         store.save_memory(m)
+
+
+def load_case(case_id: str, store: Store | None = None):
+    """A fixture as a Case after intake only (documents attached, nothing extracted or decided).
+    Back-compat for code written against the skeleton's pre-parsed case JSON."""
+    from backend.core.runner import make_ctx
+    from backend.intake.ingest import ingest
+    from backend.store.sqlite import SQLiteStore
+    if store is None:
+        store = SQLiteStore(":memory:")
+        seed(store)
+    return ingest(load_fixture(case_id), case_dir(case_id), make_ctx(store))

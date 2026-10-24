@@ -116,8 +116,8 @@ class Role(str, Enum):
     investigator = "investigator"  # Droid in sandbox
     approver = "approver"     # AP lead
     controller = "controller"
-    requester = "requester"
     cfo = "cfo"               # above the controller limit (human)
+    requester = "requester"
 
 
 class ApprovalDecision(str, Enum):
@@ -143,6 +143,16 @@ class MemoryFolder(str, Enum):
 
 # --- Master data ------------------------------------------------------------
 
+class PaymentTerms(Model):
+    """Commercial terms from the contract / vendor master (never from invoice text). e.g. 2/10 net 30."""
+    net_days: int = 30
+    discount_pct: Optional[Money] = Field(None, description="early-payment discount, e.g. 0.02")
+    discount_days: Optional[int] = Field(None, description="pay within N days of the invoice date to earn it")
+    prepay_discount_pct: Optional[Money] = Field(None, description="discount for paying in advance, e.g. 0.04")
+    prepay_cap_usd: Optional[Money] = Field(None, description="max open prepaid balance for this vendor")
+    source: str = Field("vendor master", description="where these terms come from")
+
+
 class Vendor(Model):
     id: str
     name: str
@@ -158,6 +168,7 @@ class Vendor(Model):
     probation_until: Optional[date] = None
     contact_email: Optional[str] = Field(None, description="Verified contact on file; outbound goes here, never reply-to")
     expected_schedule: Optional[str] = Field(None, description="daily | weekly: expected-file schedule (missing-file alerts)")
+    terms: Optional[PaymentTerms] = None
 
 
 # --- Documents --------------------------------------------------------------
@@ -662,6 +673,430 @@ class BusinessMetrics(Model):
     notes: list[str] = []
 
 
+# --- Dashboard (owner: D) ---------------------------------------------------
+
+class QueueItem(Model):
+    """One open case in the approval queue, sorted by priority (highest first)."""
+    case_id: str
+    vendor_id: str
+    vendor_name: str
+    status: CaseStatus
+    decision: Optional[Decision] = None
+    invoice_no: Optional[str] = None
+    total: Optional[Money] = None
+    currency: Optional[str] = None
+    total_usd: Optional[Money] = Field(None, description="At the simulated policy FX rate")
+    due_date: Optional[date] = None
+    days_to_due: Optional[int] = None
+    at_risk: bool = Field(False, description="Due within the at-risk window or overdue")
+    critical_vendor: bool = False
+    priority: int = Field(description="Higher = work first")
+    reasons: list[str] = Field(default_factory=list, description="Why it ranks where it does")
+
+
+class VendorExceptions(Model):
+    vendor_id: str
+    vendor_name: str
+    cases: int
+    exceptions: int
+
+
+class DashboardMetrics(Model):
+    """Dashboard read model (D). C's BusinessMetrics is the eval/scoreboard model."""
+    cases: int
+    exceptions: int
+    dollars_caught_usd: Money = Field(description="Held/rejected/escalated exposure, USD at simulated FX")
+    hours_saved_estimate: Money = Field(description="ESTIMATE: per-case manual minutes x cases handled")
+    on_time_payment_rate: Optional[float] = Field(None, description="Posted on or before due date; None if nothing posted")
+    avg_hours_to_resolve: Optional[float] = None
+    by_vendor: list[VendorExceptions]
+    assumptions: list[str] = Field(default_factory=list, description="Shown next to the numbers")
+
+
+class StageStat(Model):
+    """How one pipeline stage behaved across every case's latest run."""
+    stage: str
+    runs: int
+    ok: int
+    skipped: int
+    flagged: int = Field(description="failed + blocked + escalated + retried")
+    avg_ms: Optional[float] = None
+
+
+class FailureItem(Model):
+    """A non-ok step and what the pipeline did next."""
+    case_id: str
+    run_id: str
+    step_id: str
+    stage: str
+    status: StepStatus
+    error: Optional[str] = None
+    next_stage: Optional[str] = None
+    next_status: Optional[StepStatus] = None
+    at: datetime
+
+
+# --- Review (owner: D) -----------------------------------------------------
+
+class IntakeAccepted(Model):
+    """Returned by POST /intake: the run continues in the background."""
+    case_id: str
+    run_id: str
+
+
+class Finding(Model):
+    """One check the agents ran, in plain language, for the reviewer."""
+    check: str = Field(description="e.g. '3-way match', 'Vendor & bank'")
+    agent: str = Field(description="pipeline stage that ran it")
+    status: str = Field(description="ok | flag | unchecked | blocked")
+    detail: str
+
+
+class ReviewPacket(Model):
+    """Everything the reviewer gets once the background run is done."""
+    case_id: str
+    ready: bool = Field(description="False while the pipeline is still running")
+    summary: str
+    recommendation: Optional[Decision] = None
+    needs: str = Field(description="who must sign: approver | controller | nobody")
+    findings: list[Finding] = []
+    trace: list[Step] = []
+    files: list[Document] = []
+    signals: list[Signal] = Field(default_factory=list, description="pre-payment checks run by code")
+    suggested: list[str] = Field(default_factory=list, description="questions the reviewer can tap")
+
+
+class ChatMessage(Model):
+    role: str = Field(description="user | assistant")
+    content: str
+
+
+class ChatRequest(Model):
+    messages: list[ChatMessage]
+
+
+class ChatReply(Model):
+    content: str
+    source: str = Field(description="claude | offline")
+
+
+# --- Accounts payable workspace (owner: D) ---------------------------------
+
+class Signal(Model):
+    """A pre-payment check run by code at review time."""
+    code: str = Field(description="bank_mismatch | lookalike_domain | duplicate | qty_short | price_over | not_on_po | over_limit | embedded_instructions | probation")
+    severity: str = Field(description="high | medium | low")
+    title: str
+    detail: str
+
+
+class MatchRow(Model):
+    """One SKU across purchase order, goods receipt and invoice. Variances computed in code."""
+    sku: str
+    description: str
+    ordered: Optional[Qty] = None
+    received: Qty
+    billed: Qty
+    po_price: Optional[Money] = None
+    invoice_price: Money
+    qty_variance: Qty = Field(description="billed - min(ordered, received)")
+    price_variance: Optional[Money] = Field(None, description="invoice_price - po_price")
+    amount_at_risk: Money = Field(description="what would be overpaid, in invoice currency")
+
+
+class GLLine(Model):
+    line_no: int
+    sku: str
+    description: str
+    amount: Money
+    account: str
+    basis: str = Field(description="why this account was suggested")
+
+
+class CheckResult(Model):
+    """One pre-payment check and whether it passed, with references to the evidence."""
+    name: str
+    passed: bool
+    severity: str = Field(description="high | medium | low (only meaningful when not passed)")
+    detail: str
+    refs: list[str] = Field(default_factory=list, description="e.g. 'Line 1', 'PO-5501', 'INV-2291'")
+
+
+class ApprovalStep(Model):
+    step: int
+    label: str
+    who: str
+    status: str = Field(description="done | waiting | pending | rejected | on_hold")
+    note: str = ""
+
+
+class LastPaid(Model):
+    invoice_no: str
+    amount: Money
+    currency: str
+    paid_on: date
+
+
+class Payment(Model):
+    id: str
+    batch_id: str
+    case_id: str
+    vendor_id: str
+    amount: Money
+    currency: str
+    amount_usd: Money
+    method: str = Field(description="ach | wire | intl_wire | check")
+    pay_date: date
+    pay_to_last4: str = Field(description="Always the vendor master's account, never the invoice's")
+    status: str = Field(description="scheduled | paid")
+    gross_amount: Optional[Money] = Field(None, description="invoice total before discount and credits")
+    discount_amount: Money = Field(Decimal("0"), description="early-payment discount taken")
+    credit_applied: Money = Field(Decimal("0"), description="advance-payment credit used")
+
+
+class PaymentBatch(Model):
+    id: str
+    pay_date: date
+    status: str = Field(description="scheduled | paid")
+    created_by: str
+    created_at: datetime
+    released_by: Optional[str] = None
+    released_at: Optional[datetime] = None
+    payments: list[Payment] = []
+    total_usd: Money
+
+
+class PaymentBatchRequest(Model):
+    case_ids: list[str]
+    pay_date: date
+    created_by: str
+    methods: dict[str, str] = Field(default_factory=dict, description="case_id -> method; default by vendor country")
+
+
+class ReleaseRequest(Model):
+    released_by: str
+
+
+class EarlyPayOffer(Model):
+    """An early-payment discount on one bill, computed in code from the vendor's terms."""
+    case_id: str
+    vendor_id: str
+    vendor_name: str
+    invoice_no: Optional[str] = None
+    terms: str = Field(description="e.g. 2/15 net 30")
+    discount_pct: Money
+    discount_amount: Money
+    currency: str
+    discount_usd: Money
+    pay_by: date
+    days_left: int
+    annualized_return_pct: float = Field(description="what paying early 'earns', annualised")
+    status: str = Field(description="available | needs_approval | blocked | missed | captured")
+    note: str = ""
+
+
+class PrepayApplication(Model):
+    case_id: str
+    amount: Money
+    at: datetime
+
+
+class Prepayment(Model):
+    """An advance payment that buys vendor credit at a discount. SIMULATED settlement."""
+    id: str
+    vendor_id: str
+    vendor_name: str
+    currency: str
+    credit_amount: Money = Field(description="credit granted against future invoices")
+    cash_amount: Money = Field(description="what Helix pays now")
+    discount_amount: Money
+    discount_pct: Money
+    cash_usd: Money
+    status: str = Field(description="requested | paid | rejected")
+    requested_by: str
+    requested_at: datetime
+    approved_by: Optional[str] = None
+    approved_at: Optional[datetime] = None
+    note: str = ""
+    applied: list[PrepayApplication] = []
+    remaining: Money
+
+
+class PrepaymentRequest(Model):
+    vendor_id: str
+    credit_amount: Money
+    requested_by: str
+    note: str = ""
+
+
+class PrepaymentQuote(Model):
+    vendor_id: str
+    currency: str
+    credit_amount: Money
+    cash_amount: Money
+    discount_amount: Money
+    discount_pct: Money
+    cash_usd: Money
+    cap_remaining_usd: Optional[Money] = None
+    allowed: bool
+    reason: str = ""
+
+
+class SignOff(Model):
+    """A human decision on a prepayment or onboarding request."""
+    approver: str
+    role: Role
+    decision: str = Field(description="approved | rejected")
+    comment: str = ""
+
+
+class OnboardingRequestIn(Model):
+    legal_name: str
+    country: str
+    currency: str = "USD"
+    tax_id: Optional[str] = None
+    address: str = ""
+    city: str = ""
+    state: str = ""
+    zip: str = ""
+    email_domain: str
+    website: str = ""
+    bank_last4: str
+    contact_name: str = ""
+    contact_phone: str = ""
+    expected_annual_spend_usd: Money = Decimal("0")
+    requested_by: str
+
+
+class VendorCheck(Model):
+    """One onboarding check as shown in the UI (D): CRS or code, pass/warn/fail."""
+    name: str
+    provider: str = Field(description="CRS | code")
+    status: str = Field(description="pass | warn | fail | not_covered | incomplete")
+    detail: str
+    simulated: bool = False
+
+
+class OnboardingCase(Model):
+    id: str
+    request: OnboardingRequestIn
+    status: str = Field(description="needs_review | approved | rejected")
+    checks: list[VendorCheck] = []
+    risk_tier: str = Field(description="low | medium | high")
+    needs: str = Field(description="role that must approve: approver | controller")
+    crs_mode: str = Field(description="live | simulated")
+    created_at: datetime
+    decided_by: Optional[str] = None
+    decided_at: Optional[datetime] = None
+    decision_comment: str = ""
+    vendor_id: Optional[str] = None
+
+
+class Bill(Model):
+    """One invoice as the AP team sees it."""
+    case_id: str
+    vendor_id: str
+    vendor_name: str
+    invoice_no: Optional[str] = None
+    invoice_date: Optional[date] = None
+    due_date: Optional[date] = None
+    days_to_due: Optional[int] = None
+    amount: Optional[Money] = None
+    currency: Optional[str] = None
+    amount_usd: Optional[Money] = None
+    stage: str = Field(description="processing | needs_review | on_hold | ready_to_pay | blocked | scheduled | paid | rejected")
+    recommendation: Optional[Decision] = None
+    approved_by: Optional[str] = None
+    needs: str = Field(description="role that must sign, or nobody")
+    risk: str = Field(description="high | medium | low")
+    signals: list[Signal] = []
+    waiting_hours: Optional[float] = Field(None, description="time since it was handed to a human")
+    sla_breached: bool = False
+    payment_block: Optional[str] = None
+    payment: Optional[Payment] = None
+    overbilled: Optional[Money] = Field(None, description="amount at risk from the 3-way match, invoice currency")
+    discount: Optional[EarlyPayOffer] = None
+    credit_available: Optional[Money] = Field(None, description="advance-payment credit open for this vendor")
+    warning: Optional[str] = Field(None, description="one line shown under the bill in lists")
+
+
+class ActivityItem(Model):
+    at: datetime
+    actor: str
+    text: str
+
+
+class BillDetail(Model):
+    bill: Bill
+    verdict: str = Field(description="ready | review | risk")
+    verdict_text: str
+    checks: list[CheckResult]
+    match: list[MatchRow]
+    gl: list[GLLine]
+    approval_steps: list[ApprovalStep]
+    activity: list[ActivityItem]
+    last_paid: Optional[LastPaid] = None
+    est_pay_date: Optional[date] = None
+    pay_methods: list[str] = Field(default_factory=list, description="methods allowed for this vendor")
+    default_method: Optional[str] = None
+    statement_descriptor: str
+    invoice_bank_last4: Optional[str] = Field(None, description="the account printed on the invoice (last 4)")
+
+
+class AgingBucket(Model):
+    label: str
+    amount_usd: Money
+    count: int
+
+
+class ForecastWeek(Model):
+    week_start: date
+    approved_usd: Money
+    pending_usd: Money
+
+
+class SpendRow(Model):
+    label: str
+    amount_usd: Money
+    count: int
+
+
+class ApReport(Model):
+    open_usd: Money
+    due_7d_usd: Money
+    overdue_usd: Money
+    needs_review: int
+    blocked: int
+    touchless_rate: Optional[float] = None
+    caught_usd: Money = Field(description="USD of bills held, rejected or payment-blocked by checks")
+    discounts_available_usd: Money = Decimal("0")
+    discounts_captured_usd: Money = Decimal("0")
+    discounts_missed_usd: Money = Decimal("0")
+    aging: list[AgingBucket]
+    forecast: list[ForecastWeek]
+    by_vendor: list[SpendRow]
+    by_gl: list[SpendRow]
+
+
+class Integration(Model):
+    name: str
+    status: str = Field(description="connected | simulated | not_connected")
+    note: str
+
+
+class ApSettings(Model):
+    approval_limits: dict[str, Money]
+    sla_hours: int
+    materiality_abs: Money
+    materiality_pct: Money
+    qty_tolerance_pct: Money
+    price_tolerance_pct: Money
+    locked_periods: list[str]
+    fx_rates: dict[str, Money]
+    accounts: dict[str, str]
+    integrations: list[Integration]
+
+
 # --- API payloads -----------------------------------------------------------
 
 class CaseDetail(Model):
@@ -685,5 +1120,11 @@ ALL_MODELS: list[type[BaseModel]] = [
     FollowUp, SupplierEmail, PendingApproval, Handoff, Controls, Alert, OnboardingRequest, OnboardingCheck,
     OnboardingResult, SkillProposal, LLMJudgeScore, BusinessMetrics,
     Step, Event, MemoryEntry, SkillVersion, ExpectedOutcome, EvalResult, TagScore,
-    Scoreboard, CaseDetail, ApprovalRequest,
+    Scoreboard, QueueItem, VendorExceptions, DashboardMetrics, StageStat, FailureItem,
+    IntakeAccepted, Finding, ReviewPacket, ChatMessage, ChatRequest, ChatReply,
+    Signal, MatchRow, GLLine, CheckResult, ApprovalStep, LastPaid, Payment, PaymentBatch, PaymentBatchRequest, ReleaseRequest, Bill, ActivityItem,
+    BillDetail, AgingBucket, ForecastWeek, SpendRow, ApReport, Integration, ApSettings,
+    PaymentTerms, EarlyPayOffer, PrepayApplication, Prepayment, PrepaymentRequest, PrepaymentQuote, SignOff,
+    OnboardingRequestIn, VendorCheck, OnboardingCase,
+    CaseDetail, ApprovalRequest,
 ]

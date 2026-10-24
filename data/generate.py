@@ -40,7 +40,7 @@ from reportlab.lib.pagesizes import A4, LETTER  # noqa: E402
 from reportlab.pdfgen import canvas  # noqa: E402
 
 from contracts import (CaseFixture, ContractTerm, Employee, ExpectedOutcome, InboundItem, PaidInvoice, PO,  # noqa: E402
-                       POLine, Receipt, ReceiptLine, Vendor)
+                       PaymentTerms, POLine, Receipt, ReceiptLine, Vendor)
 
 DATA = ROOT / "data"
 WORLD = DATA / "world"
@@ -96,17 +96,22 @@ vendors = [
     Vendor(id="V-FORMOSA", name="Formosa Wafer Works Co., Ltd.", aliases=["Formosa", "FWW", "Formosa Wafer"],
            country="TW", currency="TWD", email_domain="formosawafer.com.tw", bank_last4="2207",
            channels=["email", "sftp"], tax_id="TW-24551877", critical=True,
-           contact_email="ar.team@formosawafer.com.tw"),
+           contact_email="ar.team@formosawafer.com.tw",
+           terms=PaymentTerms(net_days=30, discount_pct=D("0.02"), discount_days=20, prepay_discount_pct=D("0.04"),
+                              prepay_cap_usd=D("1000000.00"), source="Formosa supply agreement §7 (demo terms)")),
     Vendor(id="V-KESTREL", name="Kestrel Memory Inc.", aliases=["Kestrel", "Kestrel Memory"],
            country="KR", currency="USD", email_domain="kestrelmemory.co.kr", bank_last4="5150",
            channels=["api", "email"], tax_id="KR-1208145923", critical=True,
-           contact_email="finance@kestrelmemory.co.kr", expected_schedule="daily"),
+           contact_email="finance@kestrelmemory.co.kr", expected_schedule="daily",
+           terms=PaymentTerms(net_days=30, discount_pct=D("0.02"), discount_days=15, prepay_discount_pct=D("0.03"),
+                              prepay_cap_usd=D("250000.00"), source="Kestrel MSA §4.2 (demo terms)")),
     Vendor(id="V-PENANG", name="Penang Pack & Test Sdn Bhd", aliases=["Penang Pack & Test", "PPT"],
            country="MY", currency="USD", email_domain="penangpacktest.com.my", bank_last4="4418",
            channels=["email", "erp"], tax_id="MY-201901033871", contact_email="accounts@penangpacktest.com.my"),
     Vendor(id="V-AEROLANE", name="Aerolane Freight Ltd", aliases=["Aerolane", "Aerolane Freight", "AFL"],
            country="US", currency="USD", email_domain="aerolane.com", bank_last4="7731",
-           channels=["email", "api"], tax_id="US-84-3318820", contact_email="ar@aerolane.com"),
+           channels=["email", "api"], tax_id="US-84-3318820", contact_email="ar@aerolane.com",
+           terms=PaymentTerms(net_days=30, discount_pct=D("0.03"), discount_days=10, source="Aerolane rate card (demo terms)")),
     # P1: onboarded 2026-10-01, on probation (CLAUDE.md 10d step 7); delivers CSV via S3
     Vendor(id="V-TSC", name="Taoyuan Substrate Corp.", aliases=["Taoyuan Substrate", "TSC"],
            country="TW", currency="TWD", email_domain="taoyuansubstrate.com.tw", bank_last4="3381",
