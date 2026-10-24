@@ -1,0 +1,23 @@
+{
+  "schema": "aerolane.invoice.v2",
+  "invoice": {
+    "id": "INV-2347",
+    "issued": "2026-10-16",
+    "purchase_order": "PO-8880"
+  },
+  "money": {
+    "currency": "USD",
+    "total": "16900.00"
+  },
+  "payee": {
+    "account_last4": "7731"
+  },
+  "charges": [
+    {
+      "code": "FRT-AIR-TPE-SJC",
+      "label": "Air freight TPE->SJC, 14 pallets",
+      "units": "1",
+      "price": "16900.00"
+    }
+  ]
+}

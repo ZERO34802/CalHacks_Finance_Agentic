@@ -1,0 +1,21 @@
+{
+  "id": "onb_03",
+  "title": "Sanctioned entity (SIMULATED list)",
+  "received_at": "2026-10-22T09:00:00Z",
+  "requested_by": "r.adler@helix.example",
+  "legal_name": "Volkov Microsystems Trading LLC",
+  "trade_names": [
+    "VMT"
+  ],
+  "country": "AE",
+  "tax_id": "AE-100299871",
+  "tax_form": "W-8BEN-E",
+  "email_domain": "volkovmicro.ae",
+  "bank_last4": "3317",
+  "currency": "USD",
+  "channels": [
+    "email"
+  ],
+  "payment_terms": "Net 15",
+  "expected_annual_spend_usd": "400000.00"
+}

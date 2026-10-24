@@ -1,0 +1,14 @@
+{
+  "id": "case_21",
+  "title": "Aerolane freight 12.50 above PO (API v1)",
+  "inbound": [
+    {
+      "channel": "api",
+      "path": "aerolane-inv-2336.json",
+      "sender": "V-AEROLANE",
+      "api_key": "sim-key-aerolane-91c2",
+      "received_at": "2026-10-13T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-13"
+}

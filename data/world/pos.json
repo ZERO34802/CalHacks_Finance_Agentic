@@ -1,0 +1,563 @@
+[
+  {
+    "doc_id": "erp-PO-7001",
+    "po_number": "PO-7001",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-09-20",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "50",
+        "unit_price": "1450.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-5501",
+    "po_number": "PO-5501",
+    "vendor_id": "V-FORMOSA",
+    "po_date": "2026-09-15",
+    "currency": "TWD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "WFR-N3-300",
+        "description": "300mm N3 engineering wafer",
+        "qty": "1000",
+        "unit_price": "18600.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7002",
+    "po_number": "PO-7002",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-02",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-8H-24G",
+        "description": "HBM3E 8-high 24GB stack",
+        "qty": "40",
+        "unit_price": "1180.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-6100",
+    "po_number": "PO-6100",
+    "vendor_id": "V-PENANG",
+    "po_date": "2026-09-25",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "PKG-COWOS-L",
+        "description": "CoWoS-L packaging + final test",
+        "qty": "2000",
+        "unit_price": "1650.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-8840",
+    "po_number": "PO-8840",
+    "vendor_id": "V-AEROLANE",
+    "po_date": "2026-09-28",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "FRT-AIR-TPE-SJC",
+        "description": "Air freight TPE->SJC, 14 pallets",
+        "qty": "1",
+        "unit_price": "18400.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7003",
+    "po_number": "PO-7003",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-01",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "60",
+        "unit_price": "1450.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-5502",
+    "po_number": "PO-5502",
+    "vendor_id": "V-FORMOSA",
+    "po_date": "2026-09-22",
+    "currency": "TWD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "WFR-N3-300",
+        "description": "300mm N3 engineering wafer",
+        "qty": "500",
+        "unit_price": "18600.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-6101",
+    "po_number": "PO-6101",
+    "vendor_id": "V-PENANG",
+    "po_date": "2026-10-01",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "PKG-COWOS-L",
+        "description": "CoWoS-L packaging + final test",
+        "qty": "300",
+        "unit_price": "1650.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7005",
+    "po_number": "PO-7005",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-26",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-8H-24G",
+        "description": "HBM3E 8-high 24GB stack",
+        "qty": "40",
+        "unit_price": "1180.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-8850",
+    "po_number": "PO-8850",
+    "vendor_id": "V-AEROLANE",
+    "po_date": "2026-10-05",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "FRT-AIR-ICN-SJC",
+        "description": "Air freight ICN->SJC, 6 pallets",
+        "qty": "1",
+        "unit_price": "15200.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-5503",
+    "po_number": "PO-5503",
+    "vendor_id": "V-FORMOSA",
+    "po_date": "2026-09-25",
+    "currency": "TWD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "WFR-N3-300",
+        "description": "300mm N3 engineering wafer",
+        "qty": "200",
+        "unit_price": "18600.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-5504",
+    "po_number": "PO-5504",
+    "vendor_id": "V-FORMOSA",
+    "po_date": "2026-09-28",
+    "currency": "TWD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "WFR-N3-300",
+        "description": "300mm N3 engineering wafer",
+        "qty": "300",
+        "unit_price": "18600.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-5505",
+    "po_number": "PO-5505",
+    "vendor_id": "V-FORMOSA",
+    "po_date": "2026-10-01",
+    "currency": "TWD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "WFR-N3-300",
+        "description": "300mm N3 engineering wafer",
+        "qty": "150",
+        "unit_price": "18600.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-5490",
+    "po_number": "PO-5490",
+    "vendor_id": "V-FORMOSA",
+    "po_date": "2026-07-20",
+    "currency": "TWD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "WFR-N3-300",
+        "description": "300mm N3 engineering wafer",
+        "qty": "400",
+        "unit_price": "18600.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-8810",
+    "po_number": "PO-8810",
+    "vendor_id": "V-AEROLANE",
+    "po_date": "2026-08-20",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "FRT-OCN-KHH-OAK",
+        "description": "Ocean freight KHH->OAK, 2x40ft",
+        "qty": "1",
+        "unit_price": "9800.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-5500",
+    "po_number": "PO-5500",
+    "vendor_id": "V-FORMOSA",
+    "po_date": "2026-08-25",
+    "currency": "TWD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "WFR-N3-300",
+        "description": "300mm N3 engineering wafer",
+        "qty": "600",
+        "unit_price": "18600.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-6102",
+    "po_number": "PO-6102",
+    "vendor_id": "V-PENANG",
+    "po_date": "2026-10-05",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "PKG-COWOS-L",
+        "description": "CoWoS-L packaging + final test",
+        "qty": "40",
+        "unit_price": "1650.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7006",
+    "po_number": "PO-7006",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-06",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "50",
+        "unit_price": "1450.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-8860",
+    "po_number": "PO-8860",
+    "vendor_id": "V-AEROLANE",
+    "po_date": "2026-10-08",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "FRT-AIR-PEN-SJC",
+        "description": "Air freight PEN->SJC, 9 pallets",
+        "qty": "1",
+        "unit_price": "18400.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-6099",
+    "po_number": "PO-6099",
+    "vendor_id": "V-PENANG",
+    "po_date": "2026-09-10",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "PKG-COWOS-L",
+        "description": "CoWoS-L packaging + final test",
+        "qty": "30",
+        "unit_price": "1650.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7008",
+    "po_number": "PO-7008",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-05",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "120",
+        "unit_price": "1450.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-8900",
+    "po_number": "PO-8900",
+    "vendor_id": "V-AEROLANE",
+    "po_date": "2026-01-05",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "SVC-CUSTOMS-RET",
+        "description": "Customs brokerage retainer, monthly",
+        "qty": "12",
+        "unit_price": "2500.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7004",
+    "po_number": "PO-7004",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-08",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "50",
+        "unit_price": "1450.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7007",
+    "po_number": "PO-7007",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-09",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-8H-24G",
+        "description": "HBM3E 8-high 24GB stack",
+        "qty": "40",
+        "unit_price": "1180.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-5507",
+    "po_number": "PO-5507",
+    "vendor_id": "V-FORMOSA",
+    "po_date": "2026-10-03",
+    "currency": "TWD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "WFR-N3-300",
+        "description": "300mm N3 engineering wafer",
+        "qty": "100",
+        "unit_price": "18600.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-5508",
+    "po_number": "PO-5508",
+    "vendor_id": "V-FORMOSA",
+    "po_date": "2026-10-04",
+    "currency": "TWD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "WFR-N3-300",
+        "description": "300mm N3 engineering wafer",
+        "qty": "120",
+        "unit_price": "18600.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-8880",
+    "po_number": "PO-8880",
+    "vendor_id": "V-AEROLANE",
+    "po_date": "2026-10-10",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "FRT-AIR-TPE-SJC",
+        "description": "Air freight TPE->SJC, 14 pallets",
+        "qty": "1",
+        "unit_price": "16900.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7010",
+    "po_number": "PO-7010",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-07",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "20",
+        "unit_price": "1450.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7009",
+    "po_number": "PO-7009",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-07",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "30",
+        "unit_price": "1450.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-8870",
+    "po_number": "PO-8870",
+    "vendor_id": "V-AEROLANE",
+    "po_date": "2026-10-12",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "FRT-AIR-TPE-SJC",
+        "description": "Air freight TPE->SJC, 14 pallets",
+        "qty": "1",
+        "unit_price": "17600.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-5506",
+    "po_number": "PO-5506",
+    "vendor_id": "V-FORMOSA",
+    "po_date": "2026-10-02",
+    "currency": "TWD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "WFR-N3-300",
+        "description": "300mm N3 engineering wafer",
+        "qty": "100",
+        "unit_price": "18600.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-6950",
+    "po_number": "PO-6950",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-08-10",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "80",
+        "unit_price": "1450.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-6050",
+    "po_number": "PO-6050",
+    "vendor_id": "V-PENANG",
+    "po_date": "2026-08-01",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "PKG-COWOS-L",
+        "description": "CoWoS-L packaging + final test",
+        "qty": "1000",
+        "unit_price": "1650.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  }
+]

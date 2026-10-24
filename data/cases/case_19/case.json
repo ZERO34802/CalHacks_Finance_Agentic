@@ -1,0 +1,13 @@
+{
+  "id": "case_19",
+  "title": "Formosa invoice cites a PO that does not exist",
+  "inbound": [
+    {
+      "channel": "email",
+      "path": "case_19.eml",
+      "sender": "billing@formosawafer.com.tw",
+      "received_at": "2026-10-19T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-19"
+}

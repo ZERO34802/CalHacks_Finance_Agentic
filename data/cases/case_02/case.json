@@ -1,0 +1,13 @@
+{
+  "id": "case_02",
+  "title": "Formosa short delivery: billed 1000, received 940",
+  "inbound": [
+    {
+      "channel": "email",
+      "path": "case_02.eml",
+      "sender": "billing@formosawafer.com.tw",
+      "received_at": "2026-10-14T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-14"
+}

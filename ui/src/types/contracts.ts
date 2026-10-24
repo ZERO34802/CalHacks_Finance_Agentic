@@ -36,6 +36,11 @@ export type DocKind = "invoice" | "po" | "receipt" | "contract" | "amendment" | 
 export type Channel = "api" | "email" | "sftp" | "s3" | "erp" | "upload";
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "CaseLinkType".
+ */
+export type CaseLinkType = "duplicate_of" | "attached_to" | "corrected_by" | "related_pattern" | "sub_case_of";
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "DiscrepancyType".
  */
 export type DiscrepancyType =
@@ -47,7 +52,13 @@ export type DiscrepancyType =
   | "bank_change"
   | "lookalike_domain"
   | "embedded_instructions"
-  | "below_materiality";
+  | "below_materiality"
+  | "currency_mismatch"
+  | "unknown_po"
+  | "missing_receipt"
+  | "total_mismatch"
+  | "over_limit"
+  | "locked_period";
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "Decision".
@@ -111,12 +122,23 @@ export interface Case {
   po: PO | null;
   receipts: Receipt[];
   fingerprint: string | null;
+  evidence_hash: string | null;
+  links: CaseLink[];
+  quarantine_reason: string | null;
   discrepancies: Discrepancy[];
   skill: string | null;
   proposal: Proposal | null;
   approvals: Approval[];
   journal_entry: JournalEntry | null;
   decision: Decision | null;
+  /**
+   * Times the agent re-planned after a rejection
+   */
+  replans: number;
+  /**
+   * Business 'today' for this case (posting date, period locks)
+   */
+  as_of: string | null;
   created_at: string;
   updated_at: string | null;
   notes: string[];
@@ -241,15 +263,35 @@ export interface ReceiptLine {
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "CaseLink".
+ */
+export interface CaseLink {
+  type: CaseLinkType;
+  case_id: string | null;
+  invoice_no: string | null;
+  reason: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "Discrepancy".
  */
 export interface Discrepancy {
   type: DiscrepancyType;
+  line_no: number | null;
   sku: string | null;
+  material: boolean;
   expected: string | null;
   actual: string | null;
   delta: string | null;
   citations: Citation[];
+  /**
+   * For below_materiality: the type it would have been (e.g. price_over)
+   */
+  original_type: DiscrepancyType | null;
+  /**
+   * Per-discrepancy case fingerprint (vendor+PO+inv+type+SKU)
+   */
+  fingerprint: string | null;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -280,6 +322,22 @@ export interface Proposal {
   skill: string | null;
   skill_version: string | null;
   memory_version: string | null;
+  /**
+   * Floor computed by code from the decision table; recommendation may never be below it
+   */
+  policy_recommendation: Decision | null;
+  /**
+   * droid | claude | deterministic fallback | code (clean / no skill)
+   */
+  engine: string | null;
+  /**
+   * Which document wins and why (kept out of explanation)
+   */
+  source_of_truth: string | null;
+  /**
+   * e.g. request a credit note via the contact on file
+   */
+  next_action: string | null;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -349,6 +407,65 @@ export interface Step {
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "CaseFixture".
+ */
+export interface CaseFixture {
+  id: string;
+  title: string;
+  inbound: InboundItem[];
+  /**
+   * 'Today' for this case (period locks, due dates)
+   */
+  as_of: string;
+}
+/**
+ * One file as it arrived. Paths are relative to the case folder.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "InboundItem".
+ */
+export interface InboundItem {
+  channel: Channel;
+  path: string;
+  /**
+   * Email From / SFTP account / API key owner
+   */
+  sender: string | null;
+  /**
+   * API channel only; simulated per-vendor key
+   */
+  api_key: string | null;
+  received_at: string;
+}
+/**
+ * Contract / amendment price. Amendment wins only from effective_from.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ContractTerm".
+ */
+export interface ContractTerm {
+  doc_id: string;
+  vendor_id: string;
+  sku: string;
+  /**
+   * Decimal amount as string
+   */
+  unit_price: string;
+  currency: string;
+  effective_from: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "Employee".
+ */
+export interface Employee {
+  id: string;
+  name: string;
+  email: string;
+  bank_last4: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "EvalResult".
  */
 export interface EvalResult {
@@ -365,6 +482,10 @@ export interface EvalResult {
     [k: string]: boolean;
   };
   passed: boolean;
+  /**
+   * Human-readable reason per failed check
+   */
+  misses: string[];
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -375,6 +496,25 @@ export interface ExpectedOutcome {
   decision: Decision;
   discrepancies: DiscrepancyType[];
   skill: string | null;
+  quarantined: boolean;
+  links: CaseLinkType[];
+  /**
+   * Extraction check
+   */
+  invoice_no: string | null;
+  /**
+   * Extraction check
+   */
+  total: string | null;
+  currency: string | null;
+  /**
+   * Expected disputed amount, to the cent
+   */
+  variance: string | null;
+  /**
+   * e.g. attack, onboarding, format:xlsx, channel:sftp
+   */
+  tags: string[];
   note: string;
 }
 /**
@@ -414,6 +554,25 @@ export interface MemoryEntry {
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "PaidInvoice".
+ */
+export interface PaidInvoice {
+  vendor_id: string;
+  invoice_no: string;
+  po_number: string | null;
+  /**
+   * Decimal amount as string
+   */
+  total: string;
+  currency: string;
+  paid_on: string;
+  /**
+   * sha256 of sorted (sku, qty, unit_price) lines; see doc dedup
+   */
+  line_hash: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "Scoreboard".
  */
 export interface Scoreboard {
@@ -425,6 +584,25 @@ export interface Scoreboard {
   false_alarm_rate: number;
   invariant_pass_rate: number;
   results: EvalResult[];
+  /**
+   * Pass rate per check name
+   */
+  check_rates: {
+    [k: string]: number;
+  };
+  by_tag: TagScore[];
+}
+/**
+ * Per-tag breakdown (format:*, channel:*, attack, dedup, ...).
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "TagScore".
+ */
+export interface TagScore {
+  tag: string;
+  total: number;
+  passed: number;
+  pass_rate: number;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema

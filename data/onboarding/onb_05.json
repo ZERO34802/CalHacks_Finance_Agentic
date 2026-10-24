@@ -1,0 +1,21 @@
+{
+  "id": "onb_05",
+  "title": "Look-alike domain of an existing vendor",
+  "received_at": "2026-10-22T09:00:00Z",
+  "requested_by": "j.park@helix.example",
+  "legal_name": "Kestrel Memory Services Ltd",
+  "trade_names": [
+    "Kestrel"
+  ],
+  "country": "KR",
+  "tax_id": "KR-2209981734",
+  "tax_form": "W-8BEN-E",
+  "email_domain": "kestrel-memory.co.kr",
+  "bank_last4": "8841",
+  "currency": "USD",
+  "channels": [
+    "email"
+  ],
+  "payment_terms": "Net 30",
+  "expected_annual_spend_usd": "300000.00"
+}

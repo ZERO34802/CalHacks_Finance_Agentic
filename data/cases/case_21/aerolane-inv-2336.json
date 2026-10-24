@@ -1,0 +1,18 @@
+{
+  "schema": "aerolane.invoice.v1",
+  "inv_no": "INV-2336",
+  "date": "2026-10-13",
+  "po": "PO-8860",
+  "ccy": "USD",
+  "bank_last4": "7731",
+  "items": [
+    {
+      "code": "FRT-AIR-PEN-SJC",
+      "text": "Air freight PEN->SJC, 9 pallets",
+      "qty": "1",
+      "rate": "18412.50",
+      "amount": "18412.50"
+    }
+  ],
+  "invoice_total": "18412.50"
+}

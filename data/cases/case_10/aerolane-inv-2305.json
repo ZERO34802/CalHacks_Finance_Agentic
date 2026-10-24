@@ -1,0 +1,25 @@
+{
+  "schema": "aerolane.invoice.v1",
+  "inv_no": "INV-2305",
+  "date": "2026-10-10",
+  "po": "PO-8850",
+  "ccy": "USD",
+  "bank_last4": "7731",
+  "items": [
+    {
+      "code": "FRT-AIR-ICN-SJC",
+      "text": "Air freight ICN->SJC, 6 pallets",
+      "qty": "1",
+      "rate": "15200.00",
+      "amount": "15200.00"
+    },
+    {
+      "code": "FRT-EXPEDITE",
+      "text": "Expedite surcharge",
+      "qty": "1",
+      "rate": "2800.00",
+      "amount": "2800.00"
+    }
+  ],
+  "invoice_total": "18000.00"
+}

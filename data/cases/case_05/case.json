@@ -1,0 +1,13 @@
+{
+  "id": "case_05",
+  "title": "Aerolane resends paid INV-2291 as INV-2291-A",
+  "inbound": [
+    {
+      "channel": "email",
+      "path": "case_05.eml",
+      "sender": "billing@aerolane.com",
+      "received_at": "2026-10-21T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-21"
+}

@@ -158,6 +158,35 @@
           ],
           "default": null
         },
+        "evidence_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "links": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/CaseLink"
+          },
+          "type": "array"
+        },
+        "quarantine_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "discrepancies": {
           "default": [],
           "items": {
@@ -216,6 +245,24 @@
           ],
           "default": null
         },
+        "replans": {
+          "default": 0,
+          "description": "Times the agent re-planned after a rejection",
+          "type": "integer"
+        },
+        "as_of": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Business 'today' for this case (posting date, period locks)"
+        },
         "created_at": {
           "format": "date-time",
           "type": "string"
@@ -250,12 +297,17 @@
         "po",
         "receipts",
         "fingerprint",
+        "evidence_hash",
+        "links",
+        "quarantine_reason",
         "discrepancies",
         "skill",
         "proposal",
         "approvals",
         "journal_entry",
         "decision",
+        "replans",
+        "as_of",
         "created_at",
         "updated_at",
         "notes"
@@ -282,6 +334,88 @@
       ],
       "title": "CaseDetail",
       "type": "object"
+    },
+    "CaseFixture": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "inbound": {
+          "items": {
+            "$ref": "#/$defs/InboundItem"
+          },
+          "type": "array"
+        },
+        "as_of": {
+          "description": "'Today' for this case (period locks, due dates)",
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "inbound",
+        "as_of"
+      ],
+      "title": "CaseFixture",
+      "type": "object"
+    },
+    "CaseLink": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/CaseLinkType"
+        },
+        "case_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "invoice_no": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "case_id",
+        "invoice_no",
+        "reason"
+      ],
+      "title": "CaseLink",
+      "type": "object"
+    },
+    "CaseLinkType": {
+      "enum": [
+        "duplicate_of",
+        "attached_to",
+        "corrected_by",
+        "related_pattern",
+        "sub_case_of"
+      ],
+      "title": "CaseLinkType",
+      "type": "string"
     },
     "CaseStatus": {
       "enum": [
@@ -340,6 +474,43 @@
       "title": "Citation",
       "type": "object"
     },
+    "ContractTerm": {
+      "additionalProperties": false,
+      "description": "Contract / amendment price. Amendment wins only from effective_from.",
+      "properties": {
+        "doc_id": {
+          "type": "string"
+        },
+        "vendor_id": {
+          "type": "string"
+        },
+        "sku": {
+          "type": "string"
+        },
+        "unit_price": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "effective_from": {
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "doc_id",
+        "vendor_id",
+        "sku",
+        "unit_price",
+        "currency",
+        "effective_from"
+      ],
+      "title": "ContractTerm",
+      "type": "object"
+    },
     "Decision": {
       "enum": [
         "approve",
@@ -356,6 +527,17 @@
         "type": {
           "$ref": "#/$defs/DiscrepancyType"
         },
+        "line_no": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "sku": {
           "anyOf": [
             {
@@ -366,6 +548,10 @@
             }
           ],
           "default": null
+        },
+        "material": {
+          "default": true,
+          "type": "boolean"
         },
         "expected": {
           "anyOf": [
@@ -408,15 +594,43 @@
             "$ref": "#/$defs/Citation"
           },
           "type": "array"
+        },
+        "original_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiscrepancyType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For below_materiality: the type it would have been (e.g. price_over)"
+        },
+        "fingerprint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Per-discrepancy case fingerprint (vendor+PO+inv+type+SKU)"
         }
       },
       "required": [
         "type",
+        "line_no",
         "sku",
+        "material",
         "expected",
         "actual",
         "delta",
-        "citations"
+        "citations",
+        "original_type",
+        "fingerprint"
       ],
       "title": "Discrepancy",
       "type": "object"
@@ -431,7 +645,13 @@
         "bank_change",
         "lookalike_domain",
         "embedded_instructions",
-        "below_materiality"
+        "below_materiality",
+        "currency_mismatch",
+        "unknown_po",
+        "missing_receipt",
+        "total_mismatch",
+        "over_limit",
+        "locked_period"
       ],
       "title": "DiscrepancyType",
       "type": "string"
@@ -525,6 +745,31 @@
       "title": "Document",
       "type": "object"
     },
+    "Employee": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "bank_last4": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email",
+        "bank_last4"
+      ],
+      "title": "Employee",
+      "type": "object"
+    },
     "EvalResult": {
       "additionalProperties": false,
       "properties": {
@@ -575,6 +820,13 @@
         },
         "passed": {
           "type": "boolean"
+        },
+        "misses": {
+          "description": "Human-readable reason per failed check",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -585,7 +837,8 @@
         "actual_discrepancies",
         "actual_skill",
         "checks",
-        "passed"
+        "passed",
+        "misses"
       ],
       "title": "EvalResult",
       "type": "object"
@@ -665,6 +918,75 @@
           ],
           "default": null
         },
+        "quarantined": {
+          "default": false,
+          "type": "boolean"
+        },
+        "links": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/CaseLinkType"
+          },
+          "type": "array"
+        },
+        "invoice_no": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Extraction check"
+        },
+        "total": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Extraction check"
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "variance": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Expected disputed amount, to the cent"
+        },
+        "tags": {
+          "description": "e.g. attack, onboarding, format:xlsx, channel:sftp",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "note": {
           "default": "",
           "type": "string"
@@ -675,9 +997,65 @@
         "decision",
         "discrepancies",
         "skill",
+        "quarantined",
+        "links",
+        "invoice_no",
+        "total",
+        "currency",
+        "variance",
+        "tags",
         "note"
       ],
       "title": "ExpectedOutcome",
+      "type": "object"
+    },
+    "InboundItem": {
+      "additionalProperties": false,
+      "description": "One file as it arrived. Paths are relative to the case folder.",
+      "properties": {
+        "channel": {
+          "$ref": "#/$defs/Channel"
+        },
+        "path": {
+          "type": "string"
+        },
+        "sender": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Email From / SFTP account / API key owner"
+        },
+        "api_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "API channel only; simulated per-vendor key"
+        },
+        "received_at": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "channel",
+        "path",
+        "sender",
+        "api_key",
+        "received_at"
+      ],
+      "title": "InboundItem",
       "type": "object"
     },
     "Invoice": {
@@ -988,6 +1366,55 @@
       "title": "POLine",
       "type": "object"
     },
+    "PaidInvoice": {
+      "additionalProperties": false,
+      "properties": {
+        "vendor_id": {
+          "type": "string"
+        },
+        "invoice_no": {
+          "type": "string"
+        },
+        "po_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "total": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "paid_on": {
+          "format": "date",
+          "type": "string"
+        },
+        "line_hash": {
+          "description": "sha256 of sorted (sku, qty, unit_price) lines; see doc dedup",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendor_id",
+        "invoice_no",
+        "po_number",
+        "total",
+        "currency",
+        "paid_on",
+        "line_hash"
+      ],
+      "title": "PaidInvoice",
+      "type": "object"
+    },
     "Posting": {
       "additionalProperties": false,
       "properties": {
@@ -1079,6 +1506,54 @@
             }
           ],
           "default": null
+        },
+        "policy_recommendation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Decision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Floor computed by code from the decision table; recommendation may never be below it"
+        },
+        "engine": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "droid | claude | deterministic fallback | code (clean / no skill)"
+        },
+        "source_of_truth": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Which document wins and why (kept out of explanation)"
+        },
+        "next_action": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "e.g. request a credit note via the contact on file"
         }
       },
       "required": [
@@ -1090,7 +1565,11 @@
         "confidence",
         "skill",
         "skill_version",
-        "memory_version"
+        "memory_version",
+        "policy_recommendation",
+        "engine",
+        "source_of_truth",
+        "next_action"
       ],
       "title": "Proposal",
       "type": "object"
@@ -1189,6 +1668,19 @@
             "$ref": "#/$defs/EvalResult"
           },
           "type": "array"
+        },
+        "check_rates": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "Pass rate per check name",
+          "type": "object"
+        },
+        "by_tag": {
+          "items": {
+            "$ref": "#/$defs/TagScore"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -1199,7 +1691,9 @@
         "catch_rate",
         "false_alarm_rate",
         "invariant_pass_rate",
-        "results"
+        "results",
+        "check_rates",
+        "by_tag"
       ],
       "title": "Scoreboard",
       "type": "object"
@@ -1455,6 +1949,32 @@
       ],
       "title": "StepStatus",
       "type": "string"
+    },
+    "TagScore": {
+      "additionalProperties": false,
+      "description": "Per-tag breakdown (format:*, channel:*, attack, dedup, ...).",
+      "properties": {
+        "tag": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "passed": {
+          "type": "integer"
+        },
+        "pass_rate": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "tag",
+        "total",
+        "passed",
+        "pass_rate"
+      ],
+      "title": "TagScore",
+      "type": "object"
     },
     "Vendor": {
       "additionalProperties": false,

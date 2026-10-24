@@ -1,0 +1,14 @@
+{
+  "id": "case_03",
+  "title": "Kestrel bills amended price before effective date",
+  "inbound": [
+    {
+      "channel": "api",
+      "path": "kestrel-30152.json",
+      "sender": "V-KESTREL",
+      "api_key": "sim-key-kestrel-7f3a",
+      "received_at": "2026-10-16T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-16"
+}

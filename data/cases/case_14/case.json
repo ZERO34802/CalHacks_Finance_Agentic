@@ -1,0 +1,13 @@
+{
+  "id": "case_14",
+  "title": "Same INV-905 PDF re-delivered via SFTP",
+  "inbound": [
+    {
+      "channel": "sftp",
+      "path": "INV-905.pdf",
+      "sender": "sftp-formosa",
+      "received_at": "2026-10-17T02:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-17"
+}

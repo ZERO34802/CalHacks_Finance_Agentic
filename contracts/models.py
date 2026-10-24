@@ -81,6 +81,20 @@ class DiscrepancyType(str, Enum):
     lookalike_domain = "lookalike_domain"
     embedded_instructions = "embedded_instructions"
     below_materiality = "below_materiality"
+    currency_mismatch = "currency_mismatch"
+    unknown_po = "unknown_po"
+    missing_receipt = "missing_receipt"
+    total_mismatch = "total_mismatch"      # printed total != sum of lines (code recomputes)
+    over_limit = "over_limit"
+    locked_period = "locked_period"
+
+
+class CaseLinkType(str, Enum):
+    duplicate_of = "duplicate_of"          # doc dedup: same invoice seen before (or paid)
+    attached_to = "attached_to"            # case dedup: exact fingerprint, evidence attached
+    corrected_by = "corrected_by"          # level 2: corrected invoice for same discrepancy
+    related_pattern = "related_pattern"    # level 3: same vendor + type, other PO/period
+    sub_case_of = "sub_case_of"            # one case per discrepancy under a parent invoice
 
 
 class StepStatus(str, Enum):
@@ -218,11 +232,16 @@ class Citation(Model):
 
 class Discrepancy(Model):
     type: DiscrepancyType
+    line_no: Optional[int] = None
     sku: Optional[str] = None
+    material: bool = True
     expected: Optional[str] = None
     actual: Optional[str] = None
     delta: Optional[Money] = None
     citations: list[Citation] = []
+    original_type: Optional[DiscrepancyType] = Field(
+        None, description="For below_materiality: the type it would have been (e.g. price_over)")
+    fingerprint: Optional[str] = Field(None, description="Per-discrepancy case fingerprint (vendor+PO+inv+type+SKU)")
 
 
 class Posting(Model):
@@ -252,6 +271,11 @@ class Proposal(Model):
     skill: Optional[str] = None
     skill_version: Optional[str] = None
     memory_version: Optional[str] = None
+    policy_recommendation: Optional[Decision] = Field(
+        None, description="Floor computed by code from the decision table; recommendation may never be below it")
+    engine: Optional[str] = Field(None, description="droid | claude | deterministic fallback | code (clean / no skill)")
+    source_of_truth: Optional[str] = Field(None, description="Which document wins and why (kept out of explanation)")
+    next_action: Optional[str] = Field(None, description="e.g. request a credit note via the contact on file")
 
 
 class Approval(Model):
@@ -265,6 +289,13 @@ class Approval(Model):
     at: datetime
 
 
+class CaseLink(Model):
+    type: CaseLinkType
+    case_id: Optional[str] = None
+    invoice_no: Optional[str] = None
+    reason: str
+
+
 class Case(Model):
     id: str
     parent_id: Optional[str] = None
@@ -275,15 +306,67 @@ class Case(Model):
     po: Optional[PO] = None
     receipts: list[Receipt] = []
     fingerprint: Optional[str] = None
+    evidence_hash: Optional[str] = None
+    links: list[CaseLink] = []
+    quarantine_reason: Optional[str] = None
     discrepancies: list[Discrepancy] = []
     skill: Optional[str] = None
     proposal: Optional[Proposal] = None
     approvals: list[Approval] = []
     journal_entry: Optional[JournalEntry] = None
     decision: Optional[Decision] = None
+    replans: int = Field(0, description="Times the agent re-planned after a rejection")
+    as_of: Optional[date] = Field(None, description="Business 'today' for this case (posting date, period locks)")
     created_at: datetime
     updated_at: Optional[datetime] = None
     notes: list[str] = []
+
+
+# --- System of record (ERP world) -------------------------------------------
+
+class ContractTerm(Model):
+    """Contract / amendment price. Amendment wins only from effective_from."""
+    doc_id: str
+    vendor_id: str
+    sku: str
+    unit_price: Money
+    currency: str
+    effective_from: date
+
+
+class PaidInvoice(Model):
+    vendor_id: str
+    invoice_no: str
+    po_number: Optional[str] = None
+    total: Money
+    currency: str
+    paid_on: date
+    line_hash: str = Field(description="sha256 of sorted (sku, qty, unit_price) lines; see doc dedup")
+
+
+class Employee(Model):
+    id: str
+    name: str
+    email: str
+    bank_last4: str
+
+
+# --- Fixtures (data/cases/<id>/case.json) -------------------------------------
+
+class InboundItem(Model):
+    """One file as it arrived. Paths are relative to the case folder."""
+    channel: Channel
+    path: str
+    sender: Optional[str] = Field(None, description="Email From / SFTP account / API key owner")
+    api_key: Optional[str] = Field(None, description="API channel only; simulated per-vendor key")
+    received_at: datetime
+
+
+class CaseFixture(Model):
+    id: str
+    title: str
+    inbound: list[InboundItem]
+    as_of: date = Field(description="'Today' for this case (period locks, due dates)")
 
 
 # --- Trace ------------------------------------------------------------------
@@ -349,6 +432,13 @@ class ExpectedOutcome(Model):
     decision: Decision
     discrepancies: list[DiscrepancyType] = []
     skill: Optional[str] = None
+    quarantined: bool = False
+    links: list[CaseLinkType] = []
+    invoice_no: Optional[str] = Field(None, description="Extraction check")
+    total: Optional[Money] = Field(None, description="Extraction check")
+    currency: Optional[str] = None
+    variance: Optional[Money] = Field(None, description="Expected disputed amount, to the cent")
+    tags: list[str] = Field(default_factory=list, description="e.g. attack, onboarding, format:xlsx, channel:sftp")
     note: str = ""
 
 
@@ -361,6 +451,15 @@ class EvalResult(Model):
     actual_skill: Optional[str] = None
     checks: dict[str, bool] = Field(description="decision, discrepancies, skill, inv_* invariants")
     passed: bool
+    misses: list[str] = Field(default_factory=list, description="Human-readable reason per failed check")
+
+
+class TagScore(Model):
+    """Per-tag breakdown (format:*, channel:*, attack, dedup, ...)."""
+    tag: str
+    total: int
+    passed: int
+    pass_rate: float
 
 
 class Scoreboard(Model):
@@ -372,6 +471,8 @@ class Scoreboard(Model):
     false_alarm_rate: float
     invariant_pass_rate: float
     results: list[EvalResult]
+    check_rates: dict[str, float] = Field(default_factory=dict, description="Pass rate per check name")
+    by_tag: list[TagScore] = Field(default_factory=list)
 
 
 # --- API payloads -----------------------------------------------------------
@@ -390,7 +491,8 @@ class ApprovalRequest(Model):
 
 ALL_MODELS: list[type[BaseModel]] = [
     Vendor, Document, LineItem, Invoice, POLine, PO, ReceiptLine, Receipt,
-    Citation, Discrepancy, Posting, JournalEntry, Proposal, Approval, Case,
-    Step, Event, MemoryEntry, SkillVersion, ExpectedOutcome, EvalResult,
+    Citation, Discrepancy, CaseLink, Posting, JournalEntry, Proposal, Approval, Case,
+    ContractTerm, PaidInvoice, Employee, InboundItem, CaseFixture,
+    Step, Event, MemoryEntry, SkillVersion, ExpectedOutcome, EvalResult, TagScore,
     Scoreboard, CaseDetail, ApprovalRequest,
 ]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "E-104",
+    "name": "Dana Ortiz",
+    "email": "d.ortiz@helix.example",
+    "bank_last4": "6610"
+  },
+  {
+    "id": "E-221",
+    "name": "Jin Park",
+    "email": "j.park@helix.example",
+    "bank_last4": "3092"
+  },
+  {
+    "id": "E-118",
+    "name": "Sam Rivera",
+    "email": "ap.lead@helix.example",
+    "bank_last4": "2734"
+  },
+  {
+    "id": "E-301",
+    "name": "Maya Chen",
+    "email": "m.chen@helix.example",
+    "bank_last4": "8125"
+  },
+  {
+    "id": "E-342",
+    "name": "Leo Tan",
+    "email": "warehouse.lead@helix.example",
+    "bank_last4": "5583"
+  },
+  {
+    "id": "E-007",
+    "name": "Ruth Adler",
+    "email": "r.adler@helix.example",
+    "bank_last4": "9046"
+  }
+]

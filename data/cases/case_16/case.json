@@ -1,0 +1,14 @@
+{
+  "id": "case_16",
+  "title": "Kestrel resends KM-INV-30118 under a new number (API v2)",
+  "inbound": [
+    {
+      "channel": "api",
+      "path": "kestrel-km-inv-30190.json",
+      "sender": "V-KESTREL",
+      "api_key": "sim-key-kestrel-7f3a",
+      "received_at": "2026-10-22T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-22"
+}

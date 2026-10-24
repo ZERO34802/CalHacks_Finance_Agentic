@@ -1,0 +1,13 @@
+{
+  "id": "case_12",
+  "title": "Formosa: short delivery AND unapproved freight on one invoice",
+  "inbound": [
+    {
+      "channel": "email",
+      "path": "case_12.eml",
+      "sender": "billing@formosawafer.com.tw",
+      "received_at": "2026-10-17T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-17"
+}

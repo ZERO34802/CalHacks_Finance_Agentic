@@ -1,0 +1,4 @@
+skill: vendor-bank-change
+tools: [Read, Grep, Glob, LS]
+writable: []   # the agent writes nothing; code writes proposal.json from the validated output
+network: false

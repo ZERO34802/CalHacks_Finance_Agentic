@@ -1,0 +1,14 @@
+{
+  "id": "case_25",
+  "title": "Kestrel second shipment with identical lines on a different PO (API v2)",
+  "inbound": [
+    {
+      "channel": "api",
+      "path": "kestrel-km-inv-30247.json",
+      "sender": "V-KESTREL",
+      "api_key": "sim-key-kestrel-7f3a",
+      "received_at": "2026-10-21T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-21"
+}

@@ -1,0 +1,410 @@
+[
+  {
+    "doc_id": "erp-GRN-PO-7001",
+    "po_number": "PO-7001",
+    "received_date": "2026-10-10",
+    "lines": [
+      {
+        "sku": "HBM3E-12H-24G",
+        "qty_received": "50"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-5501",
+    "po_number": "PO-5501",
+    "received_date": "2026-10-11",
+    "lines": [
+      {
+        "sku": "WFR-N3-300",
+        "qty_received": "940"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7002",
+    "po_number": "PO-7002",
+    "received_date": "2026-10-15",
+    "lines": [
+      {
+        "sku": "HBM3E-8H-24G",
+        "qty_received": "40"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-6100",
+    "po_number": "PO-6100",
+    "received_date": "2026-10-18",
+    "lines": [
+      {
+        "sku": "PKG-COWOS-L",
+        "qty_received": "2000"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-8840",
+    "po_number": "PO-8840",
+    "received_date": "2026-10-03",
+    "lines": [
+      {
+        "sku": "FRT-AIR-TPE-SJC",
+        "qty_received": "1"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7003",
+    "po_number": "PO-7003",
+    "received_date": "2026-10-13",
+    "lines": [
+      {
+        "sku": "HBM3E-12H-24G",
+        "qty_received": "48"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-5502",
+    "po_number": "PO-5502",
+    "received_date": "2026-10-12",
+    "lines": [
+      {
+        "sku": "WFR-N3-300",
+        "qty_received": "480"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-6101",
+    "po_number": "PO-6101",
+    "received_date": "2026-10-14",
+    "lines": [
+      {
+        "sku": "PKG-COWOS-L",
+        "qty_received": "300"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7005",
+    "po_number": "PO-7005",
+    "received_date": "2026-11-02",
+    "lines": [
+      {
+        "sku": "HBM3E-8H-24G",
+        "qty_received": "40"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-8850",
+    "po_number": "PO-8850",
+    "received_date": "2026-10-09",
+    "lines": [
+      {
+        "sku": "FRT-AIR-ICN-SJC",
+        "qty_received": "1"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-5503",
+    "po_number": "PO-5503",
+    "received_date": "2026-10-13",
+    "lines": [
+      {
+        "sku": "WFR-N3-300",
+        "qty_received": "200"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-5504",
+    "po_number": "PO-5504",
+    "received_date": "2026-10-16",
+    "lines": [
+      {
+        "sku": "WFR-N3-300",
+        "qty_received": "290"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-5505",
+    "po_number": "PO-5505",
+    "received_date": "2026-10-15",
+    "lines": [
+      {
+        "sku": "WFR-N3-300",
+        "qty_received": "150"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-5490",
+    "po_number": "PO-5490",
+    "received_date": "2026-08-10",
+    "lines": [
+      {
+        "sku": "WFR-N3-300",
+        "qty_received": "400"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-8810",
+    "po_number": "PO-8810",
+    "received_date": "2026-08-28",
+    "lines": [
+      {
+        "sku": "FRT-OCN-KHH-OAK",
+        "qty_received": "1"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-5500",
+    "po_number": "PO-5500",
+    "received_date": "2026-09-20",
+    "lines": [
+      {
+        "sku": "WFR-N3-300",
+        "qty_received": "600"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-6102",
+    "po_number": "PO-6102",
+    "received_date": "2026-10-17",
+    "lines": [
+      {
+        "sku": "PKG-COWOS-L",
+        "qty_received": "40"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7006",
+    "po_number": "PO-7006",
+    "received_date": "2026-10-16",
+    "lines": [
+      {
+        "sku": "HBM3E-12H-24G",
+        "qty_received": "50"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-8860",
+    "po_number": "PO-8860",
+    "received_date": "2026-10-12",
+    "lines": [
+      {
+        "sku": "FRT-AIR-PEN-SJC",
+        "qty_received": "1"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-6099",
+    "po_number": "PO-6099",
+    "received_date": "2026-09-27",
+    "lines": [
+      {
+        "sku": "PKG-COWOS-L",
+        "qty_received": "30"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7008",
+    "po_number": "PO-7008",
+    "received_date": "2026-10-19",
+    "lines": [
+      {
+        "sku": "HBM3E-12H-24G",
+        "qty_received": "120"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-8900-2026-09",
+    "po_number": "PO-8900",
+    "received_date": "2026-09-30",
+    "lines": [
+      {
+        "sku": "SVC-CUSTOMS-RET",
+        "qty_received": "1"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-8900-2026-10",
+    "po_number": "PO-8900",
+    "received_date": "2026-10-23",
+    "lines": [
+      {
+        "sku": "SVC-CUSTOMS-RET",
+        "qty_received": "1"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7004",
+    "po_number": "PO-7004",
+    "received_date": "2026-10-20",
+    "lines": [
+      {
+        "sku": "HBM3E-12H-24G",
+        "qty_received": "50"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7007",
+    "po_number": "PO-7007",
+    "received_date": "2026-10-19",
+    "lines": [
+      {
+        "sku": "HBM3E-8H-24G",
+        "qty_received": "40"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-5507",
+    "po_number": "PO-5507",
+    "received_date": "2026-10-17",
+    "lines": [
+      {
+        "sku": "WFR-N3-300",
+        "qty_received": "100"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-5508",
+    "po_number": "PO-5508",
+    "received_date": "2026-10-18",
+    "lines": [
+      {
+        "sku": "WFR-N3-300",
+        "qty_received": "120"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-8880",
+    "po_number": "PO-8880",
+    "received_date": "2026-10-15",
+    "lines": [
+      {
+        "sku": "FRT-AIR-TPE-SJC",
+        "qty_received": "1"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7010",
+    "po_number": "PO-7010",
+    "received_date": "2026-10-17",
+    "lines": [
+      {
+        "sku": "HBM3E-12H-24G",
+        "qty_received": "20"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7009",
+    "po_number": "PO-7009",
+    "received_date": "2026-10-18",
+    "lines": [
+      {
+        "sku": "HBM3E-12H-24G",
+        "qty_received": "30"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-8870",
+    "po_number": "PO-8870",
+    "received_date": "2026-10-16",
+    "lines": [
+      {
+        "sku": "FRT-AIR-TPE-SJC",
+        "qty_received": "1"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-5506",
+    "po_number": "PO-5506",
+    "received_date": "2026-10-14",
+    "lines": [
+      {
+        "sku": "WFR-N3-300",
+        "qty_received": "100"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-6950",
+    "po_number": "PO-6950",
+    "received_date": "2026-09-02",
+    "lines": [
+      {
+        "sku": "HBM3E-12H-24G",
+        "qty_received": "80"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-6050",
+    "po_number": "PO-6050",
+    "received_date": "2026-08-25",
+    "lines": [
+      {
+        "sku": "PKG-COWOS-L",
+        "qty_received": "1000"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  }
+]

@@ -15,10 +15,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.core.runner import make_ctx, run_case
 from backend.core.stage import utcnow
 from backend.evals.fixtures import seed
-from backend.store.sqlite import SQLiteStore
+from backend.store import get_store
 from contracts import Approval, ApprovalRequest, Case, CaseDetail, Event, MemoryEntry, Scoreboard, Vendor
 
-store = SQLiteStore()
+store = get_store()
 seed(store)
 _listeners: set[asyncio.Queue] = set()
 _loop: Optional[asyncio.AbstractEventLoop] = None

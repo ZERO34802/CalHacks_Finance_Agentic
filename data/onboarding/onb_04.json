@@ -1,0 +1,19 @@
+{
+  "id": "onb_04",
+  "title": "Vendor bank account matches an employee's",
+  "received_at": "2026-10-22T09:00:00Z",
+  "requested_by": "d.ortiz@helix.example",
+  "legal_name": "Ortiz Technical Consulting LLC",
+  "trade_names": [],
+  "country": "US",
+  "tax_id": "US-87-2201945",
+  "tax_form": "W-9",
+  "email_domain": "ortiztech-consulting.com",
+  "bank_last4": "6610",
+  "currency": "USD",
+  "channels": [
+    "email"
+  ],
+  "payment_terms": "Net 15",
+  "expected_annual_spend_usd": "90000.00"
+}

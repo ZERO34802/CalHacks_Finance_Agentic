@@ -1,0 +1,21 @@
+{
+  "id": "onb_02",
+  "title": "Penang Advanced Packaging: same tax ID as Penang Pack & Test, different bank",
+  "received_at": "2026-10-22T09:00:00Z",
+  "requested_by": "j.park@helix.example",
+  "legal_name": "Penang Advanced Packaging Sdn Bhd",
+  "trade_names": [
+    "PAP"
+  ],
+  "country": "MY",
+  "tax_id": "MY-201901033871",
+  "tax_form": "W-8BEN-E",
+  "email_domain": "penangadvpkg.com.my",
+  "bank_last4": "7340",
+  "currency": "USD",
+  "channels": [
+    "email"
+  ],
+  "payment_terms": "Net 30",
+  "expected_annual_spend_usd": "1200000.00"
+}

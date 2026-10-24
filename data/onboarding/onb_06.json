@@ -1,0 +1,21 @@
+{
+  "id": "onb_06",
+  "title": "Missing tax form",
+  "received_at": "2026-10-22T09:00:00Z",
+  "requested_by": "j.park@helix.example",
+  "legal_name": "Bayview Cleanroom Supplies Inc.",
+  "trade_names": [
+    "Bayview"
+  ],
+  "country": "US",
+  "tax_id": "US-94-3310276",
+  "tax_form": null,
+  "email_domain": "bayviewcleanroom.com",
+  "bank_last4": "1458",
+  "currency": "USD",
+  "channels": [
+    "email"
+  ],
+  "payment_terms": "Net 30",
+  "expected_annual_spend_usd": "60000.00"
+}

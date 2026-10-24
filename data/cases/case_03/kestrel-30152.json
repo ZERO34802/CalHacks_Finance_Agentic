@@ -1,0 +1,17 @@
+{
+  "schema": "kestrel.invoice.v2",
+  "invoice_number": "KM-INV-30152",
+  "invoice_date": "2026-10-16",
+  "po_number": "PO-7002",
+  "currency": "USD",
+  "remit_account_last4": "5150",
+  "lines": [
+    {
+      "sku": "HBM3E-8H-24G",
+      "description": "HBM3E 8-high 24GB stack",
+      "quantity": "40",
+      "unit_price": "1240.00"
+    }
+  ],
+  "total": "49600.00"
+}
