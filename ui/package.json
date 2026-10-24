@@ -1,0 +1,25 @@
+{
+  "name": "reconai-ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "types": "json2ts -i ../contracts/schema/contracts.schema.json -o src/types/contracts.ts --unreachableDefinitions --additionalProperties false --bannerComment '/* GENERATED from contracts/ by `make types`. Do not edit. */'",
+    "mock": "prism mock ../backend/api/openapi.json --port 4010 --dynamic=false"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@stoplight/prism-cli": "^5.12.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "json-schema-to-typescript": "^15.0.2",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}

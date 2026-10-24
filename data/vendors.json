@@ -1,0 +1,79 @@
+[
+  {
+    "id": "V-FORMOSA",
+    "name": "Formosa Wafer Works Co., Ltd.",
+    "aliases": [
+      "Formosa",
+      "FWW",
+      "Formosa Wafer"
+    ],
+    "country": "TW",
+    "currency": "TWD",
+    "email_domain": "formosawafer.com.tw",
+    "bank_last4": "2207",
+    "channels": [
+      "email",
+      "sftp"
+    ],
+    "tax_id": "TW-24551877",
+    "critical": true,
+    "on_probation": false
+  },
+  {
+    "id": "V-KESTREL",
+    "name": "Kestrel Memory Inc.",
+    "aliases": [
+      "Kestrel",
+      "Kestrel Memory"
+    ],
+    "country": "KR",
+    "currency": "USD",
+    "email_domain": "kestrelmemory.co.kr",
+    "bank_last4": "5150",
+    "channels": [
+      "api",
+      "email"
+    ],
+    "tax_id": "KR-1208145923",
+    "critical": true,
+    "on_probation": false
+  },
+  {
+    "id": "V-PENANG",
+    "name": "Penang Pack & Test Sdn Bhd",
+    "aliases": [
+      "Penang Pack & Test",
+      "PPT"
+    ],
+    "country": "MY",
+    "currency": "USD",
+    "email_domain": "penangpacktest.com.my",
+    "bank_last4": "4418",
+    "channels": [
+      "email"
+    ],
+    "tax_id": "MY-201901033871",
+    "critical": false,
+    "on_probation": false
+  },
+  {
+    "id": "V-AEROLANE",
+    "name": "Aerolane Freight Ltd",
+    "aliases": [
+      "Aerolane",
+      "Aerolane Freight",
+      "AFL"
+    ],
+    "country": "US",
+    "currency": "USD",
+    "email_domain": "aerolane.com",
+    "bank_last4": "7731",
+    "channels": [
+      "email",
+      "api"
+    ],
+    "tax_id": "US-84-3318820",
+    "critical": false,
+    "on_probation": false
+  }
+]

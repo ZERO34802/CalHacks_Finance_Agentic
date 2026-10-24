@@ -1,0 +1,46 @@
+[
+  {
+    "case_id": "case_01",
+    "decision": "approve",
+    "discrepancies": [],
+    "skill": null,
+    "note": "Clean 3-way match, under AP lead limit."
+  },
+  {
+    "case_id": "case_02",
+    "decision": "hold",
+    "discrepancies": [
+      "qty_short"
+    ],
+    "skill": "ap-3way-match",
+    "note": "60 wafers short = TWD 1,116,000.00. Hold short part, ask for credit note."
+  },
+  {
+    "case_id": "case_03",
+    "decision": "hold",
+    "discrepancies": [
+      "price_over"
+    ],
+    "skill": "ap-3way-match",
+    "note": "Amendment effective 2026-11-01; invoice 2026-10-16 -> PO price wins. Over by USD 2,400.00."
+  },
+  {
+    "case_id": "case_04",
+    "decision": "escalate",
+    "discrepancies": [
+      "bank_change",
+      "lookalike_domain"
+    ],
+    "skill": "vendor-bank-change",
+    "note": "Sender domain penang-packtest.com != penangpacktest.com.my; bank 9902 != master 4418. Hold payment, callback via number on file."
+  },
+  {
+    "case_id": "case_05",
+    "decision": "reject",
+    "discrepancies": [
+      "duplicate_invoice"
+    ],
+    "skill": null,
+    "note": "Same line-item hash as INV-2291, paid 2026-10-08 (see paid_history.json). Expedite line also unapproved."
+  }
+]

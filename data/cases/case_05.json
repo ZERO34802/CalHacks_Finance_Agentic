@@ -1,0 +1,106 @@
+{
+  "id": "case_05",
+  "vendor_id": "V-AEROLANE",
+  "status": "new",
+  "documents": [
+    {
+      "id": "case_05-d1",
+      "kind": "invoice",
+      "vendor_id": "V-AEROLANE",
+      "channel": "email",
+      "filename": "AFL-INV-2291-A.pdf",
+      "sha256": "c10caa00967800ac242aeafca955c787aa1fae5a88473be0d8ff81a349bf75b9",
+      "mime": "application/pdf",
+      "received_at": "2026-10-21T09:00:00Z",
+      "text": "Aerolane Freight Invoice INV-2291-A PO-8840\n1 FRT-AIR-TPE-SJC 1 x 18400.00\n2 FRT-EXPEDITE 1 x 3200.00\nTotal USD 21600.00",
+      "sender": "billing@aerolane.com"
+    },
+    {
+      "id": "case_05-d2",
+      "kind": "po",
+      "vendor_id": "V-AEROLANE",
+      "channel": "erp",
+      "filename": "PO-8840.json",
+      "sha256": "c584c198c9c61ba9f7cd391dbab669d78b244c745eef9d0771656a4fe1a1e88e",
+      "mime": "application/json",
+      "received_at": "2026-10-01T09:00:00Z",
+      "text": "PO-8840 FRT-AIR-TPE-SJC 1 @ 18400.00"
+    },
+    {
+      "id": "case_05-d3",
+      "kind": "receipt",
+      "vendor_id": "V-AEROLANE",
+      "channel": "erp",
+      "filename": "GRN-8840.json",
+      "sha256": "16a38d210426e8b8b5a371ec1bffbcbf17a89877f6a56a9db997097bb49d9881",
+      "mime": "application/json",
+      "received_at": "2026-10-03T09:00:00Z",
+      "text": "Delivery confirmation PO-8840 received"
+    }
+  ],
+  "invoice": {
+    "doc_id": "case_05-d1",
+    "vendor_id": "V-AEROLANE",
+    "invoice_no": "INV-2291-A",
+    "invoice_date": "2026-10-21",
+    "due_date": "2026-11-21",
+    "currency": "USD",
+    "po_number": "PO-8840",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "FRT-AIR-TPE-SJC",
+        "description": "Air freight TPE->SJC, 14 pallets",
+        "qty": "1",
+        "unit_price": "18400.00",
+        "amount": "18400.00"
+      },
+      {
+        "line_no": 2,
+        "sku": "FRT-EXPEDITE",
+        "description": "Expedite surcharge",
+        "qty": "1",
+        "unit_price": "3200.00",
+        "amount": "3200.00"
+      }
+    ],
+    "total": "21600.00",
+    "bank_last4": "7731",
+    "flags": []
+  },
+  "po": {
+    "doc_id": "case_05-d2",
+    "po_number": "PO-8840",
+    "vendor_id": "V-AEROLANE",
+    "po_date": "2026-09-28",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "FRT-AIR-TPE-SJC",
+        "description": "Air freight TPE->SJC, 14 pallets",
+        "qty": "1",
+        "unit_price": "18400.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  "receipts": [
+    {
+      "doc_id": "case_05-d3",
+      "po_number": "PO-8840",
+      "received_date": "2026-10-03",
+      "lines": [
+        {
+          "sku": "FRT-AIR-TPE-SJC",
+          "qty_received": "1"
+        }
+      ],
+      "received_by": "warehouse.lead@helix.example"
+    }
+  ],
+  "discrepancies": [],
+  "approvals": [],
+  "created_at": "2026-10-21T09:00:00Z",
+  "notes": []
+}

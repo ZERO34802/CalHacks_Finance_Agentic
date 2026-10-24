@@ -1,0 +1,4375 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ReconAI API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/cases": {
+      "get": {
+        "summary": "List Cases",
+        "operationId": "list_cases_cases_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Case-Output"
+                  },
+                  "type": "array",
+                  "title": "Response List Cases Cases Get"
+                },
+                "example": [
+                  {
+                    "id": "case_01",
+                    "parent_id": null,
+                    "vendor_id": "V-KESTREL",
+                    "status": "posted",
+                    "documents": [
+                      {
+                        "id": "case_01-d1",
+                        "kind": "invoice",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "email",
+                        "filename": "KM-INV-30118.pdf",
+                        "sha256": "635b377bb25147e1bc7ffec6bf1da9cacf5184a64b076bb75a5d5cdb7dae221f",
+                        "mime": "application/pdf",
+                        "received_at": "2026-10-12T09:00:00Z",
+                        "text": "Kestrel Memory Inc. Invoice KM-INV-30118 PO-7001\n1 HBM3E-12H-24G 50 x 1450.00 = 72500.00\nTotal USD 72500.00\nRemit to acct ****5150",
+                        "sender": "ar@kestrelmemory.co.kr"
+                      },
+                      {
+                        "id": "case_01-d2",
+                        "kind": "po",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "erp",
+                        "filename": "PO-7001.json",
+                        "sha256": "8b5b5e656ec3b43d1bf0abf4abaa7327b69acd74f80f86d22ce492cca19a0072",
+                        "mime": "application/json",
+                        "received_at": "2026-10-01T09:00:00Z",
+                        "text": "PO-7001 HBM3E-12H-24G 50 @ 1450.00",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_01-d3",
+                        "kind": "receipt",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "erp",
+                        "filename": "GRN-7001.json",
+                        "sha256": "956466c360eff7d4368d65bb9d4e454b0734219bc1b8660e487d0788f9af3c43",
+                        "mime": "application/json",
+                        "received_at": "2026-10-10T09:00:00Z",
+                        "text": "GRN PO-7001 HBM3E-12H-24G received 50",
+                        "sender": null
+                      }
+                    ],
+                    "invoice": {
+                      "doc_id": "case_01-d1",
+                      "vendor_id": "V-KESTREL",
+                      "invoice_no": "KM-INV-30118",
+                      "invoice_date": "2026-10-12",
+                      "due_date": "2026-11-12",
+                      "currency": "USD",
+                      "po_number": "PO-7001",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "HBM3E-12H-24G",
+                          "description": "HBM3E 12-high 24GB stack",
+                          "qty": "50",
+                          "unit_price": "1450.00",
+                          "amount": "72500.00"
+                        }
+                      ],
+                      "total": "72500.00",
+                      "bank_last4": "5150",
+                      "flags": []
+                    },
+                    "po": {
+                      "doc_id": "case_01-d2",
+                      "po_number": "PO-7001",
+                      "vendor_id": "V-KESTREL",
+                      "po_date": "2026-09-20",
+                      "currency": "USD",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "HBM3E-12H-24G",
+                          "description": "HBM3E 12-high 24GB stack",
+                          "qty": "50",
+                          "unit_price": "1450.00"
+                        }
+                      ],
+                      "requester": "j.park@helix.example"
+                    },
+                    "receipts": [
+                      {
+                        "doc_id": "case_01-d3",
+                        "po_number": "PO-7001",
+                        "received_date": "2026-10-10",
+                        "lines": [
+                          {
+                            "sku": "HBM3E-12H-24G",
+                            "qty_received": "50"
+                          }
+                        ],
+                        "received_by": "warehouse.lead@helix.example"
+                      }
+                    ],
+                    "fingerprint": "stub:case_01",
+                    "discrepancies": [],
+                    "skill": null,
+                    "proposal": {
+                      "case_id": "case_01",
+                      "recommendation": "approve",
+                      "explanation": "stub: clean 3-way match",
+                      "citations": [],
+                      "proposed_entry": null,
+                      "confidence": 0.5,
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null
+                    },
+                    "approvals": [
+                      {
+                        "id": "apr_case_01_0",
+                        "case_id": "case_01",
+                        "approver": "ap.lead@helix.example",
+                        "role": "approver",
+                        "decision": "approved",
+                        "comment": "stub auto-approve",
+                        "limit": "100000.00",
+                        "at": "2026-10-24T11:33:30.239779Z"
+                      }
+                    ],
+                    "journal_entry": {
+                      "id": "je_case_01",
+                      "case_id": "case_01",
+                      "date": "2026-10-12",
+                      "narration": "V-KESTREL KM-INV-30118",
+                      "postings": [
+                        {
+                          "account": "Expenses:COGS:Materials",
+                          "amount": "72500.00",
+                          "currency": "USD"
+                        },
+                        {
+                          "account": "Liabilities:AP",
+                          "amount": "-72500.00",
+                          "currency": "USD"
+                        }
+                      ],
+                      "requested_by": "j.park@helix.example",
+                      "approved_by": "ap.lead@helix.example",
+                      "idempotency_key": "case_01:KM-INV-30118"
+                    },
+                    "decision": "approve",
+                    "created_at": "2026-10-12T09:00:00Z",
+                    "updated_at": "2026-10-24T11:33:30.239840Z",
+                    "notes": []
+                  },
+                  {
+                    "id": "case_02",
+                    "parent_id": null,
+                    "vendor_id": "V-FORMOSA",
+                    "status": "escalated",
+                    "documents": [
+                      {
+                        "id": "case_02-d1",
+                        "kind": "invoice",
+                        "vendor_id": "V-FORMOSA",
+                        "channel": "email",
+                        "filename": "FWW-INV-881.pdf",
+                        "sha256": "95dcba8675baf37e53fe372d8c0d833ea6303e66393f5d09890248fbc78a7708",
+                        "mime": "application/pdf",
+                        "received_at": "2026-10-14T09:00:00Z",
+                        "text": "Formosa Wafer Works Invoice INV-881 PO-5501\n1 WFR-N3-300 1000 x 18600.00 = 18600000.00\nTotal TWD 18600000.00",
+                        "sender": "billing@formosawafer.com.tw"
+                      },
+                      {
+                        "id": "case_02-d2",
+                        "kind": "po",
+                        "vendor_id": "V-FORMOSA",
+                        "channel": "erp",
+                        "filename": "PO-5501.json",
+                        "sha256": "f7ccf9ad900d44ac709047970a21d60fad2e519d611087380b2dcc6bf9d6e794",
+                        "mime": "application/json",
+                        "received_at": "2026-10-01T09:00:00Z",
+                        "text": "PO-5501 WFR-N3-300 1000 @ 18600.00",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_02-d3",
+                        "kind": "receipt",
+                        "vendor_id": "V-FORMOSA",
+                        "channel": "erp",
+                        "filename": "GRN-5501.json",
+                        "sha256": "5a1220fa221f740dcd79291badd11bb03c8c043225106a7a00d952b5419a3dae",
+                        "mime": "application/json",
+                        "received_at": "2026-10-11T09:00:00Z",
+                        "text": "GRN PO-5501 WFR-N3-300 received 940 (60 short, carrier note)",
+                        "sender": null
+                      }
+                    ],
+                    "invoice": {
+                      "doc_id": "case_02-d1",
+                      "vendor_id": "V-FORMOSA",
+                      "invoice_no": "INV-881",
+                      "invoice_date": "2026-10-14",
+                      "due_date": "2026-11-14",
+                      "currency": "TWD",
+                      "po_number": "PO-5501",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "WFR-N3-300",
+                          "description": "300mm N3 engineering wafer",
+                          "qty": "1000",
+                          "unit_price": "18600.00",
+                          "amount": "18600000.00"
+                        }
+                      ],
+                      "total": "18600000.00",
+                      "bank_last4": "2207",
+                      "flags": []
+                    },
+                    "po": {
+                      "doc_id": "case_02-d2",
+                      "po_number": "PO-5501",
+                      "vendor_id": "V-FORMOSA",
+                      "po_date": "2026-09-15",
+                      "currency": "TWD",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "WFR-N3-300",
+                          "description": "300mm N3 engineering wafer",
+                          "qty": "1000",
+                          "unit_price": "18600.00"
+                        }
+                      ],
+                      "requester": "j.park@helix.example"
+                    },
+                    "receipts": [
+                      {
+                        "doc_id": "case_02-d3",
+                        "po_number": "PO-5501",
+                        "received_date": "2026-10-11",
+                        "lines": [
+                          {
+                            "sku": "WFR-N3-300",
+                            "qty_received": "940"
+                          }
+                        ],
+                        "received_by": "warehouse.lead@helix.example"
+                      }
+                    ],
+                    "fingerprint": "stub:case_02",
+                    "discrepancies": [],
+                    "skill": null,
+                    "proposal": {
+                      "case_id": "case_02",
+                      "recommendation": "approve",
+                      "explanation": "stub: clean 3-way match",
+                      "citations": [],
+                      "proposed_entry": null,
+                      "confidence": 0.5,
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null
+                    },
+                    "approvals": [],
+                    "journal_entry": null,
+                    "decision": "escalate",
+                    "created_at": "2026-10-14T09:00:00Z",
+                    "updated_at": "2026-10-24T11:33:30.240362Z",
+                    "notes": []
+                  },
+                  {
+                    "id": "case_03",
+                    "parent_id": null,
+                    "vendor_id": "V-KESTREL",
+                    "status": "posted",
+                    "documents": [
+                      {
+                        "id": "case_03-d1",
+                        "kind": "invoice",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "api",
+                        "filename": "kestrel-v2-30152.json",
+                        "sha256": "069c179074484c83947145eaf686f54dab9f7787f52a928d8bda1fc1eeecd0db",
+                        "mime": "application/json",
+                        "received_at": "2026-10-16T09:00:00Z",
+                        "text": "{\"invoice\":\"KM-INV-30152\",\"po\":\"PO-7002\",\"lines\":[{\"sku\":\"HBM3E-8H-24G\",\"qty\":40,\"price\":\"1240.00\"}],\"total\":\"49600.00\"}",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_03-d2",
+                        "kind": "po",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "erp",
+                        "filename": "PO-7002.json",
+                        "sha256": "0257d6b5bad862d43e85a8039fd50470faad6a4847ea2b1d5f6240e0ed4f4e74",
+                        "mime": "application/json",
+                        "received_at": "2026-10-02T09:00:00Z",
+                        "text": "PO-7002 HBM3E-8H-24G 40 @ 1180.00",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_03-d3",
+                        "kind": "receipt",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "erp",
+                        "filename": "GRN-7002.json",
+                        "sha256": "9ce5d0df41f322abe48364d9492773b96c81eb2d957585148e97adb3b6cebe93",
+                        "mime": "application/json",
+                        "received_at": "2026-10-15T09:00:00Z",
+                        "text": "GRN PO-7002 HBM3E-8H-24G received 40",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_03-d4",
+                        "kind": "amendment",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "email",
+                        "filename": "Kestrel-MSA-Amendment-3.pdf",
+                        "sha256": "9eb7004f6fed5973d8d69a328ce0978bcc2a58efc322fe1f0e4a80815e00c390",
+                        "mime": "application/pdf",
+                        "received_at": "2026-10-05T09:00:00Z",
+                        "text": "Amendment 3: HBM3E-8H-24G unit price 1240.00 effective 2026-11-01. Prior pricing applies to POs shipped before that date.",
+                        "sender": "contracts@kestrelmemory.co.kr"
+                      }
+                    ],
+                    "invoice": {
+                      "doc_id": "case_03-d1",
+                      "vendor_id": "V-KESTREL",
+                      "invoice_no": "KM-INV-30152",
+                      "invoice_date": "2026-10-16",
+                      "due_date": "2026-11-16",
+                      "currency": "USD",
+                      "po_number": "PO-7002",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "HBM3E-8H-24G",
+                          "description": "HBM3E 8-high 24GB stack",
+                          "qty": "40",
+                          "unit_price": "1240.00",
+                          "amount": "49600.00"
+                        }
+                      ],
+                      "total": "49600.00",
+                      "bank_last4": "5150",
+                      "flags": []
+                    },
+                    "po": {
+                      "doc_id": "case_03-d2",
+                      "po_number": "PO-7002",
+                      "vendor_id": "V-KESTREL",
+                      "po_date": "2026-10-02",
+                      "currency": "USD",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "HBM3E-8H-24G",
+                          "description": "HBM3E 8-high 24GB stack",
+                          "qty": "40",
+                          "unit_price": "1180.00"
+                        }
+                      ],
+                      "requester": "j.park@helix.example"
+                    },
+                    "receipts": [
+                      {
+                        "doc_id": "case_03-d3",
+                        "po_number": "PO-7002",
+                        "received_date": "2026-10-15",
+                        "lines": [
+                          {
+                            "sku": "HBM3E-8H-24G",
+                            "qty_received": "40"
+                          }
+                        ],
+                        "received_by": "warehouse.lead@helix.example"
+                      }
+                    ],
+                    "fingerprint": "stub:case_03",
+                    "discrepancies": [],
+                    "skill": null,
+                    "proposal": {
+                      "case_id": "case_03",
+                      "recommendation": "approve",
+                      "explanation": "stub: clean 3-way match",
+                      "citations": [],
+                      "proposed_entry": null,
+                      "confidence": 0.5,
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null
+                    },
+                    "approvals": [
+                      {
+                        "id": "apr_case_03_0",
+                        "case_id": "case_03",
+                        "approver": "ap.lead@helix.example",
+                        "role": "approver",
+                        "decision": "approved",
+                        "comment": "stub auto-approve",
+                        "limit": "100000.00",
+                        "at": "2026-10-24T11:33:30.240812Z"
+                      }
+                    ],
+                    "journal_entry": {
+                      "id": "je_case_03",
+                      "case_id": "case_03",
+                      "date": "2026-10-16",
+                      "narration": "V-KESTREL KM-INV-30152",
+                      "postings": [
+                        {
+                          "account": "Expenses:COGS:Materials",
+                          "amount": "49600.00",
+                          "currency": "USD"
+                        },
+                        {
+                          "account": "Liabilities:AP",
+                          "amount": "-49600.00",
+                          "currency": "USD"
+                        }
+                      ],
+                      "requested_by": "j.park@helix.example",
+                      "approved_by": "ap.lead@helix.example",
+                      "idempotency_key": "case_03:KM-INV-30152"
+                    },
+                    "decision": "approve",
+                    "created_at": "2026-10-16T09:00:00Z",
+                    "updated_at": "2026-10-24T11:33:30.240882Z",
+                    "notes": []
+                  },
+                  {
+                    "id": "case_04",
+                    "parent_id": null,
+                    "vendor_id": "V-PENANG",
+                    "status": "escalated",
+                    "documents": [
+                      {
+                        "id": "case_04-d1",
+                        "kind": "invoice",
+                        "vendor_id": "V-PENANG",
+                        "channel": "email",
+                        "filename": "PPT-INV-6620.pdf",
+                        "sha256": "fd3301233b8bc4314c694f3c010b84c11fda047c586589138b96d07dc791b452",
+                        "mime": "application/pdf",
+                        "received_at": "2026-10-20T09:00:00Z",
+                        "text": "Penang Pack & Test Invoice PPT-6620 PO-6100\n1 PKG-COWOS-L 2000 x 1650.00 = 3300000.00\nTotal USD 3300000.00\nNEW remit acct ****9902",
+                        "sender": "finance@penang-packtest.com"
+                      },
+                      {
+                        "id": "case_04-d2",
+                        "kind": "email",
+                        "vendor_id": "V-PENANG",
+                        "channel": "email",
+                        "filename": "bank-update.eml",
+                        "sha256": "fddee8137893c04f8bd838a0b2ad7a569ee84a451b87037cb6d101bbbbf68358",
+                        "mime": "message/rfc822",
+                        "received_at": "2026-10-20T09:00:00Z",
+                        "text": "From: finance@penang-packtest.com\nSubject: URGENT updated bank details\nPlease remit all payments to our new account ending 9902 effective immediately. Payment due tomorrow.",
+                        "sender": "finance@penang-packtest.com"
+                      },
+                      {
+                        "id": "case_04-d3",
+                        "kind": "po",
+                        "vendor_id": "V-PENANG",
+                        "channel": "erp",
+                        "filename": "PO-6100.json",
+                        "sha256": "bac592ff812fc16ef2f734ce0d30a7c6c40a48ff05a98ed3e678354e854c6622",
+                        "mime": "application/json",
+                        "received_at": "2026-10-01T09:00:00Z",
+                        "text": "PO-6100 PKG-COWOS-L 2000 @ 1650.00",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_04-d4",
+                        "kind": "receipt",
+                        "vendor_id": "V-PENANG",
+                        "channel": "erp",
+                        "filename": "GRN-6100.json",
+                        "sha256": "ae8c6ede0df6b68d8d1cdd2ca39d17803264dffc099bc0432584047d94b11180",
+                        "mime": "application/json",
+                        "received_at": "2026-10-18T09:00:00Z",
+                        "text": "GRN PO-6100 PKG-COWOS-L received 2000",
+                        "sender": null
+                      }
+                    ],
+                    "invoice": {
+                      "doc_id": "case_04-d1",
+                      "vendor_id": "V-PENANG",
+                      "invoice_no": "PPT-6620",
+                      "invoice_date": "2026-10-20",
+                      "due_date": "2026-11-20",
+                      "currency": "USD",
+                      "po_number": "PO-6100",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "PKG-COWOS-L",
+                          "description": "CoWoS-L packaging + final test",
+                          "qty": "2000",
+                          "unit_price": "1650.00",
+                          "amount": "3300000.00"
+                        }
+                      ],
+                      "total": "3300000.00",
+                      "bank_last4": "9902",
+                      "flags": []
+                    },
+                    "po": {
+                      "doc_id": "case_04-d3",
+                      "po_number": "PO-6100",
+                      "vendor_id": "V-PENANG",
+                      "po_date": "2026-09-25",
+                      "currency": "USD",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "PKG-COWOS-L",
+                          "description": "CoWoS-L packaging + final test",
+                          "qty": "2000",
+                          "unit_price": "1650.00"
+                        }
+                      ],
+                      "requester": "j.park@helix.example"
+                    },
+                    "receipts": [
+                      {
+                        "doc_id": "case_04-d4",
+                        "po_number": "PO-6100",
+                        "received_date": "2026-10-18",
+                        "lines": [
+                          {
+                            "sku": "PKG-COWOS-L",
+                            "qty_received": "2000"
+                          }
+                        ],
+                        "received_by": "warehouse.lead@helix.example"
+                      }
+                    ],
+                    "fingerprint": "stub:case_04",
+                    "discrepancies": [],
+                    "skill": null,
+                    "proposal": {
+                      "case_id": "case_04",
+                      "recommendation": "approve",
+                      "explanation": "stub: clean 3-way match",
+                      "citations": [],
+                      "proposed_entry": null,
+                      "confidence": 0.5,
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null
+                    },
+                    "approvals": [],
+                    "journal_entry": null,
+                    "decision": "escalate",
+                    "created_at": "2026-10-20T09:00:00Z",
+                    "updated_at": "2026-10-24T11:33:30.241387Z",
+                    "notes": []
+                  },
+                  {
+                    "id": "case_05",
+                    "parent_id": null,
+                    "vendor_id": "V-AEROLANE",
+                    "status": "posted",
+                    "documents": [
+                      {
+                        "id": "case_05-d1",
+                        "kind": "invoice",
+                        "vendor_id": "V-AEROLANE",
+                        "channel": "email",
+                        "filename": "AFL-INV-2291-A.pdf",
+                        "sha256": "c10caa00967800ac242aeafca955c787aa1fae5a88473be0d8ff81a349bf75b9",
+                        "mime": "application/pdf",
+                        "received_at": "2026-10-21T09:00:00Z",
+                        "text": "Aerolane Freight Invoice INV-2291-A PO-8840\n1 FRT-AIR-TPE-SJC 1 x 18400.00\n2 FRT-EXPEDITE 1 x 3200.00\nTotal USD 21600.00",
+                        "sender": "billing@aerolane.com"
+                      },
+                      {
+                        "id": "case_05-d2",
+                        "kind": "po",
+                        "vendor_id": "V-AEROLANE",
+                        "channel": "erp",
+                        "filename": "PO-8840.json",
+                        "sha256": "c584c198c9c61ba9f7cd391dbab669d78b244c745eef9d0771656a4fe1a1e88e",
+                        "mime": "application/json",
+                        "received_at": "2026-10-01T09:00:00Z",
+                        "text": "PO-8840 FRT-AIR-TPE-SJC 1 @ 18400.00",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_05-d3",
+                        "kind": "receipt",
+                        "vendor_id": "V-AEROLANE",
+                        "channel": "erp",
+                        "filename": "GRN-8840.json",
+                        "sha256": "16a38d210426e8b8b5a371ec1bffbcbf17a89877f6a56a9db997097bb49d9881",
+                        "mime": "application/json",
+                        "received_at": "2026-10-03T09:00:00Z",
+                        "text": "Delivery confirmation PO-8840 received",
+                        "sender": null
+                      }
+                    ],
+                    "invoice": {
+                      "doc_id": "case_05-d1",
+                      "vendor_id": "V-AEROLANE",
+                      "invoice_no": "INV-2291-A",
+                      "invoice_date": "2026-10-21",
+                      "due_date": "2026-11-21",
+                      "currency": "USD",
+                      "po_number": "PO-8840",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "FRT-AIR-TPE-SJC",
+                          "description": "Air freight TPE->SJC, 14 pallets",
+                          "qty": "1",
+                          "unit_price": "18400.00",
+                          "amount": "18400.00"
+                        },
+                        {
+                          "line_no": 2,
+                          "sku": "FRT-EXPEDITE",
+                          "description": "Expedite surcharge",
+                          "qty": "1",
+                          "unit_price": "3200.00",
+                          "amount": "3200.00"
+                        }
+                      ],
+                      "total": "21600.00",
+                      "bank_last4": "7731",
+                      "flags": []
+                    },
+                    "po": {
+                      "doc_id": "case_05-d2",
+                      "po_number": "PO-8840",
+                      "vendor_id": "V-AEROLANE",
+                      "po_date": "2026-09-28",
+                      "currency": "USD",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "FRT-AIR-TPE-SJC",
+                          "description": "Air freight TPE->SJC, 14 pallets",
+                          "qty": "1",
+                          "unit_price": "18400.00"
+                        }
+                      ],
+                      "requester": "j.park@helix.example"
+                    },
+                    "receipts": [
+                      {
+                        "doc_id": "case_05-d3",
+                        "po_number": "PO-8840",
+                        "received_date": "2026-10-03",
+                        "lines": [
+                          {
+                            "sku": "FRT-AIR-TPE-SJC",
+                            "qty_received": "1"
+                          }
+                        ],
+                        "received_by": "warehouse.lead@helix.example"
+                      }
+                    ],
+                    "fingerprint": "stub:case_05",
+                    "discrepancies": [],
+                    "skill": null,
+                    "proposal": {
+                      "case_id": "case_05",
+                      "recommendation": "approve",
+                      "explanation": "stub: clean 3-way match",
+                      "citations": [],
+                      "proposed_entry": null,
+                      "confidence": 0.5,
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null
+                    },
+                    "approvals": [
+                      {
+                        "id": "apr_case_05_0",
+                        "case_id": "case_05",
+                        "approver": "ap.lead@helix.example",
+                        "role": "approver",
+                        "decision": "approved",
+                        "comment": "stub auto-approve",
+                        "limit": "100000.00",
+                        "at": "2026-10-24T11:33:30.241806Z"
+                      }
+                    ],
+                    "journal_entry": {
+                      "id": "je_case_05",
+                      "case_id": "case_05",
+                      "date": "2026-10-21",
+                      "narration": "V-AEROLANE INV-2291-A",
+                      "postings": [
+                        {
+                          "account": "Expenses:COGS:Materials",
+                          "amount": "21600.00",
+                          "currency": "USD"
+                        },
+                        {
+                          "account": "Liabilities:AP",
+                          "amount": "-21600.00",
+                          "currency": "USD"
+                        }
+                      ],
+                      "requested_by": "j.park@helix.example",
+                      "approved_by": "ap.lead@helix.example",
+                      "idempotency_key": "case_05:INV-2291-A"
+                    },
+                    "decision": "approve",
+                    "created_at": "2026-10-21T09:00:00Z",
+                    "updated_at": "2026-10-24T11:33:30.241873Z",
+                    "notes": []
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add Case",
+        "description": "Add a case (judges' scenario) and run it through the pipeline. Steps stream on WS /events.",
+        "operationId": "add_case_cases_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Case-Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseDetail"
+                },
+                "example": {
+                  "case": {
+                    "id": "case_01",
+                    "parent_id": null,
+                    "vendor_id": "V-KESTREL",
+                    "status": "posted",
+                    "documents": [
+                      {
+                        "id": "case_01-d1",
+                        "kind": "invoice",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "email",
+                        "filename": "KM-INV-30118.pdf",
+                        "sha256": "635b377bb25147e1bc7ffec6bf1da9cacf5184a64b076bb75a5d5cdb7dae221f",
+                        "mime": "application/pdf",
+                        "received_at": "2026-10-12T09:00:00Z",
+                        "text": "Kestrel Memory Inc. Invoice KM-INV-30118 PO-7001\n1 HBM3E-12H-24G 50 x 1450.00 = 72500.00\nTotal USD 72500.00\nRemit to acct ****5150",
+                        "sender": "ar@kestrelmemory.co.kr"
+                      },
+                      {
+                        "id": "case_01-d2",
+                        "kind": "po",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "erp",
+                        "filename": "PO-7001.json",
+                        "sha256": "8b5b5e656ec3b43d1bf0abf4abaa7327b69acd74f80f86d22ce492cca19a0072",
+                        "mime": "application/json",
+                        "received_at": "2026-10-01T09:00:00Z",
+                        "text": "PO-7001 HBM3E-12H-24G 50 @ 1450.00",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_01-d3",
+                        "kind": "receipt",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "erp",
+                        "filename": "GRN-7001.json",
+                        "sha256": "956466c360eff7d4368d65bb9d4e454b0734219bc1b8660e487d0788f9af3c43",
+                        "mime": "application/json",
+                        "received_at": "2026-10-10T09:00:00Z",
+                        "text": "GRN PO-7001 HBM3E-12H-24G received 50",
+                        "sender": null
+                      }
+                    ],
+                    "invoice": {
+                      "doc_id": "case_01-d1",
+                      "vendor_id": "V-KESTREL",
+                      "invoice_no": "KM-INV-30118",
+                      "invoice_date": "2026-10-12",
+                      "due_date": "2026-11-12",
+                      "currency": "USD",
+                      "po_number": "PO-7001",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "HBM3E-12H-24G",
+                          "description": "HBM3E 12-high 24GB stack",
+                          "qty": "50",
+                          "unit_price": "1450.00",
+                          "amount": "72500.00"
+                        }
+                      ],
+                      "total": "72500.00",
+                      "bank_last4": "5150",
+                      "flags": []
+                    },
+                    "po": {
+                      "doc_id": "case_01-d2",
+                      "po_number": "PO-7001",
+                      "vendor_id": "V-KESTREL",
+                      "po_date": "2026-09-20",
+                      "currency": "USD",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "HBM3E-12H-24G",
+                          "description": "HBM3E 12-high 24GB stack",
+                          "qty": "50",
+                          "unit_price": "1450.00"
+                        }
+                      ],
+                      "requester": "j.park@helix.example"
+                    },
+                    "receipts": [
+                      {
+                        "doc_id": "case_01-d3",
+                        "po_number": "PO-7001",
+                        "received_date": "2026-10-10",
+                        "lines": [
+                          {
+                            "sku": "HBM3E-12H-24G",
+                            "qty_received": "50"
+                          }
+                        ],
+                        "received_by": "warehouse.lead@helix.example"
+                      }
+                    ],
+                    "fingerprint": "stub:case_01",
+                    "discrepancies": [],
+                    "skill": null,
+                    "proposal": {
+                      "case_id": "case_01",
+                      "recommendation": "approve",
+                      "explanation": "stub: clean 3-way match",
+                      "citations": [],
+                      "proposed_entry": null,
+                      "confidence": 0.5,
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null
+                    },
+                    "approvals": [
+                      {
+                        "id": "apr_case_01_0",
+                        "case_id": "case_01",
+                        "approver": "ap.lead@helix.example",
+                        "role": "approver",
+                        "decision": "approved",
+                        "comment": "stub auto-approve",
+                        "limit": "100000.00",
+                        "at": "2026-10-24T11:33:30.239779Z"
+                      }
+                    ],
+                    "journal_entry": {
+                      "id": "je_case_01",
+                      "case_id": "case_01",
+                      "date": "2026-10-12",
+                      "narration": "V-KESTREL KM-INV-30118",
+                      "postings": [
+                        {
+                          "account": "Expenses:COGS:Materials",
+                          "amount": "72500.00",
+                          "currency": "USD"
+                        },
+                        {
+                          "account": "Liabilities:AP",
+                          "amount": "-72500.00",
+                          "currency": "USD"
+                        }
+                      ],
+                      "requested_by": "j.park@helix.example",
+                      "approved_by": "ap.lead@helix.example",
+                      "idempotency_key": "case_01:KM-INV-30118"
+                    },
+                    "decision": "approve",
+                    "created_at": "2026-10-12T09:00:00Z",
+                    "updated_at": "2026-10-24T11:33:30.239840Z",
+                    "notes": []
+                  },
+                  "steps": [
+                    {
+                      "id": "step_80c1ce1532",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 0,
+                      "stage": "reader",
+                      "role": "reader",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [
+                        "case_01-d1"
+                      ],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236393Z",
+                      "ended_at": "2026-10-24T11:33:30.236590Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_beb74b0598",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 1,
+                      "stage": "doc_dedup",
+                      "role": "system",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true,
+                        "duplicates": []
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236668Z",
+                      "ended_at": "2026-10-24T11:33:30.236688Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_30733cd10e",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 2,
+                      "stage": "registry",
+                      "role": "system",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true,
+                        "action": "new_case"
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236729Z",
+                      "ended_at": "2026-10-24T11:33:30.236746Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_8687860b75",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 3,
+                      "stage": "matcher",
+                      "role": "system",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [
+                        "case_01-d1"
+                      ],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true,
+                        "clean": true
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236781Z",
+                      "ended_at": "2026-10-24T11:33:30.236796Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_2fae09ac1b",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 4,
+                      "stage": "router",
+                      "role": "system",
+                      "status": "skipped",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true,
+                        "reason": "clean"
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236827Z",
+                      "ended_at": "2026-10-24T11:33:30.236840Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_4cd645854b",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 5,
+                      "stage": "investigator",
+                      "role": "investigator",
+                      "status": "skipped",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [
+                        "proposal"
+                      ],
+                      "detail": {
+                        "stub": true
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236868Z",
+                      "ended_at": "2026-10-24T11:33:30.236888Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_a391ec9477",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 6,
+                      "stage": "vendor_guard",
+                      "role": "system",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236920Z",
+                      "ended_at": "2026-10-24T11:33:30.236932Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_82c4e8a281",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 7,
+                      "stage": "validators",
+                      "role": "system",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236961Z",
+                      "ended_at": "2026-10-24T11:33:30.236972Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_638d52b0fc",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 8,
+                      "stage": "approver",
+                      "role": "approver",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true,
+                        "decision": "approve"
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.237000Z",
+                      "ended_at": "2026-10-24T11:33:30.237022Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_081780e6ee",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 9,
+                      "stage": "poster",
+                      "role": "system",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [
+                        "je_case_01"
+                      ],
+                      "detail": {
+                        "stub": true
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.237056Z",
+                      "ended_at": "2026-10-24T11:33:30.237085Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}": {
+      "get": {
+        "summary": "Get Case",
+        "operationId": "get_case_cases__case_id__get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseDetail"
+                },
+                "example": {
+                  "case": {
+                    "id": "case_01",
+                    "parent_id": null,
+                    "vendor_id": "V-KESTREL",
+                    "status": "posted",
+                    "documents": [
+                      {
+                        "id": "case_01-d1",
+                        "kind": "invoice",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "email",
+                        "filename": "KM-INV-30118.pdf",
+                        "sha256": "635b377bb25147e1bc7ffec6bf1da9cacf5184a64b076bb75a5d5cdb7dae221f",
+                        "mime": "application/pdf",
+                        "received_at": "2026-10-12T09:00:00Z",
+                        "text": "Kestrel Memory Inc. Invoice KM-INV-30118 PO-7001\n1 HBM3E-12H-24G 50 x 1450.00 = 72500.00\nTotal USD 72500.00\nRemit to acct ****5150",
+                        "sender": "ar@kestrelmemory.co.kr"
+                      },
+                      {
+                        "id": "case_01-d2",
+                        "kind": "po",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "erp",
+                        "filename": "PO-7001.json",
+                        "sha256": "8b5b5e656ec3b43d1bf0abf4abaa7327b69acd74f80f86d22ce492cca19a0072",
+                        "mime": "application/json",
+                        "received_at": "2026-10-01T09:00:00Z",
+                        "text": "PO-7001 HBM3E-12H-24G 50 @ 1450.00",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_01-d3",
+                        "kind": "receipt",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "erp",
+                        "filename": "GRN-7001.json",
+                        "sha256": "956466c360eff7d4368d65bb9d4e454b0734219bc1b8660e487d0788f9af3c43",
+                        "mime": "application/json",
+                        "received_at": "2026-10-10T09:00:00Z",
+                        "text": "GRN PO-7001 HBM3E-12H-24G received 50",
+                        "sender": null
+                      }
+                    ],
+                    "invoice": {
+                      "doc_id": "case_01-d1",
+                      "vendor_id": "V-KESTREL",
+                      "invoice_no": "KM-INV-30118",
+                      "invoice_date": "2026-10-12",
+                      "due_date": "2026-11-12",
+                      "currency": "USD",
+                      "po_number": "PO-7001",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "HBM3E-12H-24G",
+                          "description": "HBM3E 12-high 24GB stack",
+                          "qty": "50",
+                          "unit_price": "1450.00",
+                          "amount": "72500.00"
+                        }
+                      ],
+                      "total": "72500.00",
+                      "bank_last4": "5150",
+                      "flags": []
+                    },
+                    "po": {
+                      "doc_id": "case_01-d2",
+                      "po_number": "PO-7001",
+                      "vendor_id": "V-KESTREL",
+                      "po_date": "2026-09-20",
+                      "currency": "USD",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "HBM3E-12H-24G",
+                          "description": "HBM3E 12-high 24GB stack",
+                          "qty": "50",
+                          "unit_price": "1450.00"
+                        }
+                      ],
+                      "requester": "j.park@helix.example"
+                    },
+                    "receipts": [
+                      {
+                        "doc_id": "case_01-d3",
+                        "po_number": "PO-7001",
+                        "received_date": "2026-10-10",
+                        "lines": [
+                          {
+                            "sku": "HBM3E-12H-24G",
+                            "qty_received": "50"
+                          }
+                        ],
+                        "received_by": "warehouse.lead@helix.example"
+                      }
+                    ],
+                    "fingerprint": "stub:case_01",
+                    "discrepancies": [],
+                    "skill": null,
+                    "proposal": {
+                      "case_id": "case_01",
+                      "recommendation": "approve",
+                      "explanation": "stub: clean 3-way match",
+                      "citations": [],
+                      "proposed_entry": null,
+                      "confidence": 0.5,
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null
+                    },
+                    "approvals": [
+                      {
+                        "id": "apr_case_01_0",
+                        "case_id": "case_01",
+                        "approver": "ap.lead@helix.example",
+                        "role": "approver",
+                        "decision": "approved",
+                        "comment": "stub auto-approve",
+                        "limit": "100000.00",
+                        "at": "2026-10-24T11:33:30.239779Z"
+                      }
+                    ],
+                    "journal_entry": {
+                      "id": "je_case_01",
+                      "case_id": "case_01",
+                      "date": "2026-10-12",
+                      "narration": "V-KESTREL KM-INV-30118",
+                      "postings": [
+                        {
+                          "account": "Expenses:COGS:Materials",
+                          "amount": "72500.00",
+                          "currency": "USD"
+                        },
+                        {
+                          "account": "Liabilities:AP",
+                          "amount": "-72500.00",
+                          "currency": "USD"
+                        }
+                      ],
+                      "requested_by": "j.park@helix.example",
+                      "approved_by": "ap.lead@helix.example",
+                      "idempotency_key": "case_01:KM-INV-30118"
+                    },
+                    "decision": "approve",
+                    "created_at": "2026-10-12T09:00:00Z",
+                    "updated_at": "2026-10-24T11:33:30.239840Z",
+                    "notes": []
+                  },
+                  "steps": [
+                    {
+                      "id": "step_80c1ce1532",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 0,
+                      "stage": "reader",
+                      "role": "reader",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [
+                        "case_01-d1"
+                      ],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236393Z",
+                      "ended_at": "2026-10-24T11:33:30.236590Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_beb74b0598",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 1,
+                      "stage": "doc_dedup",
+                      "role": "system",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true,
+                        "duplicates": []
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236668Z",
+                      "ended_at": "2026-10-24T11:33:30.236688Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_30733cd10e",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 2,
+                      "stage": "registry",
+                      "role": "system",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true,
+                        "action": "new_case"
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236729Z",
+                      "ended_at": "2026-10-24T11:33:30.236746Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_8687860b75",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 3,
+                      "stage": "matcher",
+                      "role": "system",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [
+                        "case_01-d1"
+                      ],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true,
+                        "clean": true
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236781Z",
+                      "ended_at": "2026-10-24T11:33:30.236796Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_2fae09ac1b",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 4,
+                      "stage": "router",
+                      "role": "system",
+                      "status": "skipped",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true,
+                        "reason": "clean"
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236827Z",
+                      "ended_at": "2026-10-24T11:33:30.236840Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_4cd645854b",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 5,
+                      "stage": "investigator",
+                      "role": "investigator",
+                      "status": "skipped",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [
+                        "proposal"
+                      ],
+                      "detail": {
+                        "stub": true
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236868Z",
+                      "ended_at": "2026-10-24T11:33:30.236888Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_a391ec9477",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 6,
+                      "stage": "vendor_guard",
+                      "role": "system",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236920Z",
+                      "ended_at": "2026-10-24T11:33:30.236932Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_82c4e8a281",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 7,
+                      "stage": "validators",
+                      "role": "system",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.236961Z",
+                      "ended_at": "2026-10-24T11:33:30.236972Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_638d52b0fc",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 8,
+                      "stage": "approver",
+                      "role": "approver",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [],
+                      "detail": {
+                        "stub": true,
+                        "decision": "approve"
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.237000Z",
+                      "ended_at": "2026-10-24T11:33:30.237022Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    },
+                    {
+                      "id": "step_081780e6ee",
+                      "case_id": "case_01",
+                      "run_id": "run_mock",
+                      "parent_id": null,
+                      "seq": 9,
+                      "stage": "poster",
+                      "role": "system",
+                      "status": "ok",
+                      "skill": null,
+                      "skill_version": null,
+                      "memory_version": null,
+                      "tool": null,
+                      "inputs": [],
+                      "outputs": [
+                        "je_case_01"
+                      ],
+                      "detail": {
+                        "stub": true
+                      },
+                      "error": null,
+                      "started_at": "2026-10-24T11:33:30.237056Z",
+                      "ended_at": "2026-10-24T11:33:30.237085Z",
+                      "duration_ms": 0,
+                      "tokens": 0,
+                      "cost_usd": null
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/approvals/{case_id}": {
+      "post": {
+        "summary": "Approve",
+        "description": "Record a human approval decision. STUB: records only; re-plan / post is B's + A's job.",
+        "operationId": "approve_approvals__case_id__post",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Case-Output"
+                },
+                "example": {
+                  "id": "case_01",
+                  "parent_id": null,
+                  "vendor_id": "V-KESTREL",
+                  "status": "posted",
+                  "documents": [
+                    {
+                      "id": "case_01-d1",
+                      "kind": "invoice",
+                      "vendor_id": "V-KESTREL",
+                      "channel": "email",
+                      "filename": "KM-INV-30118.pdf",
+                      "sha256": "635b377bb25147e1bc7ffec6bf1da9cacf5184a64b076bb75a5d5cdb7dae221f",
+                      "mime": "application/pdf",
+                      "received_at": "2026-10-12T09:00:00Z",
+                      "text": "Kestrel Memory Inc. Invoice KM-INV-30118 PO-7001\n1 HBM3E-12H-24G 50 x 1450.00 = 72500.00\nTotal USD 72500.00\nRemit to acct ****5150",
+                      "sender": "ar@kestrelmemory.co.kr"
+                    },
+                    {
+                      "id": "case_01-d2",
+                      "kind": "po",
+                      "vendor_id": "V-KESTREL",
+                      "channel": "erp",
+                      "filename": "PO-7001.json",
+                      "sha256": "8b5b5e656ec3b43d1bf0abf4abaa7327b69acd74f80f86d22ce492cca19a0072",
+                      "mime": "application/json",
+                      "received_at": "2026-10-01T09:00:00Z",
+                      "text": "PO-7001 HBM3E-12H-24G 50 @ 1450.00",
+                      "sender": null
+                    },
+                    {
+                      "id": "case_01-d3",
+                      "kind": "receipt",
+                      "vendor_id": "V-KESTREL",
+                      "channel": "erp",
+                      "filename": "GRN-7001.json",
+                      "sha256": "956466c360eff7d4368d65bb9d4e454b0734219bc1b8660e487d0788f9af3c43",
+                      "mime": "application/json",
+                      "received_at": "2026-10-10T09:00:00Z",
+                      "text": "GRN PO-7001 HBM3E-12H-24G received 50",
+                      "sender": null
+                    }
+                  ],
+                  "invoice": {
+                    "doc_id": "case_01-d1",
+                    "vendor_id": "V-KESTREL",
+                    "invoice_no": "KM-INV-30118",
+                    "invoice_date": "2026-10-12",
+                    "due_date": "2026-11-12",
+                    "currency": "USD",
+                    "po_number": "PO-7001",
+                    "lines": [
+                      {
+                        "line_no": 1,
+                        "sku": "HBM3E-12H-24G",
+                        "description": "HBM3E 12-high 24GB stack",
+                        "qty": "50",
+                        "unit_price": "1450.00",
+                        "amount": "72500.00"
+                      }
+                    ],
+                    "total": "72500.00",
+                    "bank_last4": "5150",
+                    "flags": []
+                  },
+                  "po": {
+                    "doc_id": "case_01-d2",
+                    "po_number": "PO-7001",
+                    "vendor_id": "V-KESTREL",
+                    "po_date": "2026-09-20",
+                    "currency": "USD",
+                    "lines": [
+                      {
+                        "line_no": 1,
+                        "sku": "HBM3E-12H-24G",
+                        "description": "HBM3E 12-high 24GB stack",
+                        "qty": "50",
+                        "unit_price": "1450.00"
+                      }
+                    ],
+                    "requester": "j.park@helix.example"
+                  },
+                  "receipts": [
+                    {
+                      "doc_id": "case_01-d3",
+                      "po_number": "PO-7001",
+                      "received_date": "2026-10-10",
+                      "lines": [
+                        {
+                          "sku": "HBM3E-12H-24G",
+                          "qty_received": "50"
+                        }
+                      ],
+                      "received_by": "warehouse.lead@helix.example"
+                    }
+                  ],
+                  "fingerprint": "stub:case_01",
+                  "discrepancies": [],
+                  "skill": null,
+                  "proposal": {
+                    "case_id": "case_01",
+                    "recommendation": "approve",
+                    "explanation": "stub: clean 3-way match",
+                    "citations": [],
+                    "proposed_entry": null,
+                    "confidence": 0.5,
+                    "skill": null,
+                    "skill_version": null,
+                    "memory_version": null
+                  },
+                  "approvals": [
+                    {
+                      "id": "apr_case_01_0",
+                      "case_id": "case_01",
+                      "approver": "ap.lead@helix.example",
+                      "role": "approver",
+                      "decision": "approved",
+                      "comment": "stub auto-approve",
+                      "limit": "100000.00",
+                      "at": "2026-10-24T11:33:30.239779Z"
+                    }
+                  ],
+                  "journal_entry": {
+                    "id": "je_case_01",
+                    "case_id": "case_01",
+                    "date": "2026-10-12",
+                    "narration": "V-KESTREL KM-INV-30118",
+                    "postings": [
+                      {
+                        "account": "Expenses:COGS:Materials",
+                        "amount": "72500.00",
+                        "currency": "USD"
+                      },
+                      {
+                        "account": "Liabilities:AP",
+                        "amount": "-72500.00",
+                        "currency": "USD"
+                      }
+                    ],
+                    "requested_by": "j.park@helix.example",
+                    "approved_by": "ap.lead@helix.example",
+                    "idempotency_key": "case_01:KM-INV-30118"
+                  },
+                  "decision": "approve",
+                  "created_at": "2026-10-12T09:00:00Z",
+                  "updated_at": "2026-10-24T11:33:30.239840Z",
+                  "notes": []
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vendors/{vendor_id}": {
+      "get": {
+        "summary": "Get Vendor",
+        "operationId": "get_vendor_vendors__vendor_id__get",
+        "parameters": [
+          {
+            "name": "vendor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vendor Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vendor"
+                },
+                "example": {
+                  "id": "V-KESTREL",
+                  "name": "Kestrel Memory Inc.",
+                  "aliases": [
+                    "Kestrel",
+                    "Kestrel Memory"
+                  ],
+                  "country": "KR",
+                  "currency": "USD",
+                  "email_domain": "kestrelmemory.co.kr",
+                  "bank_last4": "5150",
+                  "channels": [
+                    "api",
+                    "email"
+                  ],
+                  "tax_id": "KR-1208145923",
+                  "critical": true,
+                  "on_probation": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/memory": {
+      "get": {
+        "summary": "List Memory",
+        "operationId": "list_memory_memory_get",
+        "parameters": [
+          {
+            "name": "subject",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subject"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemoryEntry"
+                  },
+                  "title": "Response List Memory Memory Get"
+                },
+                "example": [
+                  {
+                    "id": "aerolane-freight:0",
+                    "folder": "counterparties",
+                    "subject": "aerolane-freight",
+                    "text": "Payment terms Net 30; approved bank account on file (last 4: 7731)",
+                    "provenance": "system-of-record",
+                    "valid_from": "2026-01-01",
+                    "version": 1
+                  },
+                  {
+                    "id": "aerolane-freight:1",
+                    "folder": "counterparties",
+                    "subject": "aerolane-freight",
+                    "text": "2 unapproved expedite fees this year, both rejected",
+                    "provenance": "computed: cases #41, #57",
+                    "valid_from": "2026-09-14",
+                    "version": 1
+                  },
+                  {
+                    "id": "aerolane-freight:2",
+                    "folder": "counterparties",
+                    "subject": "aerolane-freight",
+                    "text": "Hold any expedite fee without signed approval",
+                    "provenance": "controller: M. Chen, 2026-09-14",
+                    "valid_from": "2026-09-14",
+                    "version": 1
+                  },
+                  {
+                    "id": "penang-pack-test:0",
+                    "folder": "counterparties",
+                    "subject": "penang-pack-test",
+                    "text": "Approved bank account on file (last 4: 4418); only domain penangpacktest.com.my",
+                    "provenance": "system-of-record",
+                    "valid_from": "2026-01-01",
+                    "version": 1
+                  },
+                  {
+                    "id": "penang-pack-test:1",
+                    "folder": "counterparties",
+                    "subject": "penang-pack-test",
+                    "text": "Bank changes require callback to number on vendor master, never the email sender",
+                    "provenance": "system-of-record",
+                    "valid_from": "2026-01-01",
+                    "version": 1
+                  }
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/evals/scoreboard": {
+      "get": {
+        "summary": "Scoreboard",
+        "operationId": "scoreboard_evals_scoreboard_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Scoreboard"
+                },
+                "example": {
+                  "run_id": "run_88b0e4c9",
+                  "at": "2026-10-24T11:33:30.241938Z",
+                  "total": 5,
+                  "passed": 1,
+                  "catch_rate": 0.5,
+                  "false_alarm_rate": 0.0,
+                  "invariant_pass_rate": 1.0,
+                  "results": [
+                    {
+                      "case_id": "case_01",
+                      "run_id": "run_88b0e4c9",
+                      "expected": {
+                        "case_id": "case_01",
+                        "decision": "approve",
+                        "discrepancies": [],
+                        "skill": null,
+                        "note": "Clean 3-way match, under AP lead limit."
+                      },
+                      "actual_decision": "approve",
+                      "actual_discrepancies": [],
+                      "actual_skill": null,
+                      "checks": {
+                        "decision": true,
+                        "discrepancies": true,
+                        "skill": true,
+                        "inv_trace_complete": true,
+                        "inv_balanced": true,
+                        "inv_approved_before_post": true,
+                        "inv_requester_ne_approver": true,
+                        "inv_within_limit": true,
+                        "inv_period_open": true
+                      },
+                      "passed": true
+                    },
+                    {
+                      "case_id": "case_02",
+                      "run_id": "run_88b0e4c9",
+                      "expected": {
+                        "case_id": "case_02",
+                        "decision": "hold",
+                        "discrepancies": [
+                          "qty_short"
+                        ],
+                        "skill": "ap-3way-match",
+                        "note": "60 wafers short = TWD 1,116,000.00. Hold short part, ask for credit note."
+                      },
+                      "actual_decision": "escalate",
+                      "actual_discrepancies": [],
+                      "actual_skill": null,
+                      "checks": {
+                        "decision": false,
+                        "discrepancies": false,
+                        "skill": false,
+                        "inv_trace_complete": true
+                      },
+                      "passed": false
+                    },
+                    {
+                      "case_id": "case_03",
+                      "run_id": "run_88b0e4c9",
+                      "expected": {
+                        "case_id": "case_03",
+                        "decision": "hold",
+                        "discrepancies": [
+                          "price_over"
+                        ],
+                        "skill": "ap-3way-match",
+                        "note": "Amendment effective 2026-11-01; invoice 2026-10-16 -> PO price wins. Over by USD 2,400.00."
+                      },
+                      "actual_decision": "approve",
+                      "actual_discrepancies": [],
+                      "actual_skill": null,
+                      "checks": {
+                        "decision": false,
+                        "discrepancies": false,
+                        "skill": false,
+                        "inv_trace_complete": true,
+                        "inv_balanced": true,
+                        "inv_approved_before_post": true,
+                        "inv_requester_ne_approver": true,
+                        "inv_within_limit": true,
+                        "inv_period_open": true
+                      },
+                      "passed": false
+                    },
+                    {
+                      "case_id": "case_04",
+                      "run_id": "run_88b0e4c9",
+                      "expected": {
+                        "case_id": "case_04",
+                        "decision": "escalate",
+                        "discrepancies": [
+                          "bank_change",
+                          "lookalike_domain"
+                        ],
+                        "skill": "vendor-bank-change",
+                        "note": "Sender domain penang-packtest.com != penangpacktest.com.my; bank 9902 != master 4418. Hold payment, callback via number on file."
+                      },
+                      "actual_decision": "escalate",
+                      "actual_discrepancies": [],
+                      "actual_skill": null,
+                      "checks": {
+                        "decision": true,
+                        "discrepancies": false,
+                        "skill": false,
+                        "inv_trace_complete": true
+                      },
+                      "passed": false
+                    },
+                    {
+                      "case_id": "case_05",
+                      "run_id": "run_88b0e4c9",
+                      "expected": {
+                        "case_id": "case_05",
+                        "decision": "reject",
+                        "discrepancies": [
+                          "duplicate_invoice"
+                        ],
+                        "skill": null,
+                        "note": "Same line-item hash as INV-2291, paid 2026-10-08 (see paid_history.json). Expedite line also unapproved."
+                      },
+                      "actual_decision": "approve",
+                      "actual_discrepancies": [],
+                      "actual_skill": null,
+                      "checks": {
+                        "decision": false,
+                        "discrepancies": false,
+                        "skill": true,
+                        "inv_trace_complete": true,
+                        "inv_balanced": true,
+                        "inv_approved_before_post": true,
+                        "inv_requester_ne_approver": true,
+                        "inv_within_limit": true,
+                        "inv_period_open": true
+                      },
+                      "passed": false
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Approval-Input": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "approver": {
+            "type": "string",
+            "title": "Approver"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/ApprovalDecision"
+          },
+          "comment": {
+            "type": "string",
+            "title": "Comment",
+            "default": ""
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "case_id",
+          "approver",
+          "role",
+          "decision",
+          "at"
+        ],
+        "title": "Approval"
+      },
+      "Approval-Output": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "approver": {
+            "type": "string",
+            "title": "Approver"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/ApprovalDecision"
+          },
+          "comment": {
+            "type": "string",
+            "title": "Comment",
+            "default": ""
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "case_id",
+          "approver",
+          "role",
+          "decision",
+          "comment",
+          "limit",
+          "at"
+        ],
+        "title": "Approval"
+      },
+      "ApprovalDecision": {
+        "type": "string",
+        "enum": [
+          "approved",
+          "rejected",
+          "ask"
+        ],
+        "title": "ApprovalDecision"
+      },
+      "ApprovalRequest": {
+        "properties": {
+          "approver": {
+            "type": "string",
+            "title": "Approver"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/ApprovalDecision"
+          },
+          "comment": {
+            "type": "string",
+            "title": "Comment",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "approver",
+          "role",
+          "decision"
+        ],
+        "title": "ApprovalRequest"
+      },
+      "Case-Input": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CaseStatus",
+            "default": "new"
+          },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/Document-Input"
+            },
+            "type": "array",
+            "title": "Documents",
+            "default": []
+          },
+          "invoice": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Invoice-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "po": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receipts": {
+            "items": {
+              "$ref": "#/components/schemas/Receipt"
+            },
+            "type": "array",
+            "title": "Receipts",
+            "default": []
+          },
+          "fingerprint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fingerprint"
+          },
+          "discrepancies": {
+            "items": {
+              "$ref": "#/components/schemas/Discrepancy-Input"
+            },
+            "type": "array",
+            "title": "Discrepancies",
+            "default": []
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill"
+          },
+          "proposal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Proposal-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approvals": {
+            "items": {
+              "$ref": "#/components/schemas/Approval-Input"
+            },
+            "type": "array",
+            "title": "Approvals",
+            "default": []
+          },
+          "journal_entry": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JournalEntry-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Decision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "vendor_id",
+          "created_at"
+        ],
+        "title": "Case"
+      },
+      "Case-Output": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CaseStatus",
+            "default": "new"
+          },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/Document-Output"
+            },
+            "type": "array",
+            "title": "Documents",
+            "default": []
+          },
+          "invoice": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Invoice-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "po": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receipts": {
+            "items": {
+              "$ref": "#/components/schemas/Receipt"
+            },
+            "type": "array",
+            "title": "Receipts",
+            "default": []
+          },
+          "fingerprint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fingerprint"
+          },
+          "discrepancies": {
+            "items": {
+              "$ref": "#/components/schemas/Discrepancy-Output"
+            },
+            "type": "array",
+            "title": "Discrepancies",
+            "default": []
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill"
+          },
+          "proposal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Proposal-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approvals": {
+            "items": {
+              "$ref": "#/components/schemas/Approval-Output"
+            },
+            "type": "array",
+            "title": "Approvals",
+            "default": []
+          },
+          "journal_entry": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JournalEntry-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Decision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "parent_id",
+          "vendor_id",
+          "status",
+          "documents",
+          "invoice",
+          "po",
+          "receipts",
+          "fingerprint",
+          "discrepancies",
+          "skill",
+          "proposal",
+          "approvals",
+          "journal_entry",
+          "decision",
+          "created_at",
+          "updated_at",
+          "notes"
+        ],
+        "title": "Case"
+      },
+      "CaseDetail": {
+        "properties": {
+          "case": {
+            "$ref": "#/components/schemas/Case-Output"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/Step"
+            },
+            "type": "array",
+            "title": "Steps"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case",
+          "steps"
+        ],
+        "title": "CaseDetail"
+      },
+      "CaseStatus": {
+        "type": "string",
+        "enum": [
+          "new",
+          "in_progress",
+          "awaiting_approval",
+          "approved",
+          "rejected",
+          "escalated",
+          "posted",
+          "quarantined",
+          "resolved"
+        ],
+        "title": "CaseStatus"
+      },
+      "Channel": {
+        "type": "string",
+        "enum": [
+          "api",
+          "email",
+          "sftp",
+          "s3",
+          "erp",
+          "upload"
+        ],
+        "title": "Channel"
+      },
+      "Citation-Input": {
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "title": "Doc Id"
+          },
+          "locator": {
+            "type": "string",
+            "title": "Locator",
+            "description": "e.g. 'line 2', 'row 14', 'para 3'"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "doc_id",
+          "locator"
+        ],
+        "title": "Citation"
+      },
+      "Citation-Output": {
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "title": "Doc Id"
+          },
+          "locator": {
+            "type": "string",
+            "title": "Locator",
+            "description": "e.g. 'line 2', 'row 14', 'para 3'"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "doc_id",
+          "locator",
+          "quote"
+        ],
+        "title": "Citation"
+      },
+      "Decision": {
+        "type": "string",
+        "enum": [
+          "approve",
+          "hold",
+          "reject",
+          "escalate"
+        ],
+        "title": "Decision"
+      },
+      "Discrepancy-Input": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/DiscrepancyType"
+          },
+          "sku": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku"
+          },
+          "expected": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected"
+          },
+          "actual": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual"
+          },
+          "delta": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/Citation-Input"
+            },
+            "type": "array",
+            "title": "Citations",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "title": "Discrepancy"
+      },
+      "Discrepancy-Output": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/DiscrepancyType"
+          },
+          "sku": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku"
+          },
+          "expected": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected"
+          },
+          "actual": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual"
+          },
+          "delta": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/Citation-Output"
+            },
+            "type": "array",
+            "title": "Citations",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "type",
+          "sku",
+          "expected",
+          "actual",
+          "delta",
+          "citations"
+        ],
+        "title": "Discrepancy"
+      },
+      "DiscrepancyType": {
+        "type": "string",
+        "enum": [
+          "qty_short",
+          "price_over",
+          "unapproved_freight",
+          "fx_gap",
+          "duplicate_invoice",
+          "bank_change",
+          "lookalike_domain",
+          "embedded_instructions",
+          "below_materiality"
+        ],
+        "title": "DiscrepancyType"
+      },
+      "DocKind": {
+        "type": "string",
+        "enum": [
+          "invoice",
+          "po",
+          "receipt",
+          "contract",
+          "amendment",
+          "email",
+          "statement",
+          "credit_note"
+        ],
+        "title": "DocKind"
+      },
+      "Document-Input": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/DocKind"
+          },
+          "vendor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor Id"
+          },
+          "channel": {
+            "$ref": "#/components/schemas/Channel"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "mime": {
+            "type": "string",
+            "title": "Mime"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Received At"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text",
+            "description": "Raw text. UNTRUSTED. Never sent to a prompt with tools."
+          },
+          "sender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sender"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "channel",
+          "filename",
+          "sha256",
+          "mime",
+          "received_at"
+        ],
+        "title": "Document"
+      },
+      "Document-Output": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/DocKind"
+          },
+          "vendor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor Id"
+          },
+          "channel": {
+            "$ref": "#/components/schemas/Channel"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "mime": {
+            "type": "string",
+            "title": "Mime"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Received At"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text",
+            "description": "Raw text. UNTRUSTED. Never sent to a prompt with tools."
+          },
+          "sender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sender"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "vendor_id",
+          "channel",
+          "filename",
+          "sha256",
+          "mime",
+          "received_at",
+          "text",
+          "sender"
+        ],
+        "title": "Document"
+      },
+      "EvalResult": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "expected": {
+            "$ref": "#/components/schemas/ExpectedOutcome"
+          },
+          "actual_decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Decision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "actual_discrepancies": {
+            "items": {
+              "$ref": "#/components/schemas/DiscrepancyType"
+            },
+            "type": "array",
+            "title": "Actual Discrepancies",
+            "default": []
+          },
+          "actual_skill": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Skill"
+          },
+          "checks": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Checks",
+            "description": "decision, discrepancies, skill, inv_* invariants"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "run_id",
+          "expected",
+          "actual_decision",
+          "actual_discrepancies",
+          "actual_skill",
+          "checks",
+          "passed"
+        ],
+        "title": "EvalResult"
+      },
+      "ExpectedOutcome": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/Decision"
+          },
+          "discrepancies": {
+            "items": {
+              "$ref": "#/components/schemas/DiscrepancyType"
+            },
+            "type": "array",
+            "title": "Discrepancies",
+            "default": []
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "decision",
+          "discrepancies",
+          "skill",
+          "note"
+        ],
+        "title": "ExpectedOutcome"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Invoice-Input": {
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "title": "Doc Id"
+          },
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "invoice_no": {
+            "type": "string",
+            "title": "Invoice No"
+          },
+          "invoice_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Invoice Date"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "po_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Po Number"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/LineItem"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Total",
+            "description": "Decimal amount as string"
+          },
+          "bank_last4": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bank Last4",
+            "description": "Bank account on the invoice, last 4 only"
+          },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Flags",
+            "description": "Reader flags, e.g. embedded_instructions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "doc_id",
+          "vendor_id",
+          "invoice_no",
+          "invoice_date",
+          "currency",
+          "lines",
+          "total"
+        ],
+        "title": "Invoice"
+      },
+      "Invoice-Output": {
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "title": "Doc Id"
+          },
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "invoice_no": {
+            "type": "string",
+            "title": "Invoice No"
+          },
+          "invoice_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Invoice Date"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "po_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Po Number"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/LineItem"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Total",
+            "description": "Decimal amount as string"
+          },
+          "bank_last4": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bank Last4",
+            "description": "Bank account on the invoice, last 4 only"
+          },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Flags",
+            "description": "Reader flags, e.g. embedded_instructions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "doc_id",
+          "vendor_id",
+          "invoice_no",
+          "invoice_date",
+          "due_date",
+          "currency",
+          "po_number",
+          "lines",
+          "total",
+          "bank_last4",
+          "flags"
+        ],
+        "title": "Invoice"
+      },
+      "JournalEntry-Input": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "narration": {
+            "type": "string",
+            "title": "Narration"
+          },
+          "postings": {
+            "items": {
+              "$ref": "#/components/schemas/Posting"
+            },
+            "type": "array",
+            "title": "Postings"
+          },
+          "requested_by": {
+            "type": "string",
+            "title": "Requested By"
+          },
+          "approved_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved By"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "title": "Idempotency Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "case_id",
+          "date",
+          "narration",
+          "postings",
+          "requested_by",
+          "idempotency_key"
+        ],
+        "title": "JournalEntry"
+      },
+      "JournalEntry-Output": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "narration": {
+            "type": "string",
+            "title": "Narration"
+          },
+          "postings": {
+            "items": {
+              "$ref": "#/components/schemas/Posting"
+            },
+            "type": "array",
+            "title": "Postings"
+          },
+          "requested_by": {
+            "type": "string",
+            "title": "Requested By"
+          },
+          "approved_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved By"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "title": "Idempotency Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "case_id",
+          "date",
+          "narration",
+          "postings",
+          "requested_by",
+          "approved_by",
+          "idempotency_key"
+        ],
+        "title": "JournalEntry"
+      },
+      "LineItem": {
+        "properties": {
+          "line_no": {
+            "type": "integer",
+            "title": "Line No"
+          },
+          "sku": {
+            "type": "string",
+            "title": "Sku"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "qty": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Qty",
+            "description": "Decimal amount as string"
+          },
+          "unit_price": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Unit Price",
+            "description": "Decimal amount as string"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Amount",
+            "description": "Decimal amount as string"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "line_no",
+          "sku",
+          "description",
+          "qty",
+          "unit_price",
+          "amount"
+        ],
+        "title": "LineItem"
+      },
+      "MemoryEntry": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "folder": {
+            "$ref": "#/components/schemas/MemoryFolder"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject",
+            "description": "File name without .md, e.g. aerolane-freight"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "provenance": {
+            "type": "string",
+            "title": "Provenance",
+            "description": "e.g. 'system-of-record', 'controller: M. Chen, 2026-09-14', 'case #63'"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date",
+            "title": "Valid From"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version",
+            "default": 1
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "folder",
+          "subject",
+          "text",
+          "provenance",
+          "valid_from",
+          "version"
+        ],
+        "title": "MemoryEntry"
+      },
+      "MemoryFolder": {
+        "type": "string",
+        "enum": [
+          "company",
+          "controller-preferences",
+          "counterparties",
+          "people",
+          "open-matters",
+          "patterns"
+        ],
+        "title": "MemoryFolder"
+      },
+      "PO": {
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "title": "Doc Id"
+          },
+          "po_number": {
+            "type": "string",
+            "title": "Po Number"
+          },
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "po_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Po Date"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/POLine"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "requester": {
+            "type": "string",
+            "title": "Requester"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "doc_id",
+          "po_number",
+          "vendor_id",
+          "po_date",
+          "currency",
+          "lines",
+          "requester"
+        ],
+        "title": "PO"
+      },
+      "POLine": {
+        "properties": {
+          "line_no": {
+            "type": "integer",
+            "title": "Line No"
+          },
+          "sku": {
+            "type": "string",
+            "title": "Sku"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "qty": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Qty",
+            "description": "Decimal amount as string"
+          },
+          "unit_price": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Unit Price",
+            "description": "Decimal amount as string"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "line_no",
+          "sku",
+          "description",
+          "qty",
+          "unit_price"
+        ],
+        "title": "POLine"
+      },
+      "Posting": {
+        "properties": {
+          "account": {
+            "type": "string",
+            "title": "Account"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Amount",
+            "description": "Decimal amount as string"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "account",
+          "amount",
+          "currency"
+        ],
+        "title": "Posting"
+      },
+      "Proposal-Input": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "recommendation": {
+            "$ref": "#/components/schemas/Decision"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/Citation-Input"
+            },
+            "type": "array",
+            "title": "Citations",
+            "default": []
+          },
+          "proposed_entry": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JournalEntry-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "Model confidence, not money"
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill"
+          },
+          "skill_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Version"
+          },
+          "memory_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memory Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "recommendation",
+          "explanation",
+          "confidence"
+        ],
+        "title": "Proposal"
+      },
+      "Proposal-Output": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "recommendation": {
+            "$ref": "#/components/schemas/Decision"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/Citation-Output"
+            },
+            "type": "array",
+            "title": "Citations",
+            "default": []
+          },
+          "proposed_entry": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JournalEntry-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "Model confidence, not money"
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill"
+          },
+          "skill_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Version"
+          },
+          "memory_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memory Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "recommendation",
+          "explanation",
+          "citations",
+          "proposed_entry",
+          "confidence",
+          "skill",
+          "skill_version",
+          "memory_version"
+        ],
+        "title": "Proposal"
+      },
+      "Receipt": {
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "title": "Doc Id"
+          },
+          "po_number": {
+            "type": "string",
+            "title": "Po Number"
+          },
+          "received_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Received Date"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/ReceiptLine"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "received_by": {
+            "type": "string",
+            "title": "Received By"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "doc_id",
+          "po_number",
+          "received_date",
+          "lines",
+          "received_by"
+        ],
+        "title": "Receipt"
+      },
+      "ReceiptLine": {
+        "properties": {
+          "sku": {
+            "type": "string",
+            "title": "Sku"
+          },
+          "qty_received": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Qty Received",
+            "description": "Decimal amount as string"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sku",
+          "qty_received"
+        ],
+        "title": "ReceiptLine"
+      },
+      "Role": {
+        "type": "string",
+        "enum": [
+          "system",
+          "reader",
+          "investigator",
+          "approver",
+          "controller",
+          "requester"
+        ],
+        "title": "Role"
+      },
+      "Scoreboard": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "passed": {
+            "type": "integer",
+            "title": "Passed"
+          },
+          "catch_rate": {
+            "type": "number",
+            "title": "Catch Rate"
+          },
+          "false_alarm_rate": {
+            "type": "number",
+            "title": "False Alarm Rate"
+          },
+          "invariant_pass_rate": {
+            "type": "number",
+            "title": "Invariant Pass Rate"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/EvalResult"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "at",
+          "total",
+          "passed",
+          "catch_rate",
+          "false_alarm_rate",
+          "invariant_pass_rate",
+          "results"
+        ],
+        "title": "Scoreboard"
+      },
+      "Step": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "seq": {
+            "type": "integer",
+            "title": "Seq"
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role",
+            "default": "system"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StepStatus",
+            "default": "running"
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill"
+          },
+          "skill_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Version"
+          },
+          "memory_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memory Version"
+          },
+          "tool": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool"
+          },
+          "inputs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Inputs",
+            "description": "Doc/object references, not payloads"
+          },
+          "outputs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Outputs",
+            "default": []
+          },
+          "detail": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Detail",
+            "default": {}
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms"
+          },
+          "tokens": {
+            "type": "integer",
+            "title": "Tokens",
+            "default": 0
+          },
+          "cost_usd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Usd"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "case_id",
+          "run_id",
+          "parent_id",
+          "seq",
+          "stage",
+          "role",
+          "status",
+          "skill",
+          "skill_version",
+          "memory_version",
+          "tool",
+          "inputs",
+          "outputs",
+          "detail",
+          "error",
+          "started_at",
+          "ended_at",
+          "duration_ms",
+          "tokens",
+          "cost_usd"
+        ],
+        "title": "Step"
+      },
+      "StepStatus": {
+        "type": "string",
+        "enum": [
+          "running",
+          "ok",
+          "retried",
+          "failed",
+          "blocked",
+          "escalated",
+          "skipped"
+        ],
+        "title": "StepStatus"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "Vendor": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "aliases": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Aliases",
+            "default": []
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "email_domain": {
+            "type": "string",
+            "title": "Email Domain"
+          },
+          "bank_last4": {
+            "type": "string",
+            "title": "Bank Last4",
+            "description": "Last 4 digits only. Never store full numbers."
+          },
+          "channels": {
+            "items": {
+              "$ref": "#/components/schemas/Channel"
+            },
+            "type": "array",
+            "title": "Channels",
+            "default": []
+          },
+          "tax_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Id"
+          },
+          "critical": {
+            "type": "boolean",
+            "title": "Critical",
+            "default": false
+          },
+          "on_probation": {
+            "type": "boolean",
+            "title": "On Probation",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "aliases",
+          "country",
+          "currency",
+          "email_domain",
+          "bank_last4",
+          "channels",
+          "tax_id",
+          "critical",
+          "on_probation"
+        ],
+        "title": "Vendor"
+      }
+    }
+  }
+}

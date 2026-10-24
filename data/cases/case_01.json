@@ -1,0 +1,98 @@
+{
+  "id": "case_01",
+  "vendor_id": "V-KESTREL",
+  "status": "new",
+  "documents": [
+    {
+      "id": "case_01-d1",
+      "kind": "invoice",
+      "vendor_id": "V-KESTREL",
+      "channel": "email",
+      "filename": "KM-INV-30118.pdf",
+      "sha256": "635b377bb25147e1bc7ffec6bf1da9cacf5184a64b076bb75a5d5cdb7dae221f",
+      "mime": "application/pdf",
+      "received_at": "2026-10-12T09:00:00Z",
+      "text": "Kestrel Memory Inc. Invoice KM-INV-30118 PO-7001\n1 HBM3E-12H-24G 50 x 1450.00 = 72500.00\nTotal USD 72500.00\nRemit to acct ****5150",
+      "sender": "ar@kestrelmemory.co.kr"
+    },
+    {
+      "id": "case_01-d2",
+      "kind": "po",
+      "vendor_id": "V-KESTREL",
+      "channel": "erp",
+      "filename": "PO-7001.json",
+      "sha256": "8b5b5e656ec3b43d1bf0abf4abaa7327b69acd74f80f86d22ce492cca19a0072",
+      "mime": "application/json",
+      "received_at": "2026-10-01T09:00:00Z",
+      "text": "PO-7001 HBM3E-12H-24G 50 @ 1450.00"
+    },
+    {
+      "id": "case_01-d3",
+      "kind": "receipt",
+      "vendor_id": "V-KESTREL",
+      "channel": "erp",
+      "filename": "GRN-7001.json",
+      "sha256": "956466c360eff7d4368d65bb9d4e454b0734219bc1b8660e487d0788f9af3c43",
+      "mime": "application/json",
+      "received_at": "2026-10-10T09:00:00Z",
+      "text": "GRN PO-7001 HBM3E-12H-24G received 50"
+    }
+  ],
+  "invoice": {
+    "doc_id": "case_01-d1",
+    "vendor_id": "V-KESTREL",
+    "invoice_no": "KM-INV-30118",
+    "invoice_date": "2026-10-12",
+    "due_date": "2026-11-12",
+    "currency": "USD",
+    "po_number": "PO-7001",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "50",
+        "unit_price": "1450.00",
+        "amount": "72500.00"
+      }
+    ],
+    "total": "72500.00",
+    "bank_last4": "5150",
+    "flags": []
+  },
+  "po": {
+    "doc_id": "case_01-d2",
+    "po_number": "PO-7001",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-09-20",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "50",
+        "unit_price": "1450.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  "receipts": [
+    {
+      "doc_id": "case_01-d3",
+      "po_number": "PO-7001",
+      "received_date": "2026-10-10",
+      "lines": [
+        {
+          "sku": "HBM3E-12H-24G",
+          "qty_received": "50"
+        }
+      ],
+      "received_by": "warehouse.lead@helix.example"
+    }
+  ],
+  "discrepancies": [],
+  "approvals": [],
+  "created_at": "2026-10-12T09:00:00Z",
+  "notes": []
+}

@@ -1,0 +1,8 @@
+; Helix Silicon ledger. Poster (A) appends entries; never edited by agents.
+option "title" "Helix Silicon"
+option "operating_currency" "USD"
+
+2026-01-01 open Assets:Bank:Operating
+2026-01-01 open Liabilities:AP
+2026-01-01 open Expenses:COGS:Materials
+2026-01-01 open Expenses:Freight

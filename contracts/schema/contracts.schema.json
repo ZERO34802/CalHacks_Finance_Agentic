@@ -1,0 +1,1533 @@
+{
+  "$defs": {
+    "Approval": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "case_id": {
+          "type": "string"
+        },
+        "approver": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        },
+        "decision": {
+          "$ref": "#/$defs/ApprovalDecision"
+        },
+        "comment": {
+          "default": "",
+          "type": "string"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "at": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "case_id",
+        "approver",
+        "role",
+        "decision",
+        "comment",
+        "limit",
+        "at"
+      ],
+      "title": "Approval",
+      "type": "object"
+    },
+    "ApprovalDecision": {
+      "enum": [
+        "approved",
+        "rejected",
+        "ask"
+      ],
+      "title": "ApprovalDecision",
+      "type": "string"
+    },
+    "ApprovalRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "approver": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        },
+        "decision": {
+          "$ref": "#/$defs/ApprovalDecision"
+        },
+        "comment": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "approver",
+        "role",
+        "decision",
+        "comment"
+      ],
+      "title": "ApprovalRequest",
+      "type": "object"
+    },
+    "Case": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "vendor_id": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/CaseStatus"
+        },
+        "documents": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Document"
+          },
+          "type": "array"
+        },
+        "invoice": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Invoice"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "po": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PO"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "receipts": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Receipt"
+          },
+          "type": "array"
+        },
+        "fingerprint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "discrepancies": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Discrepancy"
+          },
+          "type": "array"
+        },
+        "skill": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "proposal": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Proposal"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "approvals": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Approval"
+          },
+          "type": "array"
+        },
+        "journal_entry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JournalEntry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Decision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "created_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "updated_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "parent_id",
+        "vendor_id",
+        "status",
+        "documents",
+        "invoice",
+        "po",
+        "receipts",
+        "fingerprint",
+        "discrepancies",
+        "skill",
+        "proposal",
+        "approvals",
+        "journal_entry",
+        "decision",
+        "created_at",
+        "updated_at",
+        "notes"
+      ],
+      "title": "Case",
+      "type": "object"
+    },
+    "CaseDetail": {
+      "additionalProperties": false,
+      "properties": {
+        "case": {
+          "$ref": "#/$defs/Case"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/Step"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "case",
+        "steps"
+      ],
+      "title": "CaseDetail",
+      "type": "object"
+    },
+    "CaseStatus": {
+      "enum": [
+        "new",
+        "in_progress",
+        "awaiting_approval",
+        "approved",
+        "rejected",
+        "escalated",
+        "posted",
+        "quarantined",
+        "resolved"
+      ],
+      "title": "CaseStatus",
+      "type": "string"
+    },
+    "Channel": {
+      "enum": [
+        "api",
+        "email",
+        "sftp",
+        "s3",
+        "erp",
+        "upload"
+      ],
+      "title": "Channel",
+      "type": "string"
+    },
+    "Citation": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_id": {
+          "type": "string"
+        },
+        "locator": {
+          "description": "e.g. 'line 2', 'row 14', 'para 3'",
+          "type": "string"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "doc_id",
+        "locator",
+        "quote"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "Decision": {
+      "enum": [
+        "approve",
+        "hold",
+        "reject",
+        "escalate"
+      ],
+      "title": "Decision",
+      "type": "string"
+    },
+    "Discrepancy": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/DiscrepancyType"
+        },
+        "sku": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "expected": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "actual": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "delta": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "sku",
+        "expected",
+        "actual",
+        "delta",
+        "citations"
+      ],
+      "title": "Discrepancy",
+      "type": "object"
+    },
+    "DiscrepancyType": {
+      "enum": [
+        "qty_short",
+        "price_over",
+        "unapproved_freight",
+        "fx_gap",
+        "duplicate_invoice",
+        "bank_change",
+        "lookalike_domain",
+        "embedded_instructions",
+        "below_materiality"
+      ],
+      "title": "DiscrepancyType",
+      "type": "string"
+    },
+    "DocKind": {
+      "enum": [
+        "invoice",
+        "po",
+        "receipt",
+        "contract",
+        "amendment",
+        "email",
+        "statement",
+        "credit_note"
+      ],
+      "title": "DocKind",
+      "type": "string"
+    },
+    "Document": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/DocKind"
+        },
+        "vendor_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "channel": {
+          "$ref": "#/$defs/Channel"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "mime": {
+          "type": "string"
+        },
+        "received_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Raw text. UNTRUSTED. Never sent to a prompt with tools."
+        },
+        "sender": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "vendor_id",
+        "channel",
+        "filename",
+        "sha256",
+        "mime",
+        "received_at",
+        "text",
+        "sender"
+      ],
+      "title": "Document",
+      "type": "object"
+    },
+    "EvalResult": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "expected": {
+          "$ref": "#/$defs/ExpectedOutcome"
+        },
+        "actual_decision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Decision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "actual_discrepancies": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/DiscrepancyType"
+          },
+          "type": "array"
+        },
+        "actual_skill": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "checks": {
+          "additionalProperties": {
+            "type": "boolean"
+          },
+          "description": "decision, discrepancies, skill, inv_* invariants",
+          "type": "object"
+        },
+        "passed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "case_id",
+        "run_id",
+        "expected",
+        "actual_decision",
+        "actual_discrepancies",
+        "actual_skill",
+        "checks",
+        "passed"
+      ],
+      "title": "EvalResult",
+      "type": "object"
+    },
+    "Event": {
+      "additionalProperties": false,
+      "description": "Pushed over WS /events.",
+      "properties": {
+        "type": {
+          "description": "step.started | step.finished | case.updated",
+          "type": "string"
+        },
+        "case_id": {
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Step"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CaseStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "at": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "case_id",
+        "step",
+        "status",
+        "at"
+      ],
+      "title": "Event",
+      "type": "object"
+    },
+    "ExpectedOutcome": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "decision": {
+          "$ref": "#/$defs/Decision"
+        },
+        "discrepancies": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/DiscrepancyType"
+          },
+          "type": "array"
+        },
+        "skill": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "note": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "decision",
+        "discrepancies",
+        "skill",
+        "note"
+      ],
+      "title": "ExpectedOutcome",
+      "type": "object"
+    },
+    "Invoice": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_id": {
+          "type": "string"
+        },
+        "vendor_id": {
+          "type": "string"
+        },
+        "invoice_no": {
+          "type": "string"
+        },
+        "invoice_date": {
+          "format": "date",
+          "type": "string"
+        },
+        "due_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "currency": {
+          "type": "string"
+        },
+        "po_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "lines": {
+          "items": {
+            "$ref": "#/$defs/LineItem"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "bank_last4": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Bank account on the invoice, last 4 only"
+        },
+        "flags": {
+          "description": "Reader flags, e.g. embedded_instructions",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "doc_id",
+        "vendor_id",
+        "invoice_no",
+        "invoice_date",
+        "due_date",
+        "currency",
+        "po_number",
+        "lines",
+        "total",
+        "bank_last4",
+        "flags"
+      ],
+      "title": "Invoice",
+      "type": "object"
+    },
+    "JournalEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "case_id": {
+          "type": "string"
+        },
+        "date": {
+          "format": "date",
+          "type": "string"
+        },
+        "narration": {
+          "type": "string"
+        },
+        "postings": {
+          "items": {
+            "$ref": "#/$defs/Posting"
+          },
+          "type": "array"
+        },
+        "requested_by": {
+          "type": "string"
+        },
+        "approved_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "idempotency_key": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "case_id",
+        "date",
+        "narration",
+        "postings",
+        "requested_by",
+        "approved_by",
+        "idempotency_key"
+      ],
+      "title": "JournalEntry",
+      "type": "object"
+    },
+    "LineItem": {
+      "additionalProperties": false,
+      "properties": {
+        "line_no": {
+          "type": "integer"
+        },
+        "sku": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "qty": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "unit_price": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "amount": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "line_no",
+        "sku",
+        "description",
+        "qty",
+        "unit_price",
+        "amount"
+      ],
+      "title": "LineItem",
+      "type": "object"
+    },
+    "MemoryEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "folder": {
+          "$ref": "#/$defs/MemoryFolder"
+        },
+        "subject": {
+          "description": "File name without .md, e.g. aerolane-freight",
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "provenance": {
+          "description": "e.g. 'system-of-record', 'controller: M. Chen, 2026-09-14', 'case #63'",
+          "type": "string"
+        },
+        "valid_from": {
+          "format": "date",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "folder",
+        "subject",
+        "text",
+        "provenance",
+        "valid_from",
+        "version"
+      ],
+      "title": "MemoryEntry",
+      "type": "object"
+    },
+    "MemoryFolder": {
+      "enum": [
+        "company",
+        "controller-preferences",
+        "counterparties",
+        "people",
+        "open-matters",
+        "patterns"
+      ],
+      "title": "MemoryFolder",
+      "type": "string"
+    },
+    "PO": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_id": {
+          "type": "string"
+        },
+        "po_number": {
+          "type": "string"
+        },
+        "vendor_id": {
+          "type": "string"
+        },
+        "po_date": {
+          "format": "date",
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "lines": {
+          "items": {
+            "$ref": "#/$defs/POLine"
+          },
+          "type": "array"
+        },
+        "requester": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "doc_id",
+        "po_number",
+        "vendor_id",
+        "po_date",
+        "currency",
+        "lines",
+        "requester"
+      ],
+      "title": "PO",
+      "type": "object"
+    },
+    "POLine": {
+      "additionalProperties": false,
+      "properties": {
+        "line_no": {
+          "type": "integer"
+        },
+        "sku": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "qty": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "unit_price": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "line_no",
+        "sku",
+        "description",
+        "qty",
+        "unit_price"
+      ],
+      "title": "POLine",
+      "type": "object"
+    },
+    "Posting": {
+      "additionalProperties": false,
+      "properties": {
+        "account": {
+          "type": "string"
+        },
+        "amount": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "account",
+        "amount",
+        "currency"
+      ],
+      "title": "Posting",
+      "type": "object"
+    },
+    "Proposal": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "recommendation": {
+          "$ref": "#/$defs/Decision"
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "citations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "type": "array"
+        },
+        "proposed_entry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JournalEntry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "confidence": {
+          "description": "Model confidence, not money",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "skill": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "skill_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "memory_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "case_id",
+        "recommendation",
+        "explanation",
+        "citations",
+        "proposed_entry",
+        "confidence",
+        "skill",
+        "skill_version",
+        "memory_version"
+      ],
+      "title": "Proposal",
+      "type": "object"
+    },
+    "Receipt": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_id": {
+          "type": "string"
+        },
+        "po_number": {
+          "type": "string"
+        },
+        "received_date": {
+          "format": "date",
+          "type": "string"
+        },
+        "lines": {
+          "items": {
+            "$ref": "#/$defs/ReceiptLine"
+          },
+          "type": "array"
+        },
+        "received_by": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "doc_id",
+        "po_number",
+        "received_date",
+        "lines",
+        "received_by"
+      ],
+      "title": "Receipt",
+      "type": "object"
+    },
+    "ReceiptLine": {
+      "additionalProperties": false,
+      "properties": {
+        "sku": {
+          "type": "string"
+        },
+        "qty_received": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sku",
+        "qty_received"
+      ],
+      "title": "ReceiptLine",
+      "type": "object"
+    },
+    "Role": {
+      "enum": [
+        "system",
+        "reader",
+        "investigator",
+        "approver",
+        "controller",
+        "requester"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "Scoreboard": {
+      "additionalProperties": false,
+      "properties": {
+        "run_id": {
+          "type": "string"
+        },
+        "at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "passed": {
+          "type": "integer"
+        },
+        "catch_rate": {
+          "type": "number"
+        },
+        "false_alarm_rate": {
+          "type": "number"
+        },
+        "invariant_pass_rate": {
+          "type": "number"
+        },
+        "results": {
+          "items": {
+            "$ref": "#/$defs/EvalResult"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "run_id",
+        "at",
+        "total",
+        "passed",
+        "catch_rate",
+        "false_alarm_rate",
+        "invariant_pass_rate",
+        "results"
+      ],
+      "title": "Scoreboard",
+      "type": "object"
+    },
+    "SkillStatus": {
+      "enum": [
+        "shadow",
+        "active",
+        "retired"
+      ],
+      "title": "SkillStatus",
+      "type": "string"
+    },
+    "SkillVersion": {
+      "additionalProperties": false,
+      "properties": {
+        "skill": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/SkillStatus"
+        },
+        "created_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "approved_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "git_sha": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "skill",
+        "version",
+        "status",
+        "created_at",
+        "approved_by",
+        "git_sha"
+      ],
+      "title": "SkillVersion",
+      "type": "object"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "case_id": {
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "seq": {
+          "type": "integer"
+        },
+        "stage": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        },
+        "status": {
+          "$ref": "#/$defs/StepStatus"
+        },
+        "skill": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "skill_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "memory_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "inputs": {
+          "description": "Doc/object references, not payloads",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "outputs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "detail": {
+          "additionalProperties": true,
+          "default": {},
+          "type": "object"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "started_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "ended_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tokens": {
+          "default": 0,
+          "type": "integer"
+        },
+        "cost_usd": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "case_id",
+        "run_id",
+        "parent_id",
+        "seq",
+        "stage",
+        "role",
+        "status",
+        "skill",
+        "skill_version",
+        "memory_version",
+        "tool",
+        "inputs",
+        "outputs",
+        "detail",
+        "error",
+        "started_at",
+        "ended_at",
+        "duration_ms",
+        "tokens",
+        "cost_usd"
+      ],
+      "title": "Step",
+      "type": "object"
+    },
+    "StepStatus": {
+      "enum": [
+        "running",
+        "ok",
+        "retried",
+        "failed",
+        "blocked",
+        "escalated",
+        "skipped"
+      ],
+      "title": "StepStatus",
+      "type": "string"
+    },
+    "Vendor": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "aliases": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "country": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "email_domain": {
+          "type": "string"
+        },
+        "bank_last4": {
+          "description": "Last 4 digits only. Never store full numbers.",
+          "type": "string"
+        },
+        "channels": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Channel"
+          },
+          "type": "array"
+        },
+        "tax_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "critical": {
+          "default": false,
+          "type": "boolean"
+        },
+        "on_probation": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "aliases",
+        "country",
+        "currency",
+        "email_domain",
+        "bank_last4",
+        "channels",
+        "tax_id",
+        "critical",
+        "on_probation"
+      ],
+      "title": "Vendor",
+      "type": "object"
+    }
+  },
+  "title": "ReconAI Contracts"
+}
