@@ -64,14 +64,18 @@ def find_invoice_case(ctx: Ctx, vendor_id: str, invoice_no: str, exclude: str) -
     return hits[0] if hits else None
 
 
-def link_replies(case: Case, ctx: Ctx) -> list[str]:
+def link_replies(case: Case, ctx: Ctx, why_not: Optional[list[str]] = None) -> list[str]:
     linked = []
+    why_not = why_not if why_not is not None else []
+    lookalike = any("is a look-alike of" in n for n in case.notes)
     for ref in rec_refs(case):
         target = ctx.store.get_case(ref)
         if target is None:
-            case.notes.append(f"registry: reply references unknown case {ref}; not linked")
+            why_not.append(f"references unknown case {ref}")
         elif target.vendor_id != case.vendor_id:
-            case.notes.append(f"registry: reply references {ref} of another vendor ({target.vendor_id}); not linked")
+            why_not.append(f"references {ref} of another vendor ({target.vendor_id})")
+        elif lookalike:
+            why_not.append(f"references {ref} but comes from a look-alike sender domain")
         else:
             if not any(l.type == CaseLinkType.attached_to and l.case_id == ref for l in case.links):
                 case.links.append(CaseLink(type=CaseLinkType.attached_to, case_id=ref,
@@ -89,12 +93,22 @@ class Registry:
 
     def run(self, case: Case, ctx: Ctx) -> Case:
         inv = case.invoice
-        replies = link_replies(case, ctx)
+        why_not: list[str] = []
+        replies = link_replies(case, ctx, why_not)
+        for w in why_not:
+            case.notes.append(f"registry: reply not attached: {w}")
         if inv is None:
-            if replies:
+            if replies:  # support document: attached to its case, nothing to triage (no agents, no skill)
                 case.evidence_hash = evidence_hash(d.sha256 for d in case.documents)
+                case.status, case.decision, case.skill = CaseStatus.resolved, None, None
+                for ref in replies:
+                    note = f"attached to {ref}: supplier reply"
+                    if note not in case.notes:
+                        case.notes.append(note)
                 ctx.trace.annotate(outputs=replies, detail={"action": "supplier_reply", "reply_to": replies})
                 return case
+            if why_not:
+                raise ValueError(f"supplier reply cannot be attached ({'; '.join(why_not)}); needs a human")
             raise ValueError("registry: no invoice on case")
         case.evidence_hash = evidence_hash(d.sha256 for d in case.documents)
         case.fingerprint = fingerprint(case.vendor_id, inv.po_number, inv.invoice_no)

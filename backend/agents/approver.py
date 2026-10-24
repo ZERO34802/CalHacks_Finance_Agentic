@@ -247,6 +247,14 @@ def llm_review(case: Case, proposal: Proposal, role: Role, who: str, ctx: Ctx, h
         "vendor_id": case.vendor_id, "your_limit_usd": str(limit),
         "controller_preferences": prefs, "vendor_memory": vendor_lines, "your_earlier_feedback": history,
     }
+    if case.links:  # cases the proposal may refer to (dedup / related-pattern links found by code)
+        payload["related_cases_by_code"] = [lk.model_dump(mode="json") for lk in case.links]
+    payload["explanation_lines_by_code"] = len([ln for ln in proposal.explanation.splitlines() if ln.strip()])
+    usd = amount_usd(case, ctx)
+    payload["routing_by_code"] = (
+        f"Code routed this review to you ({role.value}, {who}) because the amount to post is USD {usd} and your limit "
+        f"is USD {limit}. You are the approver for this case, including any undisputed payment below; approval "
+        "routing and limits are decided by code, not by the proposal's wording.")
     corr = correction(case, ctx)
     if corr:
         payload["correction"] = {
@@ -279,6 +287,14 @@ def default_review(case, proposal, role, who, ctx, history):
     return deterministic_review(case, proposal, role, who, ctx, history)
 
 
+def human_role(case: Case, ctx: Ctx) -> Role:
+    """Who must decide an escalation: the controller within her limit, else the CFO (same USD amount as routing)."""
+    usd = amount_usd(case, ctx)
+    if usd is not None and usd <= ctx.policy.approval_limits["controller"]:
+        return Role.controller
+    return Role.cfo
+
+
 def sla_pending(case: Case, ctx: Ctx, role: Role, who: str) -> PendingApproval:
     from backend.agents.supplier import sim_time
     at = sim_time(case, ctx)
@@ -298,11 +314,15 @@ class Approver:
         """Set the final decision/status, then the follow-through: supplier outreach, human SLA timer."""
         from backend.agents.supplier import outreach
         case.decision, case.status = decision, STATUS[decision]
+        guidance = detail.get("replan_guidance_skill")
+        if guidance and case.skill is None and decision != Decision.approve:
+            case.skill = guidance  # the clean match became an exception: code routes it to that skill now
+            detail["rerouted_to"] = guidance
         if decision == Decision.escalate:
-            role = human or Role.controller
+            role = human or human_role(case, ctx)
             who, _ = identity(role, case, ctx)
             case.pending_approval = sla_pending(case, ctx, role, who)
-            detail["pending_approval"] = {"role": role.value, "approver": who,
+            detail["pending_approval"] = {"role": role.value, "approver": who, "simulated_identity": True,
                                           "due_at": case.pending_approval.due_at.isoformat()}
         if decision in (Decision.hold, Decision.escalate):
             with ctx.trace.step(case.id, "supplier.outreach"):
@@ -370,6 +390,7 @@ class Approver:
                                            "backup": bool(override), **meta})
             detail["reviews"].append({"identity": who, "role": role.value, "decision": review.decision.value,
                                       "reason": review.reason, "engine": meta.get("engine")})
+            rule_meta = meta
             tag = "[simulated role-play]" if meta.get("engine") == "claude" else "[simulated: deterministic policy approver]"
 
             if review.decision == ApprovalDecision.approved:
@@ -408,19 +429,26 @@ class Approver:
 
             # rejected -> re-plan
             history.append(review.reason)
-            if case.skill is None and proposal.recommendation == Decision.approve and case.invoice is not None:
-                # a reviewer disputes a clean match: re-plan it as a 3-way-match investigation (code routes it)
-                case.skill = ctx.policy.skills.get("three_way_match")
-                case.notes.append(f"approver: {role.value} rejected the clean match; re-planning with {case.skill}")
-            limit_hit = case.replans >= (self.max_replans if case.skill else MAX_CODE_REPLANS)
+            if case.skill is None and not detail.get("replan_guidance_skill") and \
+                    proposal.recommendation == Decision.approve and case.invoice is not None:
+                # a reviewer disputes a clean match: re-plan with the 3-way-match skill's guidance. Routing
+                # (case.skill) changes only if the outcome becomes an exception (see _finish).
+                detail["replan_guidance_skill"] = ctx.policy.skills.get("three_way_match")
+                case.notes.append(f"approver: {role.value} rejected the clean match; re-planning with "
+                                  f"{detail['replan_guidance_skill']} guidance")
+            guidance = detail.get("replan_guidance_skill")
+            skill_for_replan = case.skill or guidance
+            limit_hit = case.replans >= (self.max_replans if skill_for_replan else MAX_CODE_REPLANS)
             if limit_hit:
-                why = "re-plan limit reached" if case.skill else "code re-plan did not satisfy the reviewer"
+                why = "re-plan limit reached" if skill_for_replan else "code re-plan did not satisfy the reviewer"
                 case.notes.append(f"approver: {role.value} rejected ({review.reason}); {why}; escalated")
                 return self._finish(case, Decision.escalate, ctx, {**detail, "reason": why}, StepStatus.escalated)
             case.replans += 1
             with ctx.trace.step(case.id, "investigator.replan", role=Role.investigator):
-                if case.skill:
-                    case.proposal, meta = investigate(case, ctx, feedback=review.reason, attempt=case.replans)
+                if skill_for_replan:
+                    case.proposal, meta = investigate(case, ctx, feedback=review.reason, attempt=case.replans,
+                                                      code_only=bool(rule_meta.get("rule")),
+                                                      guidance_skill=None if case.skill else guidance)
                     ctx.trace.annotate(skill=meta["skill"].name, skill_version=meta["skill"].version,
                                        memory_version=meta["memory_version"],
                                        inputs=meta["inputs"], outputs=["proposal.json"],

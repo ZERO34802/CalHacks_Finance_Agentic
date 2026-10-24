@@ -27,8 +27,8 @@ from backend.pipeline.lib.money import convert, q2, to_usd
 from backend.pipeline.lib.refs import rec_refs
 from backend.pipeline.lib.split import on_probation, split
 from backend.pipeline.registry import registry_for_discrepancies
-from contracts import (Case, Citation, ContractTerm, Discrepancy, DiscrepancyType as T, Invoice, PO, Receipt,
-                       StepStatus)
+from contracts import (Case, CaseStatus, Citation, ContractTerm, Discrepancy, DiscrepancyType as T, Invoice, PO,
+                       Receipt, StepStatus)
 
 MINE = {T.unknown_po, T.currency_mismatch, T.missing_receipt, T.qty_short, T.price_over, T.unapproved_freight,
         T.total_mismatch, T.below_materiality}
@@ -181,8 +181,37 @@ def match(case: Case, ctx: Ctx) -> tuple[list[Discrepancy], dict]:
     return out, info
 
 
+def lookalike_sender(case: Case) -> bool:
+    return any("is a look-alike of" in n for n in case.notes)
+
+
 class Matcher:
     name = "matcher"
+
+    @staticmethod
+    def _settle_credit_note(case: Case, ctx: Ctx, material: list) -> dict:
+        """A credit note that only offsets a held (never booked) amount is a support document: apply it to the
+        credited case and end here (status resolved, decision None, no agents). Anything riskier (look-alike sender,
+        unknown vendor, embedded instructions, a material discrepancy, or a real reversal to post) runs the
+        normal pipeline so B decides and the Poster reverses."""
+        from backend.pipeline.hooks import apply_credit_note
+        from backend.pipeline.poster import credit_reversal
+        inv = case.invoice
+        target, to_reverse = credit_reversal(case, ctx)
+        blockers = [b for b, on in (("credited invoice not on file", target is None),
+                                    ("look-alike sender", lookalike_sender(case)),
+                                    ("unknown vendor", case.vendor_id == "V-UNKNOWN"),
+                                    ("embedded instructions", "embedded_instructions" in inv.flags),
+                                    ("material discrepancy", bool(material)),
+                                    (f"reversal of {to_reverse} to post", to_reverse > 0)) if on]
+        if blockers:
+            return {"applied": False, "why_not": blockers}
+        out = apply_credit_note(case, ctx, force=True)
+        case.status, case.decision, case.skill, case.paid_amount = CaseStatus.resolved, None, None, Decimal("0.00")
+        note = f"credit note {inv.invoice_no} applied to {target.id}"
+        if note not in case.notes:
+            case.notes.append(note)
+        return {"applied": True, "target": target.id, **out}
 
     def run(self, case: Case, ctx: Ctx) -> Case:
         if case.invoice is None:
@@ -217,6 +246,8 @@ class Matcher:
         sp = split(case)
         case.disputed_amount = sp["disputed"] if sp["separable"] else None
         material = [d for d in case.discrepancies if d.material]
+        if case.invoice.credit_for:
+            info["support_document"] = self._settle_credit_note(case, ctx, material)
         ctx.trace.annotate(
             inputs=[case.invoice.doc_id] + ([case.po.doc_id] if case.po else []) + [r.doc_id for r in case.receipts],
             outputs=[f"{d.type.value}:{d.sku or ''}" for d in case.discrepancies],

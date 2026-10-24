@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -44,6 +44,12 @@ class ReleaseRequest(BaseModel):
     note: str = ""
 
 
+class FollowUpDone(BaseModel):
+    by: str
+    note: str = ""
+    outcome: Optional[Literal["confirmed", "denied"]] = None
+
+
 class SignOff(BaseModel):
     approver: str
 
@@ -75,6 +81,20 @@ def post_release(case_id: str, body: ReleaseRequest) -> Case:
     from backend.agents.handoff import release
     ctx = _ctx()
     return release(_case(ctx, case_id), ctx, body.by, body.note)
+
+
+@router.post("/cases/{case_id}/followups/{followup_id}/done", response_model=Case)
+def post_followup_done(case_id: str, followup_id: str, body: FollowUpDone) -> Case:
+    from backend.agents.handoff import close_followup
+    ctx = _ctx()
+    try:
+        return close_followup(_case(ctx, case_id), ctx, followup_id, body.by, body.note, body.outcome)
+    except LookupError as e:
+        raise HTTPException(404, str(e))
+    except PermissionError as e:
+        raise HTTPException(403, str(e))
+    except ValueError as e:
+        raise HTTPException(400, str(e))
 
 
 @router.get("/skills/proposals", response_model=list[SkillProposal])

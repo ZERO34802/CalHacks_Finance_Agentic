@@ -17,6 +17,7 @@ def _ctx():
 
 def test_every_fixture_runs_and_every_step_finishes():
     ctx = _ctx()
+    key = answer_key()
     for cid in case_ids():
         fx = load_fixture(cid)
         case = run_fixture(fx, case_dir(cid), ctx)
@@ -26,7 +27,8 @@ def test_every_fixture_runs_and_every_step_finishes():
             continue
         assert steps[0].stage == "intake"
         assert all(s.status != StepStatus.running and s.duration_ms is not None for s in steps)
-        assert case.decision is not None
+        if key[cid].decision is not None:  # supplier replies / applied credit notes end without a decision
+            assert case.decision is not None
 
 
 def test_answer_key_covers_every_fixture():

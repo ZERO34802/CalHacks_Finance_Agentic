@@ -319,7 +319,7 @@ def ingest(fx: CaseFixture, folder: Path, ctx: Ctx) -> Case:
         d.vendor_id = vendor_id
 
     case = Case(id=fx.id, vendor_id=vendor_id, documents=docs, as_of=fx.as_of,
-                created_at=min(i.received_at for i in fx.inbound), notes=notes)
+                created_at=min((i.received_at for i in fx.inbound), default=ctx.now()), notes=notes)
     if problems:
         case.status, case.decision = CaseStatus.quarantined, Decision.escalate
         case.quarantine_reason = "; ".join(problems)

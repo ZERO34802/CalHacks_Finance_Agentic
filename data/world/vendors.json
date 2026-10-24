@@ -18,7 +18,15 @@
     "tax_id": "TW-24551877",
     "critical": true,
     "on_probation": false,
-    "contact_email": "ar.team@formosawafer.com.tw"
+    "contact_email": "ar.team@formosawafer.com.tw",
+    "terms": {
+      "net_days": 30,
+      "discount_pct": "0.02",
+      "discount_days": 20,
+      "prepay_discount_pct": "0.04",
+      "prepay_cap_usd": "1000000.00",
+      "source": "Formosa supply agreement \u00a77 (demo terms)"
+    }
   },
   {
     "id": "V-KESTREL",
@@ -39,7 +47,15 @@
     "critical": true,
     "on_probation": false,
     "contact_email": "finance@kestrelmemory.co.kr",
-    "expected_schedule": "daily"
+    "expected_schedule": "daily",
+    "terms": {
+      "net_days": 30,
+      "discount_pct": "0.02",
+      "discount_days": 15,
+      "prepay_discount_pct": "0.03",
+      "prepay_cap_usd": "250000.00",
+      "source": "Kestrel MSA \u00a74.2 (demo terms)"
+    }
   },
   {
     "id": "V-PENANG",
@@ -80,7 +96,13 @@
     "tax_id": "US-84-3318820",
     "critical": false,
     "on_probation": false,
-    "contact_email": "ar@aerolane.com"
+    "contact_email": "ar@aerolane.com",
+    "terms": {
+      "net_days": 30,
+      "discount_pct": "0.03",
+      "discount_days": 10,
+      "source": "Aerolane rate card (demo terms)"
+    }
   },
   {
     "id": "V-TSC",

@@ -70,7 +70,8 @@ def test_bank_change_callback_never_reply_to_sender(ctx):
     assert "do not send bank details" in em.body.lower()
     fu = case.follow_ups[0]
     assert fu.kind == FollowUpKind.callback and fu.due == date(2026, 10, 21)
-    assert case.pending_approval.role == Role.controller and case.pending_approval.approver == "m.chen@helix.example"
+    # USD 3.3M is over the controller limit: the human who decides is the CFO (simulated identity)
+    assert case.pending_approval.role == Role.cfo and case.pending_approval.approver == "cfo@helix.example"
 
 
 def test_reply_promise_moves_due_date_and_never_touches_memory(ctx):
@@ -366,3 +367,77 @@ def test_corrected_invoice_routes_and_reviews_on_the_delta(ctx, monkeypatch):
     case = run_b(case, ctx, Approver(reviewer=reviewer))
     assert seen["role"] == Role.approver and ap.amount_usd(case, ctx) == D("0")  # 0.00 to post: AP lead suffices
     assert case.decision == Decision.approve and case.approvals[-1].scope == "full"
+
+
+def test_only_similar_rejections_form_a_pattern():
+    mkf = lambda cid, reason: evolution.SkillFeedback(  # noqa: E731
+        id=f"{cid}:a", skill="ap-3way-match", skill_version="v2", case_id=cid, role=Role.controller,
+        approver="m.chen@helix.example", reason=reason, at=datetime(2026, 10, 24, tzinfo=timezone.utc))
+    creep = "HBM price creep above contract; hold and ask for a corrected invoice."
+    fb = [mkf("case_18", "Hold the entire invoice and request a corrected USD invoice through the contact."),
+          mkf("case_35", "The proposal says the goods receipt wins for quantity, but there is no PO line."),
+          mkf("case_43", creep), mkf("case_44", creep)]
+    groups = evolution.patterns(fb)
+    assert len(groups) == 1 and {f.case_id for f in groups[0]} == {"case_43", "case_44"}
+    assert evolution.patterns(fb[:2] + fb[3:]) == []
+
+
+def test_callback_followup_done_endpoint(monkeypatch):
+    from fastapi.testclient import TestClient
+    import backend.api.app as app_module
+    store = SQLiteStore(":memory:")
+    seed(store)
+    monkeypatch.setattr(app_module, "store", store)
+    client = TestClient(app_module.app)
+    ctx = make_ctx(store)
+    case = run_b(mk(ctx, "case_04"), ctx)
+    store.save_case(case)
+    fid = case.follow_ups[0].id
+    url = f"/cases/case_04/followups/{fid}/done"
+    assert client.post(url, json={"by": "j.park@helix.example", "outcome": "confirmed"}).status_code == 403  # requester
+    assert client.post(url, json={"by": "agent:x", "outcome": "confirmed"}).status_code == 403
+    assert client.post(url, json={"by": "dana@helix.example"}).status_code == 400          # callback needs an outcome
+    assert client.post("/cases/case_04/followups/nope/done", json={"by": "d@h"}).status_code == 404
+    r = client.post(url, json={"by": "d.ortiz@helix.example", "outcome": "denied",
+                               "note": "called +60-4-... on file; vendor denied any bank change"})
+    body = r.json()
+    assert r.status_code == 200 and body["status"] == "escalated" and body["decision"] == "escalate"
+    fu = body["follow_ups"][0]
+    assert fu["status"] == "done" and fu["closed_by"] == "d.ortiz@helix.example" and "denied" in fu["note"]
+    assert store.get_record(Alert, "alert", "security_incident_case_04").kind == "security_incident"
+    assert store.get_vendor("V-PENANG").bank_last4 == "4418"                                   # never changed here
+    assert client.post(url, json={"by": "d.ortiz@helix.example", "outcome": "denied"}).status_code == 400  # already done
+    assert any(s.stage == "followup.done" for s in store.list_steps("case_04"))
+
+
+def test_callback_confirmed_leaves_human_approval(ctx):
+    case = run_b(mk(ctx, "case_04"), ctx)
+    case = ho.close_followup(case, ctx, case.follow_ups[0].id, "d.ortiz@helix.example", "vendor confirmed",
+                             "confirmed")
+    assert case.follow_ups[0].status == FollowUpStatus.done and case.pending_approval.role == Role.cfo
+    assert not case.approvals and ctx.store.get_record(Alert, "alert", "security_incident_case_04") is None
+
+
+def test_clean_replan_uses_guidance_without_rerouting(ctx, monkeypatch):
+    from backend.agents import droid
+    from backend.agents.approver import Review, deterministic_review
+    monkeypatch.setenv("RECONAI_DROID", "live")
+
+    def fake(sb, system, prompt, output_model, timeout=300):
+        assert "ap-3way-match" in system and '"skill": "ap-3way-match"' in sb.ro_text("case.json")  # guidance mounted
+        return droid.DroidRun(finding={"recommendation": "approve", "explanation": "Clean match.\nPO-7001 wins.\nApprove.",
+                                       "source_of_truth": "PO and GRN agree", "citations": [],
+                                       "next_action": "pay", "confidence": 0.9})
+    monkeypatch.setattr(droid, "investigate", fake)
+    calls = []
+
+    def reviewer(case, proposal, role, who, ctx, history):
+        calls.append(proposal.skill)
+        if len(calls) == 1:
+            return Review(decision=ApprovalDecision.rejected, reason="cite the winning document"), {}
+        return deterministic_review(case, proposal, role, who, ctx, history)
+    case = run_b(mk(ctx, "case_01"), ctx, Approver(reviewer=reviewer))
+    assert case.decision == Decision.approve and case.replans == 1
+    assert case.skill is None and case.proposal.skill == "ap-3way-match"          # guidance only, routing unchanged
+    step = [s for s in ctx.store.list_steps(case.id, ctx.run_id) if s.stage == "approver"][0]
+    assert step.detail["replan_guidance_skill"] == "ap-3way-match" and "rerouted_to" not in step.detail
