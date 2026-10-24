@@ -314,6 +314,10 @@ class Approver:
         """Set the final decision/status, then the follow-through: supplier outreach, human SLA timer."""
         from backend.agents.supplier import outreach
         case.decision, case.status = decision, STATUS[decision]
+        guidance = detail.get("replan_guidance_skill")
+        if guidance and case.skill is None and decision != Decision.approve:
+            case.skill = guidance  # the clean match became an exception: code routes it to that skill now
+            detail["rerouted_to"] = guidance
         if decision == Decision.escalate:
             role = human or human_role(case, ctx)
             who, _ = identity(role, case, ctx)
@@ -425,20 +429,26 @@ class Approver:
 
             # rejected -> re-plan
             history.append(review.reason)
-            if case.skill is None and proposal.recommendation == Decision.approve and case.invoice is not None:
-                # a reviewer disputes a clean match: re-plan it as a 3-way-match investigation (code routes it)
-                case.skill = ctx.policy.skills.get("three_way_match")
-                case.notes.append(f"approver: {role.value} rejected the clean match; re-planning with {case.skill}")
-            limit_hit = case.replans >= (self.max_replans if case.skill else MAX_CODE_REPLANS)
+            if case.skill is None and not detail.get("replan_guidance_skill") and \
+                    proposal.recommendation == Decision.approve and case.invoice is not None:
+                # a reviewer disputes a clean match: re-plan with the 3-way-match skill's guidance. Routing
+                # (case.skill) changes only if the outcome becomes an exception (see _finish).
+                detail["replan_guidance_skill"] = ctx.policy.skills.get("three_way_match")
+                case.notes.append(f"approver: {role.value} rejected the clean match; re-planning with "
+                                  f"{detail['replan_guidance_skill']} guidance")
+            guidance = detail.get("replan_guidance_skill")
+            skill_for_replan = case.skill or guidance
+            limit_hit = case.replans >= (self.max_replans if skill_for_replan else MAX_CODE_REPLANS)
             if limit_hit:
-                why = "re-plan limit reached" if case.skill else "code re-plan did not satisfy the reviewer"
+                why = "re-plan limit reached" if skill_for_replan else "code re-plan did not satisfy the reviewer"
                 case.notes.append(f"approver: {role.value} rejected ({review.reason}); {why}; escalated")
                 return self._finish(case, Decision.escalate, ctx, {**detail, "reason": why}, StepStatus.escalated)
             case.replans += 1
             with ctx.trace.step(case.id, "investigator.replan", role=Role.investigator):
-                if case.skill:
+                if skill_for_replan:
                     case.proposal, meta = investigate(case, ctx, feedback=review.reason, attempt=case.replans,
-                                                      code_only=bool(rule_meta.get("rule")))
+                                                      code_only=bool(rule_meta.get("rule")),
+                                                      guidance_skill=None if case.skill else guidance)
                     ctx.trace.annotate(skill=meta["skill"].name, skill_version=meta["skill"].version,
                                        memory_version=meta["memory_version"],
                                        inputs=meta["inputs"], outputs=["proposal.json"],

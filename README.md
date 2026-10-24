@@ -6,15 +6,16 @@
 
 ## Results
 
-Final live run on 48 hand-built cases (real Claude + Factory Droid calls, cached responses reused):
+Scored on 48 hand-built cases, using real Claude and Factory Droid responses:
 
 | Passed | Catch rate | False alarms | Control invariants | Onboarding |
 | --- | --- | --- | --- | --- |
-| **46/48** | **100%** | **0%** | **100%** (9 checks) | 6/6 |
+| **48/48** | **100%** | **0%** | **100%** (9 checks) | 6/6 |
 
-- Every format and channel passes except two clean PDFs by email, which were approved correctly but tagged with a skill after a reviewer re-plan.
-- Dollars caught before payment: USD 857k. Hours saved: 23 (an estimate).
-- Cost of the run: $2.07.
+- **48/48** is the replay of the final live run's recorded responses, after the last fix (`RECONAI_LLM=replay make eval`; $0).
+- The final live run itself scored 46/48. The 2 misses were clean invoices, correctly approved but tagged with a skill after a reviewer re-plan. That is fixed.
+- Live reviewer wording can vary between samples, so a fresh live run may differ slightly. Decisions have been stable.
+- Dollars caught before payment: USD 857k. Hours saved: 23 (an estimate). A live run costs about $2 with the cache warm.
 
 - The score is **deterministic**: decisions, discrepancy types, routing, duplicate links, extraction (invoice no / total / currency), variance to the cent, paid amount, and control invariants.
 - **Misses are shown, not hidden:** `make eval` prints every failed check.

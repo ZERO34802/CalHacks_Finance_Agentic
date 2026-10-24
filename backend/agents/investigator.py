@@ -244,7 +244,7 @@ def _claude(sb: Sandbox, system: str, ctx: Ctx) -> AgentFinding:
 
 
 def investigate(case: Case, ctx: Ctx, feedback: Optional[str] = None, attempt: int = 0,
-                code_only: bool = False) -> tuple[Proposal, dict]:
+                code_only: bool = False, guidance_skill: Optional[str] = None) -> tuple[Proposal, dict]:
     """Run one investigation for a routed case (inside the current trace step). Returns (proposal, meta).
 
     code_only: the re-plan answers a reviewer's standing rule, which code already knows how to satisfy
@@ -252,9 +252,10 @@ def investigate(case: Case, ctx: Ctx, feedback: Optional[str] = None, attempt: i
     from backend.pipeline.vendor_guard import screen
 
     policy_rec, reasons = rules.policy_recommendation(case)
-    skill = load_skill(case.skill)
+    skill = load_skill(guidance_skill or case.skill)  # guidance: write with a skill without changing routing
     vendor = screen(case, ctx).vendor
-    sb = build(case, ctx, skill, vendor, policy_rec, reasons, feedback=feedback, attempt=attempt)
+    mounted = case if case.skill else case.model_copy(update={"skill": skill.name})
+    sb = build(mounted, ctx, skill, vendor, policy_rec, reasons, feedback=feedback, attempt=attempt)
     system = SYSTEM.format(schema=json.dumps(AgentFinding.model_json_schema()), skill=skill.name,
                            version=skill.version, body=skill.body)
     prompt = PROMPT.format(case_id=case.id,

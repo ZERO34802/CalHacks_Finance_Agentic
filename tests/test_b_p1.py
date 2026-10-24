@@ -416,3 +416,28 @@ def test_callback_confirmed_leaves_human_approval(ctx):
                              "confirmed")
     assert case.follow_ups[0].status == FollowUpStatus.done and case.pending_approval.role == Role.cfo
     assert not case.approvals and ctx.store.get_record(Alert, "alert", "security_incident_case_04") is None
+
+
+def test_clean_replan_uses_guidance_without_rerouting(ctx, monkeypatch):
+    from backend.agents import droid
+    from backend.agents.approver import Review, deterministic_review
+    monkeypatch.setenv("RECONAI_DROID", "live")
+
+    def fake(sb, system, prompt, output_model, timeout=300):
+        assert "ap-3way-match" in system and '"skill": "ap-3way-match"' in sb.ro_text("case.json")  # guidance mounted
+        return droid.DroidRun(finding={"recommendation": "approve", "explanation": "Clean match.\nPO-7001 wins.\nApprove.",
+                                       "source_of_truth": "PO and GRN agree", "citations": [],
+                                       "next_action": "pay", "confidence": 0.9})
+    monkeypatch.setattr(droid, "investigate", fake)
+    calls = []
+
+    def reviewer(case, proposal, role, who, ctx, history):
+        calls.append(proposal.skill)
+        if len(calls) == 1:
+            return Review(decision=ApprovalDecision.rejected, reason="cite the winning document"), {}
+        return deterministic_review(case, proposal, role, who, ctx, history)
+    case = run_b(mk(ctx, "case_01"), ctx, Approver(reviewer=reviewer))
+    assert case.decision == Decision.approve and case.replans == 1
+    assert case.skill is None and case.proposal.skill == "ap-3way-match"          # guidance only, routing unchanged
+    step = [s for s in ctx.store.list_steps(case.id, ctx.run_id) if s.stage == "approver"][0]
+    assert step.detail["replan_guidance_skill"] == "ap-3way-match" and "rerouted_to" not in step.detail
