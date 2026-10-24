@@ -34,5 +34,17 @@
     "name": "Ruth Adler",
     "email": "r.adler@helix.example",
     "bank_last4": "9046"
+  },
+  {
+    "id": "E-119",
+    "name": "Priya Nair",
+    "email": "ap.backup@helix.example",
+    "bank_last4": "4470"
+  },
+  {
+    "id": "E-303",
+    "name": "Tom Okafor",
+    "email": "controller.backup@helix.example",
+    "bank_last4": "1862"
   }
 ]

@@ -1,0 +1,12 @@
+[
+  {
+    "reviewer": "m.chen@helix.example",
+    "id": "no-hbm-price-creep",
+    "applies_to": {
+      "vendor_id": "V-KESTREL",
+      "sku_prefix": "HBM"
+    },
+    "rule": "Reject an approve proposal when the unit price is above the contract price, even within the 0.5% price tolerance. Reason to give: 'HBM price creep above contract; hold and ask for a corrected invoice.'",
+    "since": "2026-10-20"
+  }
+]

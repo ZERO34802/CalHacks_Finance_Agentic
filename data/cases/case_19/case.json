@@ -1,6 +1,7 @@
 {
   "id": "case_19",
   "title": "Formosa invoice cites a PO that does not exist",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

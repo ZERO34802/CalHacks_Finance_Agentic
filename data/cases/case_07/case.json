@@ -1,6 +1,7 @@
 {
   "id": "case_07",
   "title": "Formosa CSV via SFTP: billed 500 wafers, 480 received",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "sftp",

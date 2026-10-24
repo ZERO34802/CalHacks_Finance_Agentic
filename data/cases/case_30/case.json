@@ -1,6 +1,7 @@
 {
   "id": "case_30",
   "title": "Kestrel CSV arrives over SFTP, a channel not registered for Kestrel",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "sftp",

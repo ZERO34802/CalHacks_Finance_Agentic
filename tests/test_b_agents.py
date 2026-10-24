@@ -30,6 +30,8 @@ from contracts import (ApprovalDecision, Case, CaseStatus, Citation, Decision, D
 def offline(monkeypatch):
     monkeypatch.setenv("RECONAI_DROID", "off")
     monkeypatch.setenv("RECONAI_LLM", "off")
+    monkeypatch.delenv("RECONAI_SKILLS_DIR", raising=False)  # an eval in the same process may set an overlay
+    monkeypatch.delenv("RECONAI_MEMORY", raising=False)
 
 
 @pytest.fixture
@@ -323,8 +325,10 @@ def test_sod_requester_never_approves(ctx):
 
 def test_hold_reviewed_by_controller_no_payment_approval(ctx):
     case = run_b(mk(ctx, "case_02", [QTY_SHORT]), ctx)  # TWD 18.6M ~ USD 576,600
-    assert case.decision == Decision.hold and case.status == CaseStatus.awaiting_approval
-    assert not [a for a in case.approvals if a.decision == ApprovalDecision.approved]
+    assert case.decision == Decision.hold and case.status == CaseStatus.awaiting_vendor  # credit note requested
+    approved = [a for a in case.approvals if a.decision == ApprovalDecision.approved]
+    assert [a.scope for a in approved] == ["undisputed"]          # never a full payment approval on a hold
+    assert case.paid_amount == D("17484000.00") and case.disputed_amount == D("1116000.00")
     review = [s for s in ctx.store.list_steps(case.id, ctx.run_id) if s.stage == "approver.review"][0]
     assert review.role == Role.controller and review.parent_id is not None
 
@@ -365,7 +369,7 @@ def test_reviewer_approval_cannot_turn_hold_into_payment(ctx):
         return Review(decision=ApprovalDecision.approved, reason="fine"), {}
     case = mk(ctx, "case_02", [QTY_SHORT])
     case = run_b(case, ctx, Approver(reviewer=yes))
-    assert case.decision == Decision.hold and not case.approvals
+    assert case.decision == Decision.hold and all(a.scope == "undisputed" for a in case.approvals)
 
 
 def test_skill_files_and_versions():
@@ -386,6 +390,8 @@ def test_claude_fallback_and_llm_reviewer(ctx, monkeypatch):
             out = AgentFinding(recommendation=Decision.hold, explanation="Billed 1000, received 940.",
                                source_of_truth="GRN wins for quantity.", next_action="request credit note",
                                citations=[Citation(doc_id="erp-GRN-PO-5501", locator="row 1")], confidence=0.8)
+        elif model.__name__ == "EmailBody":
+            out = model(body="Please send a credit note. [REC case_02]")
         else:
             out = Review(decision=ApprovalDecision.approved, reason="agree with hold")
         return llm.LLMResult(out, 10, 5)
@@ -433,23 +439,24 @@ def test_clean_proposal_cites_three_way_match_and_contract(ctx):
     assert preflight(case, p, ctx) == []
 
 
-def test_clean_rejection_gets_one_code_replan(ctx):
+def test_clean_rejection_replans_as_3way_match(ctx):
     calls = []
 
     def reviewer(case, proposal, role, who, ctx, history):
-        calls.append(len(proposal.citations))
+        calls.append(proposal.recommendation)
         if len(calls) == 1:
             return Review(decision=ApprovalDecision.rejected, reason="cite the winning document"), {}
         return deterministic_review(case, proposal, role, who, ctx, history)
     case = run_b(mk(ctx, "case_01"), ctx, Approver(reviewer=reviewer))
-    assert case.replans == 1 and case.decision == Decision.approve and calls[0] >= 3
+    # offline the template moves a rejected approve up to hold (never down); live, Droid decides
+    assert case.replans == 1 and case.skill == "ap-3way-match" and case.decision == Decision.hold
     replan = [s for s in ctx.store.list_steps(case.id, ctx.run_id) if s.stage == "investigator.replan"][0]
-    assert replan.detail["engine"] == "code"
+    assert replan.detail["engine"] == "deterministic fallback" and calls == [Decision.approve, Decision.hold]
 
     def always_no(case, proposal, role, who, ctx, history):
         return Review(decision=ApprovalDecision.rejected, reason="no"), {}
     case = run_b(mk(ctx, "case_01"), ctx, Approver(reviewer=always_no))
-    assert case.replans == 1 and case.decision == Decision.escalate
+    assert case.replans == 2 and case.decision == Decision.escalate
 
 
 def test_clean_proposal_shows_below_materiality_price_gap(ctx):

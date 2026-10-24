@@ -1,6 +1,7 @@
 {
   "id": "case_26",
   "title": "Kestrel printed total does not equal the sum of its lines",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

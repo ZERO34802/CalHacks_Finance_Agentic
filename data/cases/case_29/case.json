@@ -1,6 +1,7 @@
 {
   "id": "case_29",
   "title": "Aerolane posts an unknown schema 'aerolane.invoice.v2'",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "api",

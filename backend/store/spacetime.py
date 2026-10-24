@@ -135,6 +135,18 @@ class SpacetimeStore:
         rows = sorted(self._sql(f"SELECT key, body FROM world WHERE {where}"), key=lambda r: r[0])
         return self._load(model, [r[1] for r in rows])
 
+    _RESERVED = {"po", "receipt", "term", "paid", "employee"}
+
+    def put_record(self, kind: str, key: str, model: BaseModel, idx: str = "") -> None:
+        assert kind not in self._RESERVED, kind
+        self._put(kind, key, idx, model)
+
+    def get_record(self, model: type[T], kind: str, key: str) -> Optional[T]:
+        return self._get(model, kind, key)
+
+    def list_records(self, model: type[T], kind: str, idx: Optional[str] = None) -> list[T]:
+        return self._list(model, kind, idx)
+
     def save_po(self, po: PO) -> None: self._put("po", po.po_number, po.vendor_id, po)
     def get_po(self, po_number: str) -> Optional[PO]: return self._get(PO, "po", po_number)
     def save_receipt(self, r: Receipt) -> None: self._put("receipt", r.doc_id, r.po_number, r)
@@ -165,6 +177,9 @@ class SpacetimeStore:
 
     def save_memory(self, entry: MemoryEntry) -> None:
         self._call("put_memory", entry.id, entry.subject, entry.model_dump_json())
+
+    def delete_memory(self, entry_id: str) -> None:
+        self._call("delete_memory", entry_id)
 
     def list_memory(self, subject: Optional[str] = None) -> list[MemoryEntry]:
         if subject:

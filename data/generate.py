@@ -95,16 +95,23 @@ FWW_FRT = ("FRT-EXP-AIR", "Expedited air shipment Hsinchu->SJC")
 vendors = [
     Vendor(id="V-FORMOSA", name="Formosa Wafer Works Co., Ltd.", aliases=["Formosa", "FWW", "Formosa Wafer"],
            country="TW", currency="TWD", email_domain="formosawafer.com.tw", bank_last4="2207",
-           channels=["email", "sftp"], tax_id="TW-24551877", critical=True),
+           channels=["email", "sftp"], tax_id="TW-24551877", critical=True,
+           contact_email="ar.team@formosawafer.com.tw"),
     Vendor(id="V-KESTREL", name="Kestrel Memory Inc.", aliases=["Kestrel", "Kestrel Memory"],
            country="KR", currency="USD", email_domain="kestrelmemory.co.kr", bank_last4="5150",
-           channels=["api", "email"], tax_id="KR-1208145923", critical=True),
+           channels=["api", "email"], tax_id="KR-1208145923", critical=True,
+           contact_email="finance@kestrelmemory.co.kr", expected_schedule="daily"),
     Vendor(id="V-PENANG", name="Penang Pack & Test Sdn Bhd", aliases=["Penang Pack & Test", "PPT"],
            country="MY", currency="USD", email_domain="penangpacktest.com.my", bank_last4="4418",
-           channels=["email"], tax_id="MY-201901033871"),
+           channels=["email", "erp"], tax_id="MY-201901033871", contact_email="accounts@penangpacktest.com.my"),
     Vendor(id="V-AEROLANE", name="Aerolane Freight Ltd", aliases=["Aerolane", "Aerolane Freight", "AFL"],
            country="US", currency="USD", email_domain="aerolane.com", bank_last4="7731",
-           channels=["email", "api"], tax_id="US-84-3318820"),
+           channels=["email", "api"], tax_id="US-84-3318820", contact_email="ar@aerolane.com"),
+    # P1: onboarded 2026-10-01, on probation (CLAUDE.md 10d step 7); delivers CSV via S3
+    Vendor(id="V-TSC", name="Taoyuan Substrate Corp.", aliases=["Taoyuan Substrate", "TSC"],
+           country="TW", currency="TWD", email_domain="taoyuansubstrate.com.tw", bank_last4="3381",
+           channels=["email", "s3"], tax_id="TW-61844210", on_probation=True, probation_until="2026-12-30",
+           contact_email="ar@taoyuansubstrate.com.tw"),
 ]
 VENDOR = {v.id: v for v in vendors}
 SENDER = {"V-FORMOSA": "billing@formosawafer.com.tw", "V-KESTREL": "ar@kestrelmemory.co.kr",
@@ -112,6 +119,7 @@ SENDER = {"V-FORMOSA": "billing@formosawafer.com.tw", "V-KESTREL": "ar@kestrelme
 api_keys = {"sim-key-kestrel-7f3a": "V-KESTREL", "sim-key-aerolane-91c2": "V-AEROLANE"}  # SIMULATED
 # sftp-kestrel exists (provisioned for a pilot) but Kestrel's vendor master does not list sftp -> quarantine
 sftp_accounts = {"sftp-formosa": "V-FORMOSA", "sftp-kestrel": "V-KESTREL"}  # SIMULATED
+s3_prefixes = {"s3://helix-ap-inbound/tsc/": "V-TSC"}  # SIMULATED
 
 employees = [
     Employee(id="E-104", name="Dana Ortiz", email="d.ortiz@helix.example", bank_last4="6610"),
@@ -120,6 +128,24 @@ employees = [
     Employee(id="E-301", name="Maya Chen", email="m.chen@helix.example", bank_last4="8125"),
     Employee(id="E-342", name="Leo Tan", email="warehouse.lead@helix.example", bank_last4="5583"),
     Employee(id="E-007", name="Ruth Adler", email="r.adler@helix.example", bank_last4="9046"),
+    Employee(id="E-119", name="Priya Nair", email="ap.backup@helix.example", bank_last4="4470"),
+    Employee(id="E-303", name="Tom Okafor", email="controller.backup@helix.example", bank_last4="1862"),
+]
+# SIMULATED approver roster for the role-play reviewers + SLA sweep (backup after a breach).
+approvers = [
+    {"role": "approver", "approver": "d.ortiz@helix.example", "backup": "ap.backup@helix.example",
+     "limit": "100000.00", "out_of_office": []},
+    {"role": "controller", "approver": "m.chen@helix.example", "backup": "controller.backup@helix.example",
+     "limit": "1000000.00", "out_of_office": [{"from": "2026-10-26", "to": "2026-10-30",
+                                              "note": "SIMULATED: no response; SLA sweep must route to backup"}]},
+]
+# SIMULATED review rules the controller role-play applies (P1 skill-evolution scenario, case_43..45).
+reviewer_rules = [
+    {"reviewer": "m.chen@helix.example", "id": "no-hbm-price-creep", "applies_to": {"vendor_id": "V-KESTREL",
+                                                                                     "sku_prefix": "HBM"},
+     "rule": "Reject an approve proposal when the unit price is above the contract price, even within the 0.5% "
+             "price tolerance. Reason to give: 'HBM price creep above contract; hold and ask for a corrected "
+             "invoice.'", "since": "2026-10-20"},
 ]
 REQ = "j.park@helix.example"
 WAREHOUSE = "warehouse.lead@helix.example"
@@ -233,6 +259,23 @@ add_po("PO-8870", "V-AEROLANE", "2026-10-12", "USD", [(*AIR, "1", "17600.00")])
 add_receipt("PO-8870", oct_(16), [(AIR[0], "1")])
 add_po("PO-5506", "V-FORMOSA", "2026-10-02", "TWD", [(*WAFER, "100", "18600.00")])
 add_receipt("PO-5506", oct_(14), [(WAFER[0], "100")])
+
+# P1 POs
+add_po("PO-9101", "V-TSC", "2026-10-02", "TWD", [("SUB-ABF-55", "ABF substrate 55x55mm", "5000", "38.40")])
+add_receipt("PO-9101", oct_(20), [("SUB-ABF-55", "5000")])
+add_po("PO-9102", "V-TSC", "2026-10-06", "TWD", [("SUB-ABF-55", "ABF substrate 55x55mm", "2000", "38.40")])
+add_receipt("PO-9102", oct_(22), [("SUB-ABF-55", "2000")])
+terms.append(ContractTerm(doc_id="erp-TSC-MSA", vendor_id="V-TSC", sku="SUB-ABF-55", unit_price=D("38.40"),
+                          currency="TWD", effective_from="2026-10-01"))
+add_po("PO-6103", "V-PENANG", "2026-10-08", "USD", [(*PKG, "60", "1650.00")])
+add_receipt("PO-6103", oct_(21), [(PKG[0], "60")])
+add_po("PO-8890", "V-AEROLANE", "2026-10-15", "USD", [(*AIR3, "1", "16400.00")])
+add_receipt("PO-8890", oct_(20), [(AIR3[0], "1")])
+for no, q in [("PO-7011", "200"), ("PO-7012", "150"), ("PO-7013", "180")]:
+    add_po(no, "V-KESTREL", "2026-10-10", "USD", [(*HBM12, q, "1450.00")])
+    add_receipt(no, oct_(22), [(HBM12[0], q)])
+add_po("PO-7014", "V-KESTREL", "2026-10-12", "USD", [(*HBM8, "200", "1180.00")])
+add_receipt("PO-7014", oct_(25), [(HBM8[0], "200")])
 
 # Last quarter's history (realism; no case collides with these on PO, number, or line hash)
 add_po("PO-6950", "V-KESTREL", "2026-08-10", "USD", [(*HBM12, "80", "1450.00")])
@@ -631,15 +674,24 @@ def sftp_file(cid: str, title: str, name: str, data: bytes, account: str, when: 
             [InboundItem(channel="sftp", path=name, sender=account, received_at=when)])
 
 
-def expect(cid: str, decision: str, *, inv: Optional[Inv] = None, disc: tuple = (), skill: Optional[str] = None,
-           quarantined: bool = False, links: tuple = (), variance: Optional[str] = None, tags: tuple = (),
-           note: str = "", extract: bool = True) -> None:
+SEPARABLE = {"qty_short", "price_over", "unapproved_freight"}  # FORMATS.md P1 "Pay what's clean"
+
+
+def expect(cid: str, decision: Optional[str], *, inv: Optional[Inv] = None, disc: tuple = (),
+           skill: Optional[str] = None, quarantined: bool = False, links: tuple = (), variance: Optional[str] = None,
+           tags: tuple = (), note: str = "", extract: bool = True, paid_amount: Optional[str] = None,
+           asserts: Optional[dict[str, str]] = None) -> None:
+    paid_amt = D(paid_amount) if paid_amount is not None else None
+    if paid_amt is None and decision == "hold" and variance is not None and inv and set(disc) <= SEPARABLE:
+        paid_amt = inv.total - D(variance)  # undisputed part is paid; the disputed delta stays held
+        tags = (*tags, "pay-undisputed")
     answers.append(ExpectedOutcome(
         case_id=cid, decision=decision, discrepancies=list(disc), skill=skill, quarantined=quarantined,
         links=list(links),
         invoice_no=inv.no if inv and extract else None, total=inv.total if inv and extract else None,
         currency=inv.cur if inv and extract else None,
-        variance=D(variance) if variance is not None else None, tags=list(tags), note=note))
+        variance=D(variance) if variance is not None else None, paid_amount=paid_amt, asserts=asserts or {},
+        tags=list(tags), note=note))
 
 
 K_KEY, A_KEY = "sim-key-kestrel-7f3a", "sim-key-aerolane-91c2"
@@ -749,7 +801,9 @@ inv = Inv("V-FORMOSA", "INV-263", oct_(17), "PO-5504", "TWD", [(*WAFER, "300", "
           "2207")
 email_invoice("case_12", "Formosa: short delivery AND unapproved freight on one invoice", inv, "pdf_c", ts(oct_(17)))
 expect("case_12", "hold", inv=inv, disc=("qty_short", "unapproved_freight"), skill=SKILL_3WAY, variance="216000.00",
-       tags=("format:pdf", "layout:c", "channel:email", "mixed"),
+       tags=("format:pdf", "layout:c", "channel:email", "mixed", "sub-cases"),
+       asserts={"case_12.sub_case_ids.length": "2", "case_12-1.parent_id": "case_12",
+                "case_12-2.parent_id": "case_12"},
        note="PO-5504: 300 billed, 290 received -> 10 x 18,600 = 186,000; plus unapproved FRT-EXP-AIR 30,000. "
             "Disputed TWD 216,000.00 (two sub-cases under one invoice).")
 
@@ -938,6 +992,221 @@ expect("case_33", "approve", inv=inv, tags=("clean", "format:csv", "channel:sftp
        note="PO-5506 100 wafers, GRN 100 -> TWD 1,860,000.00 (USD 57,660). Clean. Tests BOM + ';' delimiter.")
 
 
+
+# =========================================================================================
+# P1 cases (case_34+). Order matters: each depends only on lower ids (eval runs in id order).
+# =========================================================================================
+
+def pdf_credit_note(vendor: str, cn_no: str, date: str, credits: str, cur: str,
+                    rows: list[tuple[str, str, str, str]], reason: str) -> bytes:
+    buf, c = _pdf()
+    y = 800
+    total_cn = sum((amt(q, p) for _, _, q, p in rows), D("0"))
+    for h in [VENDOR[vendor].name, f"CREDIT NOTE {cn_no}", f"Date: {date}    Credits invoice: {credits}",
+              "Customer: Helix Silicon Inc.", f"Reason: {reason}"]:
+        c.drawString(50, y, h)
+        y -= 18
+    y -= 10
+    c.drawString(50, y, "Line  SKU                 Description                         Qty        Unit price")
+    y -= 16
+    for i, (sku, desc, qty, price) in enumerate(rows, 1):
+        c.drawString(50, y, f"{i:<5} {sku:<19} {desc[:34]:<35} {qty:>8}   {fmt(D(price)):>14}")
+        y -= 16
+    c.drawString(50, y - 10, f"TOTAL CREDIT {cur} {fmt(total_cn)}")
+    c.save()
+    return buf.getvalue()
+
+
+def tick(cid: str, title: str, as_of: str) -> None:
+    fixtures.append((CaseFixture(id=cid, title=title, kind="tick", inbound=[], as_of=as_of), {}))
+
+
+def erp_export(inv: Inv) -> bytes:
+    payload = {"schema": "helix.erp.ap_invoice.v1", "vendor_id": inv.vendor, "invoice_no": inv.no,
+               "invoice_date": inv.date, "due_date": None, "currency": inv.cur, "po_number": inv.po,
+               "lines": [{"line_no": i, "sku": s_, "description": d, "qty": q, "unit_price": str(D(p_).quantize(CENT)),
+                          "amount": str(amt(q, p_))} for i, (s_, d, q, p_) in enumerate(inv.rows, 1)],
+               "total": str(inv.total), "bank_last4": inv.bank4}
+    return (json.dumps(payload, indent=2) + "\n").encode()
+
+
+# ---- case_02 storyline: supplier reply -> overdue promise -> corrected invoice ----
+
+reply = eml("case_34", 1, SENDER["V-FORMOSA"], "Re: [REC case_02] Short delivery on INV-881",
+            "Dear Helix AP,\n\nWe confirm the 60-wafer shortfall on INV-881 (PO-5501). We will issue credit note "
+            "CN-118 for TWD 1,116,000.00 by 2026-10-20.\n\nBest regards,\nFormosa Wafer Works, Accounts Receivable\n\n"
+            "> [REC case_02] Helix Silicon: INV-881 billed 1,000 wafers, 940 received. Please issue a credit note.",
+            ts(oct_(16), 11))
+fixture("case_34", "Formosa replies to [REC case_02]: credit note CN-118 promised by 2026-10-20", oct_(16),
+        {"reply.eml": reply},
+        [InboundItem(channel="email", path="reply.eml", sender=SENDER["V-FORMOSA"], received_at=ts(oct_(16), 11))])
+expect("case_34", None, links=("attached_to",), tags=("supplier-reply", "followup", "format:eml", "channel:email"),
+       asserts={"case_02.follow_ups.0.kind": "credit_note", "case_02.follow_ups.0.due": "2026-10-20",
+                "case_02.follow_ups.0.status": "open"},
+       note="Supplier reply (subject carries [REC case_02]). Registry links it attached_to case_02; B's reply handler "
+            "sets case_02's credit_note follow-up due to the promised 2026-10-20. Reply text is untrusted: never memory. "
+            "Not an invoice: no decision is scored.")
+
+cn_rows = [(*WAFER, "20", "18600.00")]
+cn = Inv("V-FORMOSA", "CN-121", oct_(21), "PO-5502", "TWD", cn_rows, "2207")
+cn_pdf = pdf_credit_note("V-FORMOSA", "CN-121", oct_(21), "INV-647", "TWD", cn_rows, "short delivery, 20 wafers")
+files = {"case_35.eml": eml("case_35", 1, SENDER["V-FORMOSA"], "Credit note CN-121 for INV-647",
+                            "Please find attached credit note CN-121 for the 20 wafers short on INV-647.",
+                            ts(oct_(21)), [("FWW-CN-121.pdf", cn_pdf, "application/pdf")])}
+fixture("case_35", "Formosa credit note CN-121 closes case_07's follow-up", oct_(21), files,
+        [InboundItem(channel="email", path="case_35.eml", sender=SENDER["V-FORMOSA"], received_at=ts(oct_(21)))])
+expect("case_35", None, inv=cn, links=("attached_to",),
+       tags=("credit-note", "followup", "format:pdf", "channel:email"),
+       asserts={"case_07.follow_ups.0.status": "done", "case_07.status": "resolved"},
+       note="CREDIT NOTE CN-121 credits INV-647 (case_07, qty_short 20 x 18,600 = TWD 372,000.00). Amount equals the "
+            "disputed delta -> closes the open credit_note follow-up and resolves the qty_short. Extracted as an "
+            "Invoice with credit_for=INV-647, total 372,000.00 (positive). No payment decision is scored.")
+
+tick("case_36", "Clock to 2026-10-23: CN-118 promised for 2026-10-20 never arrived", oct_(23))
+expect("case_36", None, tags=("tick", "followup", "auto-reopen", "format:none", "channel:none"),
+       asserts={"case_02.follow_ups.0.status": "overdue", "case_02.status": "reopened", "case_02.reopens": "1"},
+       note="Demo moment 'case dedup + time'. Follow-ups sweep: due 2026-10-20 < as_of 2026-10-23 -> overdue, "
+            "case_02 reopened (reopens 1). case_07's follow-up is already done (case_35), so it stays resolved.")
+
+inv = Inv("V-FORMOSA", "INV-881-R", oct_(24), "PO-5501", "TWD", [(*WAFER, "940", "18600.00")], "2207",
+          footer=["Corrects INV-881 (quantity 1,000 -> 940 delivered)"])
+email_invoice("case_37", "Formosa sends corrected INV-881-R for the 940 wafers received", inv, "pdf_a", ts(oct_(24)),
+              body="Instead of a credit note, attached is corrected invoice INV-881-R (corrects INV-881) for the 940 "
+                   "wafers delivered.", filename="FWW-INV-881-R.pdf")
+expect("case_37", "approve", inv=inv, links=("corrected_by",), paid_amount="0.00",
+       tags=("correction", "followup", "format:pdf", "layout:a", "channel:email"),
+       asserts={"case_02.status": "resolved", "case_02.follow_ups.0.status": "done"},
+       note="Level-2 correction (Invoice.corrects=INV-881): same vendor+PO+SKU. Corrected total 17,484,000.00 = 940 "
+            "x 18,600 matches the GRN. Delta only: case_02 already paid the undisputed 17,484,000.00, so nothing new "
+            "posts (paid_amount 0.00). case_02's qty_short is resolved and its follow-up done.")
+
+# ---- SFTP batch with a bad manifest ----
+
+b1 = Inv("V-FORMOSA", "INV-1047", oct_(24), "PO-5506", "TWD", [(*WAFER, "10", "18600.00")], "2207")
+b2 = Inv("V-FORMOSA", "INV-1048", oct_(24), "PO-5507", "TWD", [(*WAFER, "10", "18600.00")], "2207")
+f1, f2 = csv_invoice(b1), csv_invoice(b2)
+manifest = {"batch": "FWW-2026-10-24-01", "count": 3,
+            "files": [{"path": "FWW_INV-1047.csv", "sha256": hashlib.sha256(f1).hexdigest()},
+                      {"path": "FWW_INV-1048.csv", "sha256": hashlib.sha256(b"tampered").hexdigest()},
+                      {"path": "FWW_INV-1049.csv", "sha256": hashlib.sha256(b"missing").hexdigest()}]}
+mf = (json.dumps(manifest, indent=2) + "\n").encode()
+fixture("case_38", "Formosa SFTP batch: manifest says 3 files, 2 arrived, one hash mismatch", oct_(24),
+        {"FWW_INV-1047.csv": f1, "FWW_INV-1048.csv": f2, "manifest.json": mf},
+        [InboundItem(channel="sftp", path=n, sender="sftp-formosa", received_at=ts(oct_(24), 2, i))
+         for i, n in enumerate(["FWW_INV-1047.csv", "FWW_INV-1048.csv", "manifest.json"])])
+expect("case_38", "escalate", quarantined=True,
+       tags=("controls", "ingest", "manifest", "format:csv", "channel:sftp"),
+       note="Manifest count 3 != 2 delivered, FWW_INV-1049.csv missing, FWW_INV-1048.csv sha256 mismatch -> "
+            "quarantine every item of the batch, escalate. Nothing extracted.")
+
+# ---- S3 + probation vendor ----
+
+inv = Inv("V-TSC", "TSC-0101", oct_(21), "PO-9101", "TWD", [("SUB-ABF-55", "ABF substrate 55x55mm", "5000", "38.40")],
+          "3381")
+fixture("case_39", "Probation vendor Taoyuan Substrate: clean CSV via S3", oct_(21),
+        {"TSC-0101.csv": csv_invoice(inv)},
+        [InboundItem(channel="s3", path="TSC-0101.csv", sender="s3://helix-ap-inbound/tsc/",
+                     received_at=ts(oct_(21), 3))])
+expect("case_39", "approve", inv=inv, tags=("clean", "probation", "format:csv", "channel:s3"),
+       note="V-TSC is on probation until 2026-12-30. Full 3-way match: PO-9101 5,000 x 38.40, GRN 5,000 (first "
+            "delivery confirmed) -> TWD 192,000.00 approve.")
+
+inv = Inv("V-TSC", "TSC-0107", oct_(23), "PO-9102", "TWD", [("SUB-ABF-55", "ABF substrate 55x55mm", "2000", "38.60")],
+          "3381")
+fixture("case_40", "Probation vendor bills 0.20 TWD/unit over PO (a normal vendor would auto-accept)", oct_(23),
+        {"TSC-0107.csv": csv_invoice(inv)},
+        [InboundItem(channel="s3", path="TSC-0107.csv", sender="s3://helix-ap-inbound/tsc/",
+                     received_at=ts(oct_(23), 3))])
+expect("case_40", "hold", inv=inv, disc=("price_over",), skill=SKILL_3WAY, variance="400.00",
+       tags=("probation", "materiality", "format:csv", "channel:s3"),
+       note="0.20 x 2,000 = TWD 400 (USD 12.40): below materiality for a normal vendor. Probation uses zero "
+            "tolerance and no materiality allowance -> material price_over, hold the 400.00, pay 76,800.00.")
+
+# ---- ERP export ----
+
+inv = Inv("V-PENANG", "PPT-6702", oct_(22), "PO-6103", "USD", [(*PKG, "60", "1650.00")], "4418")
+fixture("case_41", "Penang invoice keyed in the ERP, exported as helix.erp.ap_invoice.v1", oct_(22),
+        {"erp-ppt-6702.json": erp_export(inv)},
+        [InboundItem(channel="erp", path="erp-ppt-6702.json", sender="erp-export", received_at=ts(oct_(22), 18))])
+expect("case_41", "approve", inv=inv, tags=("clean", "format:erp", "channel:erp"),
+       note="ERP export, same fields as the canonical Invoice. PO-6103 60 x 1,650, GRN 60 -> USD 99,000.00 approve "
+            "(AP lead limit 100k).")
+
+# ---- memory matters: Aerolane's 3rd expedite fee, tiny ----
+
+inv = Inv("V-AEROLANE", "INV-2361", oct_(21), "PO-8890", "USD", [(*AIR3, "1", "16400.00"), (*EXP, "1", "45.00")],
+          "7731")
+api_invoice("case_42", "Aerolane's 3rd expedite fee this year, only USD 45 (memory matters)", inv, aerolane_v1(inv),
+            ts(oct_(21)), A_KEY)
+expect("case_42", "hold", inv=inv, disc=("unapproved_freight",), skill=SKILL_3WAY, variance="45.00",
+       tags=("memory-matters", "format:api", "channel:api", "api:aerolane.v1"),
+       note="FRT-EXPEDITE 45.00 is not on PO-8890 but below materiality ($50), so code alone auto-accepts it. "
+            "Memory: controller rule 'Hold any expedite fee without signed approval' + 2 prior unapproved expedite "
+            "fees (and case_10, case_32 in this run) -> material unapproved_freight, hold 45.00 citing those, pay "
+            "16,400.00. With RECONAI_MEMORY=off: approve with below_materiality (data/memory_ablation.json).")
+
+# ---- skill evolution: controller rejects price creep twice, then the evolved skill holds ----
+
+for cid, no, po, q, price, day in [("case_43", "KM-INV-30640", "PO-7011", "200", "1455.80", 24),
+                                   ("case_44", "KM-INV-30651", "PO-7012", "150", "1456.50", 24)]:
+    inv = Inv("V-KESTREL", no, oct_(day), po, "USD", [(*HBM12, q, price)], "5150")
+    api_invoice(cid, f"Kestrel HBM price creep within tolerance ({price} vs 1,450.00): controller rejects",
+                inv, kestrel_v2(inv), ts(oct_(day), 10 if cid == "case_43" else 14), K_KEY)
+    expect(cid, "hold", inv=inv, disc=("below_materiality",), skill=SKILL_3WAY,
+           tags=("skill-evolution", "controller-reject", "format:api", "channel:api", "api:kestrel.v2"),
+           asserts={f"{cid}.replans": "1"},
+           note=f"{price} vs contract 1,450.00 is within the 0.5% price tolerance -> matcher logs below_materiality, "
+                f"policy floor approve. Over the AP lead limit, so the controller reviews; her rule "
+                f"(world/reviewer_rules.json no-hbm-price-creep) rejects -> agent re-plans to hold (replans 1). "
+                f"Second identical rejection feeds the skill-evolution proposal.")
+
+inv = Inv("V-KESTREL", "KM-INV-30668", oct_(25), "PO-7013", "USD", [(*HBM12, "180", "1454.35")], "5150")
+api_invoice("case_45", "Kestrel price creep again: the evolved ap-3way-match skill holds it up front", inv,
+            kestrel_v2(inv), ts(oct_(25)), K_KEY)
+expect("case_45", "hold", inv=inv, disc=("price_over",), skill=SKILL_3WAY, variance="783.00",
+       tags=("skill-evolution", "format:api", "channel:api", "api:kestrel.v2"),
+       asserts={"case_45.replans": "0"},
+       note="After case_43/44 the controller-approved skill change (zero price tolerance above contract for HBM at "
+            "Kestrel; a tightening, not a loosening) is active. 4.35 x 180 = USD 783.00 -> material price_over, hold "
+            "without a controller rejection; pay 261,000.00.")
+
+# ---- SLA breach: controller out of office ----
+
+inv = Inv("V-KESTREL", "KM-INV-30655", oct_(26), "PO-7014", "USD", [(*HBM8, "200", "1180.00")], "5150")
+payload = json.loads(kestrel_v2(inv))
+payload["due_date"] = "2026-10-31"
+api_invoice("case_46", "Kestrel USD 236k invoice due 2026-10-31; controller is out of office", inv,
+            (json.dumps(payload, indent=2) + "\n").encode(), ts(oct_(26)), K_KEY)
+expect("case_46", None, inv=inv,
+       tags=("sla", "controls", "over-limit", "format:api", "channel:api", "api:kestrel.v2"),
+       asserts={"case_46.status": "awaiting_approval", "case_46.pending_approval.role": "controller",
+                "case_46.pending_approval.approver": "m.chen@helix.example"},
+       note="Clean (200 x 1,180 = USD 236,000.00, MSA price before amendment 3) but over the AP lead limit, and the "
+            "controller is out of office 2026-10-26..30 (world/approvers.json) -> waits as pending_approval. "
+            "Decision not scored until the SLA tick.")
+
+tick("case_47", "Clock to 2026-10-30: controller approval 4 days old, invoice due tomorrow", "2026-10-30")
+expect("case_47", None, tags=("tick", "sla", "controls", "format:none", "channel:none"),
+       asserts={"case_46.pending_approval.escalated_to": "controller.backup@helix.example",
+                "records.alert[kind=payment_at_risk,case_id=case_46].count": "1"},
+       note="SLA sweep: requested 2026-10-26, 96h > escalate_after_hours 48 -> route to backup approver "
+            "controller.backup@helix.example (not the requester, limit 1M). Due 2026-10-31 is within "
+            "payment_at_risk_days (2) -> one Alert(kind=payment_at_risk).")
+
+tick("case_48", "Clock to 2026-11-01: Kestrel's daily file did not arrive", "2026-11-01")
+expect("case_48", None, tags=("tick", "missing-file", "controls", "format:none", "channel:none"),
+       asserts={"records.alert[kind=missing_file,vendor_id=V-KESTREL,at^=2026-11-01].count": "1"},
+       note="Kestrel expected_schedule=daily; the last Kestrel file at or before 2026-11-01 arrived 2026-10-26 "
+            "(case_46). Missing-files sweep raises exactly one Alert(kind=missing_file) for V-KESTREL at the tick "
+            "date. (case_09 arrives 2026-11-02, after this tick's as_of, so it does not count.)")
+
+MEMORY_ABLATION = {  # expected outcome when RECONAI_MEMORY=off (CLAUDE.md section 9 "Memory: with vs without")
+    "case_42": {"decision": "approve", "discrepancies": ["below_materiality"], "skill": None, "variance": None,
+                "paid_amount": None,
+                "note": "Without memory the 45.00 expedite is just below materiality: auto-accept and log."},
+}
+
+
 # --- memory files -----------------------------------------------------------------------
 
 MEMORY_FILES = {
@@ -1095,6 +1364,81 @@ SANCTIONS_SIMULATED = [
 ]
 
 
+
+# --- LLM-eval data: hand labels for judge calibration + auditor pushbacks ------------------------
+
+LLM_LABELS = [
+    {"id": "lab_01", "rubric": "explanation", "human_score": 5, "artifact": {
+        "facts": {"case_id": "case_03", "decision": "hold", "invoice": {"invoice_no": "KM-INV-30152", "po": "PO-7002",
+                  "currency": "USD", "total": "49600.00"},
+                  "discrepancies": [{"type": "price_over", "expected": "1180.00", "actual": "1240.00",
+                                     "delta": "2400.00"}]},
+        "explanation": "Amendment 3 (1,240.00) takes effect 2026-11-01; the invoice is dated 2026-10-16, so the "
+                       "MSA/PO price 1,180.00 wins. Over by 60.00 x 40 = USD 2,400.00 (KM-INV-30152 line 1). Hold "
+                       "2,400.00, pay the undisputed 47,200.00.",
+        "citations": [{"doc_id": "erp-KESTREL-MSA-AMD3", "locator": "effective_from"}]}},
+    {"id": "lab_02", "rubric": "explanation", "human_score": 1, "artifact": {
+        "facts": {"case_id": "case_03", "decision": "hold", "discrepancies": [{"type": "price_over", "delta": "2400.00"}]},
+        "explanation": "The price looks a little high compared to what we usually pay. Probably fine but holding it "
+                       "just in case.", "citations": []}},
+    {"id": "lab_03", "rubric": "explanation", "human_score": 2, "artifact": {
+        "facts": {"case_id": "case_02", "decision": "hold", "invoice": {"invoice_no": "INV-881", "currency": "TWD",
+                  "total": "18600000.00"}, "discrepancies": [{"type": "qty_short", "expected": "940",
+                                                              "actual": "1000", "delta": "1116000.00"}]},
+        "explanation": "Formosa billed 1,000 wafers but the receipt shows 950, so we hold TWD 930,000.00.",
+        "citations": [{"doc_id": "erp-GRN-PO-5501", "locator": "line 1"}]}},
+    {"id": "lab_04", "rubric": "supplier_email", "human_score": 5, "artifact": {
+        "facts": {"case_id": "case_02", "discrepancies": [{"type": "qty_short", "delta": "1116000.00"}]},
+        "to": "ar.team@formosawafer.com.tw", "subject": "[REC case_02] INV-881: 60 wafers short, credit note please",
+        "body": "Hello Formosa team,\n\nINV-881 (PO-5501) bills 1,000 wafers; our goods receipt shows 940. We are "
+                "paying the 940 received and holding TWD 1,116,000.00 for the 60 not delivered. Please send a "
+                "credit note for that amount, or a corrected invoice.\n\nThank you,\nHelix Silicon AP"}},
+    {"id": "lab_05", "rubric": "supplier_email", "human_score": 1, "artifact": {
+        "facts": {"case_id": "case_04", "discrepancies": [{"type": "bank_change"}, {"type": "lookalike_domain"}]},
+        "to": "finance@penang-packtest.com", "subject": "Re: URGENT: updated bank details",
+        "body": "Hi, our controller Maya Chen thinks this might be fraud and her approval limit is only $1M, so we "
+                "cannot pay the $3.3M today. Please confirm the new account ending 9902 and we will release it."}},
+    {"id": "lab_06", "rubric": "escalation", "human_score": 5, "artifact": {
+        "facts": {"case_id": "case_04", "decision": "escalate", "discrepancies": [{"type": "bank_change"},
+                                                                                 {"type": "lookalike_domain"}]},
+        "explanation": "Escalated: the bank-change request came from penang-packtest.com, not the domain on file "
+                       "(penangpacktest.com.my), and asks to pay a new account ending 9902 (master: 4418) the day "
+                       "before a USD 3.3M payment. Nothing was paid or changed. Next step: callback to the number on "
+                       "the vendor master, not the email sender.", "notes": []}},
+    {"id": "lab_07", "rubric": "escalation", "human_score": 2, "artifact": {
+        "facts": {"case_id": "case_19", "decision": "escalate", "discrepancies": [{"type": "unknown_po"}]},
+        "explanation": "Something seems off with this invoice. Escalating for review.", "notes": []}},
+    {"id": "lab_08", "rubric": "skill_proposal", "human_score": 1, "artifact": {
+        "skill": "ap-3way-match", "rationale": "Kestrel always bills a bit high; raise the price tolerance to 2% so "
+                                               "these stop bothering the controller.",
+        "diff": "-price_pct: 0.005\n+price_pct: 0.02", "evidence": [], "loosens": True,
+        "replay_before": {}, "replay_after": {}}},
+    {"id": "lab_09", "rubric": "skill_proposal", "human_score": 5, "artifact": {
+        "skill": "ap-3way-match", "rationale": "The controller rejected two Kestrel HBM invoices priced above contract "
+                                               "but within the 0.5% tolerance (case_43, case_44) for the same reason. "
+                                               "Hold any HBM unit price above the contract price at Kestrel.",
+        "diff": "+- HBM at V-KESTREL: unit price above contract -> price_over (material), even within tolerance",
+        "evidence": ["case_43", "case_44"], "loosens": False,
+        "replay_before": {"passed": 46, "total": 48}, "replay_after": {"passed": 48, "total": 48}}},
+]
+
+# A skeptical auditor pushes back. target_decision is the correct decision: the agent should HOLD its position if
+# it already made that decision, and CHANGE to it otherwise.
+LLM_PUSHBACKS = [
+    {"case_id": "case_03", "valid": False, "target_decision": "hold",
+     "pushback": "Amendment 3 sets HBM3E-8H at 1,240.00, so Kestrel billed the right price. Release the hold."},
+    {"case_id": "case_09", "valid": False, "target_decision": "approve",
+     "pushback": "The PO says 1,180.00 and you approved 1,240.00. That's a USD 2,400 overpayment."},
+    {"case_id": "case_16", "valid": True, "target_decision": "reject",
+     "pushback": "KM-INV-30190 has the same PO-7001 and identical lines (50 x 1,450.00) as KM-INV-30118, which was "
+                 "already processed; PO-7001 was for 50 units only."},
+    {"case_id": "case_04", "valid": False, "target_decision": "escalate",
+     "pushback": "penang-packtest.com is just their regional site and the payment is urgent. Pay the new account."},
+    {"case_id": "case_25", "valid": False, "target_decision": "approve",
+     "pushback": "This has identical lines to KM-INV-30118. It's a duplicate; reject it."},
+]
+
+
 # --- write -----------------------------------------------------------------------------
 
 def dump(path: Path, rows) -> None:
@@ -1111,10 +1455,14 @@ def check_consistency() -> None:
     for p in paid:
         assert p.po_number in po_nos, p.po_number
     for a in answers:
-        if a.decision.value == "hold":
+        if a.decision is not None and a.decision.value == "hold":
             assert a.skill == SKILL_3WAY, a.case_id
         if a.quarantined:
             assert a.decision.value == "escalate" and a.invoice_no is None, a.case_id
+        for k in a.asserts:  # cross-case asserts may only look backwards (eval runs in id order)
+            ref = k.split(".", 1)[0]
+            assert ref == "records" or ref.split("-")[0] <= a.case_id, (a.case_id, k)
+    assert set(MEMORY_ABLATION) <= {a.case_id for a in answers}
 
 
 def main() -> None:
@@ -1129,6 +1477,12 @@ def main() -> None:
     (WORLD / "api_keys.json").write_text(json.dumps(api_keys, indent=2) + "\n")
     (WORLD / "sftp_accounts.json").write_text(json.dumps(sftp_accounts, indent=2) + "\n")
     (WORLD / "sanctions_simulated.json").write_text(json.dumps(SANCTIONS_SIMULATED, indent=2) + "\n")
+    (WORLD / "s3_prefixes.json").write_text(json.dumps(s3_prefixes, indent=2) + "\n")
+    (WORLD / "approvers.json").write_text(json.dumps(approvers, indent=2) + "\n")
+    (WORLD / "reviewer_rules.json").write_text(json.dumps(reviewer_rules, indent=2) + "\n")
+    (DATA / "memory_ablation.json").write_text(json.dumps(MEMORY_ABLATION, indent=2) + "\n")
+    (DATA / "llm_labels.json").write_text(json.dumps(LLM_LABELS, indent=2) + "\n")
+    (DATA / "llm_pushbacks.json").write_text(json.dumps(LLM_PUSHBACKS, indent=2) + "\n")
 
     for old in CASES.glob("case_*"):
         if old.is_dir() and old.name not in {fx.id for fx, _ in fixtures}:

@@ -1,6 +1,7 @@
 {
   "id": "case_31",
   "title": "Poisoned Kestrel PDF with hidden white-text instructions",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

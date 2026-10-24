@@ -384,6 +384,102 @@
     "received_by": "warehouse.lead@helix.example"
   },
   {
+    "doc_id": "erp-GRN-PO-9101",
+    "po_number": "PO-9101",
+    "received_date": "2026-10-20",
+    "lines": [
+      {
+        "sku": "SUB-ABF-55",
+        "qty_received": "5000"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-9102",
+    "po_number": "PO-9102",
+    "received_date": "2026-10-22",
+    "lines": [
+      {
+        "sku": "SUB-ABF-55",
+        "qty_received": "2000"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-6103",
+    "po_number": "PO-6103",
+    "received_date": "2026-10-21",
+    "lines": [
+      {
+        "sku": "PKG-COWOS-L",
+        "qty_received": "60"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-8890",
+    "po_number": "PO-8890",
+    "received_date": "2026-10-20",
+    "lines": [
+      {
+        "sku": "FRT-AIR-PEN-SJC",
+        "qty_received": "1"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7011",
+    "po_number": "PO-7011",
+    "received_date": "2026-10-22",
+    "lines": [
+      {
+        "sku": "HBM3E-12H-24G",
+        "qty_received": "200"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7012",
+    "po_number": "PO-7012",
+    "received_date": "2026-10-22",
+    "lines": [
+      {
+        "sku": "HBM3E-12H-24G",
+        "qty_received": "150"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7013",
+    "po_number": "PO-7013",
+    "received_date": "2026-10-22",
+    "lines": [
+      {
+        "sku": "HBM3E-12H-24G",
+        "qty_received": "180"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
+    "doc_id": "erp-GRN-PO-7014",
+    "po_number": "PO-7014",
+    "received_date": "2026-10-25",
+    "lines": [
+      {
+        "sku": "HBM3E-8H-24G",
+        "qty_received": "200"
+      }
+    ],
+    "received_by": "warehouse.lead@helix.example"
+  },
+  {
     "doc_id": "erp-GRN-PO-6950",
     "po_number": "PO-6950",
     "received_date": "2026-09-02",

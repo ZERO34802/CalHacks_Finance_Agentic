@@ -4,6 +4,8 @@
 - RECONAI_LLM=live (default when a key is set) | replay (cache only, fail on miss) | off.
   Responses are cached under .data/llm_cache keyed by the full request, so evals
   are reproducible and re-runs cost nothing.
+- RECONAI_SAMPLE=<n> is part of the cache key: consistency evals set 1, 2, 3 to get fresh samples.
+- `model=` overrides the default (e.g. the LLM judge uses a different model than the agent it judges).
 - Never pass tools here together with untrusted document text (see CLAUDE.md).
 """
 from __future__ import annotations
@@ -61,13 +63,15 @@ def _get_client():
 
 
 def structured(output_model: type[T], system: str, content: list[dict] | str, *,
-               effort: str = "medium", max_tokens: int = 16000, role: str = "llm") -> LLMResult:
+               effort: str = "medium", max_tokens: int = 16000, role: str = "llm",
+               model: Optional[str] = None) -> LLMResult:
     """One tool-less Claude call whose answer must validate as `output_model`."""
     if mode() == "off":
         raise LLMUnavailable("RECONAI_LLM=off or no ANTHROPIC_API_KEY")
     messages = [{"role": "user", "content": content}]
     key = hashlib.sha256(json.dumps(
-        {"m": MODEL, "s": system, "c": content, "o": output_model.model_json_schema(), "e": effort, "r": role},
+        {"m": model or MODEL, "s": system, "c": content, "o": output_model.model_json_schema(), "e": effort, "r": role,
+         "n": os.environ.get("RECONAI_SAMPLE", "0")},
         sort_keys=True, default=str).encode()).hexdigest()
     path = CACHE_DIR / f"{key}.json"
     if path.exists():
@@ -79,7 +83,7 @@ def structured(output_model: type[T], system: str, content: list[dict] | str, *,
     import anthropic
     try:
         resp = _get_client().beta.messages.parse(
-            model=MODEL, max_tokens=max_tokens, system=system, messages=messages,
+            model=model or MODEL, max_tokens=max_tokens, system=system, messages=messages,
             output_format=output_model, thinking={"type": "adaptive"},
             output_config={"effort": effort},
             betas=["server-side-fallback-2026-07-01"], fallbacks="default",

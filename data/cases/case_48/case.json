@@ -1,0 +1,7 @@
+{
+  "id": "case_48",
+  "title": "Clock to 2026-11-01: Kestrel's daily file did not arrive",
+  "kind": "tick",
+  "inbound": [],
+  "as_of": "2026-11-01"
+}

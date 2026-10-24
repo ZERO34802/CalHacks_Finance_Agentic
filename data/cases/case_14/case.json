@@ -1,6 +1,7 @@
 {
   "id": "case_14",
   "title": "Same INV-905 PDF re-delivered via SFTP",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "sftp",

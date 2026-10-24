@@ -1,6 +1,7 @@
 {
   "id": "case_28",
   "title": "Formosa CSV with a formula-injection cell in unit_price",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "sftp",

@@ -1,6 +1,7 @@
 {
   "id": "case_33",
   "title": "Formosa clean CSV (semicolon delimiter, UTF-8 BOM) via SFTP",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "sftp",

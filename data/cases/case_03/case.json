@@ -1,6 +1,7 @@
 {
   "id": "case_03",
   "title": "Kestrel bills amended price before effective date",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "api",

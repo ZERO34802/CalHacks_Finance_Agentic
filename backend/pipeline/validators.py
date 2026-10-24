@@ -104,6 +104,23 @@ def known_numbers(case: Case, ctx: Ctx) -> set[Decimal]:
             add(t.unit_price)
         for p in ctx.store.list_paid(case.vendor_id):
             add(p.total)
+    for l in case.links:  # figures of linked cases (corrected original, credited invoice, duplicate)
+        other = ctx.store.get_case(l.case_id) if l.case_id and l.case_id != case.id else None
+        if other is None or other.invoice is None:
+            continue
+        oi = other.invoice
+        for x in (oi.total, other.disputed_amount, other.paid_amount):
+            add(x)
+        for li in oi.lines:
+            add(li.qty)
+            add(li.amount)
+        for d in other.discrepancies:
+            add(d.delta)
+        if inv:
+            add(oi.total - inv.total)
+        if other.journal_entry:
+            for post in other.journal_entry.postings:
+                add(post.amount)
     pol = ctx.policy
     for x in list(pol.approval_limits.values()) + [pol.materiality.abs, pol.materiality.pct * 100,
                                                    pol.tolerances.price_pct * 100, pol.tolerances.qty_pct * 100]:
@@ -157,6 +174,8 @@ def check(case: Case, ctx: Ctx) -> tuple[list[str], dict]:
 
     ev = evidence(case, ctx)
     for c in p.citations:
+        if c.doc_id.startswith(("memory:", "skill:")):  # B's rule/memory references: context, not documents
+            continue
         if c.doc_id not in ev:
             errs.append(f"citation: doc {c.doc_id} is not evidence in this case")
             continue

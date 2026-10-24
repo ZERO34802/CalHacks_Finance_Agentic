@@ -1,6 +1,7 @@
 {
   "id": "case_02",
   "title": "Formosa short delivery: billed 1000, received 940",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

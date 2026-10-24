@@ -1,6 +1,7 @@
 {
   "id": "case_05",
   "title": "Aerolane resends paid INV-2291 as INV-2291-A",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

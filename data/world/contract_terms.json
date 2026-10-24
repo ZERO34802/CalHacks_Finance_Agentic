@@ -46,5 +46,13 @@
     "unit_price": "2500.00",
     "currency": "USD",
     "effective_from": "2026-01-01"
+  },
+  {
+    "doc_id": "erp-TSC-MSA",
+    "vendor_id": "V-TSC",
+    "sku": "SUB-ABF-55",
+    "unit_price": "38.40",
+    "currency": "TWD",
+    "effective_from": "2026-10-01"
   }
 ]

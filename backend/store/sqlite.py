@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS scoreboards (run_id TEXT PRIMARY KEY, at TEXT NOT NUL
 
 class SQLiteStore:
     def __init__(self, path: str = DEFAULT_DB):
+        self.path = path
         if path != ":memory:":
             Path(path).parent.mkdir(parents=True, exist_ok=True)
         self._db = sqlite3.connect(path, check_same_thread=False)
@@ -99,6 +100,18 @@ class SQLiteStore:
             return self._load(model, self._exec("SELECT body FROM world WHERE kind=? ORDER BY key", (kind,)))
         return self._load(model, self._exec("SELECT body FROM world WHERE kind=? AND idx=? ORDER BY key", (kind, idx)))
 
+    _RESERVED = {"po", "receipt", "term", "paid", "employee"}
+
+    def put_record(self, kind: str, key: str, model: BaseModel, idx: str = "") -> None:
+        assert kind not in self._RESERVED, kind
+        self._put(kind, key, idx, model)
+
+    def get_record(self, model: type[T], kind: str, key: str) -> Optional[T]:
+        return self._get(model, kind, key)
+
+    def list_records(self, model: type[T], kind: str, idx: Optional[str] = None) -> list[T]:
+        return self._list(model, kind, idx)
+
     def save_po(self, po: PO) -> None: self._put("po", po.po_number, po.vendor_id, po)
     def get_po(self, po_number: str) -> Optional[PO]: return self._get(PO, "po", po_number)
     def save_receipt(self, r: Receipt) -> None: self._put("receipt", r.doc_id, r.po_number, r)
@@ -140,6 +153,9 @@ class SQLiteStore:
     # memory
     def save_memory(self, entry: MemoryEntry) -> None:
         self._exec("INSERT OR REPLACE INTO memory VALUES (?, ?, ?)", (entry.id, entry.subject, entry.model_dump_json()))
+
+    def delete_memory(self, entry_id: str) -> None:
+        self._exec("DELETE FROM memory WHERE id=?", (entry_id,))
 
     def list_memory(self, subject: Optional[str] = None) -> list[MemoryEntry]:
         if subject:

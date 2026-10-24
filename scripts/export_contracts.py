@@ -3,8 +3,13 @@
 TypeScript is generated from the schema by json-schema-to-typescript (see Makefile).
 The OpenAPI examples come from running the fixtures through the current pipeline,
 so the Prism mock serves realistic, contract-valid data.
+Examples are built OFFLINE (no Claude / Droid calls): they only need to be contract-valid.
 """
 import json
+import os
+
+os.environ["RECONAI_LLM"] = "off"
+os.environ["RECONAI_DROID"] = "off"
 
 from pydantic.json_schema import models_json_schema
 

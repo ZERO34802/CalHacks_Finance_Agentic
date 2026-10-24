@@ -135,8 +135,19 @@ def _winner_doc(case: Case, d) -> Optional[str]:
     return other[0] if other else (case.po.doc_id if case.po else None)
 
 
-def deterministic_finding(case: Case, ctx: Ctx, policy_rec: Decision, reasons: list[str]) -> AgentFinding:
-    """Templated proposal from code facts only (3 lines). Used offline and when Droid + Claude both fail."""
+def deterministic_finding(case: Case, ctx: Ctx, policy_rec: Decision, reasons: list[str],
+                          feedback: Optional[str] = None) -> AgentFinding:
+    """Templated proposal from code facts only (3 lines). Used offline and when Droid + Claude both fail.
+
+    On a re-plan after a reviewer rejected an approve, the template moves up to hold (never down)."""
+    if feedback and policy_rec == Decision.approve:
+        f = deterministic_finding(case, ctx, policy_rec, reasons)
+        cites, lines, sot = clean_evidence(case, ctx)
+        return AgentFinding(recommendation=Decision.hold,
+                            explanation=f"{lines[1]}\nReviewer rejected approval: {feedback.strip()}\n"
+                                        "Recommendation: hold until the vendor corrects it.",
+                            source_of_truth=sot, citations=cites, next_action=NEXT[Decision.hold] + f" ({feedback.strip()})",
+                            confidence=f.confidence)
     cur = case.invoice.currency if case.invoice else ""
     gaps, wins, winners = [], [], []
     for d in rules.material(case):
@@ -236,7 +247,7 @@ def investigate(case: Case, ctx: Ctx, feedback: Optional[str] = None, attempt: i
             return AgentFinding.model_validate(run.finding)
 
         engines = [("droid", run_droid), ("claude", lambda: _claude(sb, system, ctx)),
-                   (DETERMINISTIC, lambda: deterministic_finding(case, ctx, policy_rec, reasons))]
+                   (DETERMINISTIC, lambda: deterministic_finding(case, ctx, policy_rec, reasons, feedback))]
         proposal = pdetail = engine = None
         for name, fn in engines:
             try:
@@ -252,6 +263,9 @@ def investigate(case: Case, ctx: Ctx, feedback: Optional[str] = None, attempt: i
                     pdetail["preflight_errors"] = problems
                 break
             errors.append(f"{name}: failed validator preflight: {'; '.join(problems)[:300]}")
+        if skill.status == "shadow":  # brand-new skills recommend only; a human decides until promoted
+            proposal.recommendation = Decision.escalate
+            pdetail["shadow_mode"] = "skill in shadow mode: recommendation shown, case escalated"
         if not droid_meta:
             last = [ev for ev in sb.events if ev["event"] == "droid.result"]
             droid_meta = last[-1] if last else {}
@@ -344,6 +358,17 @@ def code_proposal(case: Case, ctx: Ctx, why: str, feedback: Optional[str] = None
     nxt = NEXT[policy_rec]
     if policy_rec == Decision.approve:
         cites, lines, sot = clean_evidence(case, ctx)
+        from backend.agents.approver import correction
+        corr = correction(case, ctx)
+        if corr:  # corrected invoice: say plainly what is already booked and what code will post
+            cur = case.invoice.currency
+            lines[2] = (f"Corrects {corr['corrects']} ({corr['original_case']}): {corr['already_booked_on_linked_case']} "
+                        f"{cur} already booked there, so approving posts only the delta "
+                        f"{corr['amount_to_post_by_code']} {cur} and closes {corr['original_case']}'s dispute; "
+                        "recommendation: approve.")
+            nxt = (f"Post only the delta {corr['amount_to_post_by_code']} {cur} (nothing already booked is paid again); "
+                   f"close {corr['original_case']}'s dispute and its open credit-note follow-up.")
+            sot += f" This invoice corrects {corr['corrects']} on {corr['original_case']} (corrected_by link)."
         text = clamp_lines("\n".join(lines))
     else:
         cites, text, sot = f.citations, clamp_lines(f"{why}.\n{f.explanation}"), f.source_of_truth

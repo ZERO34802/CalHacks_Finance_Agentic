@@ -1,6 +1,7 @@
 {
   "id": "case_16",
   "title": "Kestrel resends KM-INV-30118 under a new number (API v2)",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "api",

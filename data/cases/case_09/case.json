@@ -1,6 +1,7 @@
 {
   "id": "case_09",
   "title": "Kestrel bills amended price after the amendment took effect",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

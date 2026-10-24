@@ -1,6 +1,7 @@
 {
   "id": "case_18",
   "title": "Penang bills in MYR against a USD PO",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

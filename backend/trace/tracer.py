@@ -42,8 +42,13 @@ def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def llm_cost(input_tokens: int, output_tokens: int) -> Decimal:
-    return (Decimal(input_tokens) * PRICE_IN_PER_MTOK + Decimal(output_tokens) * PRICE_OUT_PER_MTOK) / _MTOK
+# USD per million tokens (input, output). Default = the agent model.
+PRICES = {"claude-opus-5-5": (PRICE_IN_PER_MTOK, PRICE_OUT_PER_MTOK), "claude-sonnet-5-5": (Decimal("2"), Decimal("10"))}
+
+
+def llm_cost(input_tokens: int, output_tokens: int, model: Optional[str] = None) -> Decimal:
+    pin, pout = PRICES.get(model or "claude-opus-5-5", (PRICE_IN_PER_MTOK, PRICE_OUT_PER_MTOK))
+    return (Decimal(input_tokens) * pin + Decimal(output_tokens) * pout) / _MTOK
 
 
 def _mask_digits(s: str) -> str:
@@ -122,13 +127,13 @@ class Tracer:
         if detail:
             self._current.detail.update(detail)
 
-    def record_llm(self, result: Any, role: Optional[str] = None) -> None:
+    def record_llm(self, result: Any, role: Optional[str] = None, model: Optional[str] = None) -> None:
         """Add an LLMResult's tokens and cost to the current step (no-op outside a step)."""
         if self._current is None:
             return
         tin, tout = int(getattr(result, "input_tokens", 0)), int(getattr(result, "output_tokens", 0))
         cached = bool(getattr(result, "cached", False))
-        cost = Decimal(0) if cached else llm_cost(tin, tout)
+        cost = Decimal(0) if cached else llm_cost(tin, tout, model)
         s = self._current
         s.tokens += tin + tout
         s.cost_usd = ((s.cost_usd or Decimal(0)) + cost).quantize(Decimal("0.000001"))

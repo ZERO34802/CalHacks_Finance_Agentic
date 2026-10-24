@@ -4,6 +4,7 @@ from __future__ import annotations
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 import yaml
 from pydantic import BaseModel
@@ -36,6 +37,10 @@ class Policy(BaseModel):
     fx_rates: dict[str, Decimal]
     accounts: Accounts
     skills: dict[str, str]
+    sla: dict[str, Any] = {}
+    probation: dict[str, Any] = {}
+    queue: dict[str, Any] = {}
+    metrics: dict[str, Any] = {}
 
 
 @lru_cache

@@ -1,6 +1,7 @@
 {
   "id": "case_22",
   "title": "Late Penang invoice dated in locked September",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

@@ -1,0 +1,14 @@
+{
+  "id": "case_34",
+  "title": "Formosa replies to [REC case_02]: credit note CN-118 promised by 2026-10-20",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "email",
+      "path": "reply.eml",
+      "sender": "billing@formosawafer.com.tw",
+      "received_at": "2026-10-16T11:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-16"
+}

@@ -1,6 +1,7 @@
 {
   "id": "case_32",
   "title": "Aerolane email falsely claims expedite fees are permanently approved",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

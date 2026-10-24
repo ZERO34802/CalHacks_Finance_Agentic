@@ -6,6 +6,8 @@ The OpenAPI spec exported from this app is what the Prism mock serves.
 from __future__ import annotations
 
 import asyncio
+import importlib
+import importlib.util
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -42,6 +44,13 @@ def _broadcast(event: Event) -> None:
     data = event.model_dump_json()
     for q in list(_listeners):
         _loop.call_soon_threadsafe(q.put_nowait, data)
+
+
+# Per-team routers: backend/api/routes_a.py, routes_b.py, routes_c.py each define `router = APIRouter()`.
+for _team in ("a", "b", "c"):
+    _mod = f"backend.api.routes_{_team}"
+    if importlib.util.find_spec(_mod) is not None:
+        app.include_router(importlib.import_module(_mod).router)
 
 
 @app.get("/cases", response_model=list[Case])

@@ -158,6 +158,10 @@ export const put_memory = spacetimedb.reducer(
   }
 );
 
+export const delete_memory = spacetimedb.reducer({ id: t.string() }, (ctx, { id }) => {
+  ctx.db.memory.id.delete(id);
+});
+
 export const put_scoreboard = spacetimedb.reducer(
   { run_id: t.string(), at: t.string(), body: t.string() },
   (ctx, row) => {

@@ -69,8 +69,11 @@ def mode() -> str:
 
 
 def _key(sb: Sandbox, system: str, prompt: str) -> str:
-    return hashlib.sha256(json.dumps({"m": MODEL, "s": system, "p": prompt, "t": sorted(sb.skill.tools),
-                                      "mounts": sb.mount_hash()}, sort_keys=True).encode()).hexdigest()
+    k = {"m": MODEL, "s": system, "p": prompt, "t": sorted(sb.skill.tools), "mounts": sb.mount_hash()}
+    sample = os.environ.get("RECONAI_SAMPLE", "0")
+    if sample != "0":  # consistency evals: fresh samples; default keeps P0 cache keys valid
+        k["n"] = sample
+    return hashlib.sha256(json.dumps(k, sort_keys=True).encode()).hexdigest()
 
 
 def _wrapper(sb: Sandbox) -> str:
@@ -115,7 +118,7 @@ async def _run_async(sb: Sandbox, system: str, prompt: str, timeout: float, outp
     from droid_sdk import Autonomy, InteractionHandlers, Runtime, SessionConfig, run
 
     config = SessionConfig(
-        autonomy=Autonomy.OFF,
+        autonomy=Autonomy(sb.autonomy),
         restrict_tools=set(sb.skill.tools),
         disable_builtin_skills=True,
         system_prompt={"type": "preset", "preset": "droid", "append": system},

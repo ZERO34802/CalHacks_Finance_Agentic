@@ -1,0 +1,14 @@
+{
+  "id": "case_39",
+  "title": "Probation vendor Taoyuan Substrate: clean CSV via S3",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "s3",
+      "path": "TSC-0101.csv",
+      "sender": "s3://helix-ap-inbound/tsc/",
+      "received_at": "2026-10-21T03:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-21"
+}

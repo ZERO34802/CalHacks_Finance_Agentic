@@ -1,6 +1,7 @@
 {
   "id": "case_27",
   "title": "Formosa workbook with a VBA macro (named .xlsx)",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "sftp",

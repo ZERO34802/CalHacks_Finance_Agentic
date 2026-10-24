@@ -1,6 +1,7 @@
 {
   "id": "case_13",
   "title": "Formosa clean invoice INV-905 by email",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

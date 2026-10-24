@@ -1,6 +1,7 @@
 {
   "id": "case_06",
   "title": "Kestrel bills 60 HBM stacks, 48 received (API v2)",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "api",

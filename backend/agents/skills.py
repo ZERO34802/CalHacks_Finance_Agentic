@@ -6,13 +6,18 @@ names that exist on disk under SKILLS_DIR resolve.
 from __future__ import annotations
 
 import hashlib
+import os
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 
 import yaml
 
 SKILLS_DIR = Path(__file__).resolve().parents[1] / "skills"
+
+
+def skills_dir() -> Path:
+    """RECONAI_SKILLS_DIR overrides the skills root (skill-evolution replay against a proposed copy)."""
+    return Path(os.environ.get("RECONAI_SKILLS_DIR") or SKILLS_DIR).resolve()
 
 
 @dataclass(frozen=True)
@@ -39,10 +44,10 @@ def _frontmatter(text: str) -> tuple[dict, str]:
     return {}, text
 
 
-@lru_cache
 def load_skill(name: str) -> Skill:
-    path = (SKILLS_DIR / name).resolve()
-    if path.parent != SKILLS_DIR.resolve() or not (path / "SKILL.md").exists():
+    root = skills_dir()
+    path = (root / name).resolve()
+    if path.parent != root or not (path / "SKILL.md").exists():
         raise KeyError(f"unknown skill {name!r}")
     md = (path / "SKILL.md").read_text()
     fm, body = _frontmatter(md)

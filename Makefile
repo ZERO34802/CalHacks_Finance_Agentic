@@ -1,7 +1,7 @@
 PY := PYTHONPATH=. .venv/bin/python
 CASE ?= case_01
 
-.PHONY: setup run eval seed api mock ui types test clean data stdb-start stdb-publish
+.PHONY: eval-llm tick setup run eval seed api mock ui types test clean data stdb-start stdb-publish
 
 setup:            ## venv + python deps + ui deps
 	python3.12 -m venv .venv
@@ -13,6 +13,12 @@ run:              ## make run CASE=case_01 -> one fixture through the pipeline
 
 eval:             ## all fixtures -> scoreboard (exit 1 if any invariant fails)
 	$(PY) scripts/eval.py
+
+tick:             ## make tick AS_OF=2026-10-28 -> advance the clock, run sweeps
+	$(PY) scripts/tick.py $(AS_OF)
+
+eval-llm:         ## LLM judge + consistency (separate from the headline). ARGS='--cases case_03 --yes'; RECONAI_LLM=replay is free
+	$(PY) scripts/eval_llm.py $(ARGS)
 
 seed:
 	$(PY) scripts/seed.py

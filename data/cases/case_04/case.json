@@ -1,6 +1,7 @@
 {
   "id": "case_04",
   "title": "Penang bank change from look-alike domain, day before a $3.3M payment",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

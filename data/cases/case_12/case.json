@@ -1,6 +1,7 @@
 {
   "id": "case_12",
   "title": "Formosa: short delivery AND unapproved freight on one invoice",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

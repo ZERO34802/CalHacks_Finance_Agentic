@@ -1,5 +1,56 @@
 {
   "$defs": {
+    "Alert": {
+      "additionalProperties": false,
+      "description": "Stored as a record (kind='alert'). E.g. expected vendor file missing, SLA breach, payment due at risk.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "vendor_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "case_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "vendor_id",
+        "case_id",
+        "at",
+        "message"
+      ],
+      "title": "Alert",
+      "type": "object"
+    },
     "Approval": {
       "additionalProperties": false,
       "properties": {
@@ -17,6 +68,18 @@
         },
         "decision": {
           "$ref": "#/$defs/ApprovalDecision"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "full | undisputed (pay only the undisputed part of a hold)"
         },
         "comment": {
           "default": "",
@@ -46,6 +109,7 @@
         "approver",
         "role",
         "decision",
+        "scope",
         "comment",
         "limit",
         "at"
@@ -86,6 +150,59 @@
         "comment"
       ],
       "title": "ApprovalRequest",
+      "type": "object"
+    },
+    "BusinessMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "dollars_caught_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "hours_saved_est": {
+          "description": "ESTIMATE, labeled as such in the UI",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "on_time_payment_rate": {
+          "type": "number"
+        },
+        "exceptions_per_vendor": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "default": {},
+          "type": "object"
+        },
+        "avg_time_to_resolve_hours": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "dollars_caught_usd",
+        "hours_saved_est",
+        "on_time_payment_rate",
+        "exceptions_per_vendor",
+        "avg_time_to_resolve_hours",
+        "notes"
+      ],
+      "title": "BusinessMetrics",
       "type": "object"
     },
     "Case": {
@@ -263,6 +380,100 @@
           "default": null,
           "description": "Business 'today' for this case (posting date, period locks)"
         },
+        "sub_case_ids": {
+          "description": "One sub-case per discrepancy (parent = invoice)",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "paid_amount": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Undisputed part posted for payment"
+        },
+        "disputed_amount": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "follow_ups": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/FollowUp"
+          },
+          "type": "array"
+        },
+        "outbound": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SupplierEmail"
+          },
+          "type": "array"
+        },
+        "pending_approval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PendingApproval"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "assigned_to": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human who took over; agent stages skip while set"
+        },
+        "handoffs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Handoff"
+          },
+          "type": "array"
+        },
+        "priority": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Queue priority score; higher = sooner"
+        },
+        "reopens": {
+          "default": 0,
+          "type": "integer"
+        },
         "created_at": {
           "format": "date-time",
           "type": "string"
@@ -308,6 +519,16 @@
         "decision",
         "replans",
         "as_of",
+        "sub_case_ids",
+        "paid_amount",
+        "disputed_amount",
+        "follow_ups",
+        "outbound",
+        "pending_approval",
+        "assigned_to",
+        "handoffs",
+        "priority",
+        "reopens",
         "created_at",
         "updated_at",
         "notes"
@@ -344,7 +565,11 @@
         "title": {
           "type": "string"
         },
+        "kind": {
+          "$ref": "#/$defs/FixtureKind"
+        },
         "inbound": {
+          "default": [],
           "items": {
             "$ref": "#/$defs/InboundItem"
           },
@@ -359,6 +584,7 @@
       "required": [
         "id",
         "title",
+        "kind",
         "inbound",
         "as_of"
       ],
@@ -427,7 +653,10 @@
         "escalated",
         "posted",
         "quarantined",
-        "resolved"
+        "resolved",
+        "paused",
+        "awaiting_vendor",
+        "reopened"
       ],
       "title": "CaseStatus",
       "type": "string"
@@ -509,6 +738,47 @@
         "effective_from"
       ],
       "title": "ContractTerm",
+      "type": "object"
+    },
+    "Controls": {
+      "additionalProperties": false,
+      "description": "Kill switch. Stored as a record (kind='controls', key='global').",
+      "properties": {
+        "paused_global": {
+          "default": false,
+          "type": "boolean"
+        },
+        "paused_vendors": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "updated_by": {
+          "default": "system",
+          "type": "string"
+        },
+        "updated_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "paused_global",
+        "paused_vendors",
+        "updated_by",
+        "updated_at"
+      ],
+      "title": "Controls",
       "type": "object"
     },
     "Decision": {
@@ -728,6 +998,18 @@
             }
           ],
           "default": null
+        },
+        "subject": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Email Subject header (UNTRUSTED); carries [REC <case_id>] on replies"
         }
       },
       "required": [
@@ -740,7 +1022,8 @@
         "mime",
         "received_at",
         "text",
-        "sender"
+        "sender",
+        "subject"
       ],
       "title": "Document",
       "type": "object"
@@ -898,7 +1181,15 @@
           "type": "string"
         },
         "decision": {
-          "$ref": "#/$defs/Decision"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Decision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "None for tick fixtures (use asserts)"
         },
         "discrepancies": {
           "default": [],
@@ -980,6 +1271,27 @@
           "default": null,
           "description": "Expected disputed amount, to the cent"
         },
+        "paid_amount": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Expected undisputed amount posted (pay what's clean)"
+        },
+        "asserts": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "'<case_id>.<dotted.path>' -> expected str value, checked after this fixture",
+          "type": "object"
+        },
         "tags": {
           "description": "e.g. attack, onboarding, format:xlsx, channel:sftp",
           "items": {
@@ -1003,10 +1315,124 @@
         "total",
         "currency",
         "variance",
+        "paid_amount",
+        "asserts",
         "tags",
         "note"
       ],
       "title": "ExpectedOutcome",
+      "type": "object"
+    },
+    "FixtureKind": {
+      "enum": [
+        "inbound",
+        "tick"
+      ],
+      "title": "FixtureKind",
+      "type": "string"
+    },
+    "FollowUp": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "case_id": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/FollowUpKind"
+        },
+        "due": {
+          "format": "date",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/FollowUpStatus"
+        },
+        "note": {
+          "default": "",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "closed_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Doc id / case id / person that closed it"
+        }
+      },
+      "required": [
+        "id",
+        "case_id",
+        "kind",
+        "due",
+        "status",
+        "note",
+        "created_at",
+        "closed_by"
+      ],
+      "title": "FollowUp",
+      "type": "object"
+    },
+    "FollowUpKind": {
+      "enum": [
+        "credit_note",
+        "corrected_invoice",
+        "callback",
+        "supplier_reply",
+        "resend"
+      ],
+      "title": "FollowUpKind",
+      "type": "string"
+    },
+    "FollowUpStatus": {
+      "enum": [
+        "open",
+        "done",
+        "overdue"
+      ],
+      "title": "FollowUpStatus",
+      "type": "string"
+    },
+    "Handoff": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "from_actor": {
+          "type": "string"
+        },
+        "to_actor": {
+          "type": "string"
+        },
+        "at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "note": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "from_actor",
+        "to_actor",
+        "at",
+        "note"
+      ],
+      "title": "Handoff",
       "type": "object"
     },
     "InboundItem": {
@@ -1129,6 +1555,30 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "credit_for": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Credit note: invoice number it credits (amounts positive)"
+        },
+        "corrects": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Corrected invoice: invoice number it replaces"
         }
       },
       "required": [
@@ -1142,7 +1592,9 @@
         "lines",
         "total",
         "bank_last4",
-        "flags"
+        "flags",
+        "credit_for",
+        "corrects"
       ],
       "title": "Invoice",
       "type": "object"
@@ -1198,6 +1650,42 @@
         "idempotency_key"
       ],
       "title": "JournalEntry",
+      "type": "object"
+    },
+    "LLMJudgeScore": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "rubric": {
+          "description": "explanation | supplier_email | escalation | defend_decision | skill_proposal",
+          "type": "string"
+        },
+        "score": {
+          "description": "Mean 1-5 over runs",
+          "type": "number"
+        },
+        "runs": {
+          "type": "integer"
+        },
+        "rationale": {
+          "default": "",
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "rubric",
+        "score",
+        "runs",
+        "rationale",
+        "model"
+      ],
+      "title": "LLMJudgeScore",
       "type": "object"
     },
     "LineItem": {
@@ -1291,6 +1779,243 @@
       ],
       "title": "MemoryFolder",
       "type": "string"
+    },
+    "OnboardingCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "e.g. duplicate_tax_id, sanctions, employee_bank, lookalike_domain, tax_form",
+          "type": "string"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "detail": {
+          "default": "",
+          "type": "string"
+        },
+        "simulated": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "passed",
+        "detail",
+        "simulated"
+      ],
+      "title": "OnboardingCheck",
+      "type": "object"
+    },
+    "OnboardingRequest": {
+      "additionalProperties": false,
+      "description": "data/onboarding/onb_*.json. Always started by an internal requester (vendors never self-sign-up).",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "received_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "requested_by": {
+          "type": "string"
+        },
+        "legal_name": {
+          "type": "string"
+        },
+        "trade_names": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "country": {
+          "type": "string"
+        },
+        "tax_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tax_form": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "email_domain": {
+          "type": "string"
+        },
+        "bank_last4": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "channels": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Channel"
+          },
+          "type": "array"
+        },
+        "payment_terms": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "expected_annual_spend_usd": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "received_at",
+        "requested_by",
+        "legal_name",
+        "trade_names",
+        "country",
+        "tax_id",
+        "tax_form",
+        "email_domain",
+        "bank_last4",
+        "currency",
+        "channels",
+        "payment_terms",
+        "expected_annual_spend_usd"
+      ],
+      "title": "OnboardingRequest",
+      "type": "object"
+    },
+    "OnboardingResult": {
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "checks": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/OnboardingCheck"
+          },
+          "type": "array"
+        },
+        "flags": {
+          "description": "Names of failed checks",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "risk_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "low | medium | high"
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Decision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "approvals": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Approval"
+          },
+          "type": "array"
+        },
+        "vendor_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Set only once activated"
+        },
+        "probation_until": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "request_id",
+        "checks",
+        "flags",
+        "risk_tier",
+        "decision",
+        "approvals",
+        "vendor_id",
+        "probation_until",
+        "notes"
+      ],
+      "title": "OnboardingResult",
+      "type": "object"
     },
     "PO": {
       "additionalProperties": false,
@@ -1413,6 +2138,59 @@
         "line_hash"
       ],
       "title": "PaidInvoice",
+      "type": "object"
+    },
+    "PendingApproval": {
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "$ref": "#/$defs/Role"
+        },
+        "approver": {
+          "type": "string"
+        },
+        "requested_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "due_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "reminded_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "escalated_to": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Backup approver after SLA breach"
+        }
+      },
+      "required": [
+        "role",
+        "approver",
+        "requested_at",
+        "due_at",
+        "reminded_at",
+        "escalated_to"
+      ],
+      "title": "PendingApproval",
       "type": "object"
     },
     "Posting": {
@@ -1633,7 +2411,8 @@
         "investigator",
         "approver",
         "controller",
-        "requester"
+        "requester",
+        "cfo"
       ],
       "title": "Role",
       "type": "string"
@@ -1681,6 +2460,49 @@
             "$ref": "#/$defs/TagScore"
           },
           "type": "array"
+        },
+        "llm_scores": {
+          "items": {
+            "$ref": "#/$defs/LLMJudgeScore"
+          },
+          "type": "array"
+        },
+        "stability": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Decision stability across repeated runs (0-1)"
+        },
+        "metrics": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BusinessMetrics"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "onboarding": {
+          "description": "Vendor-onboarding results; reported separately from the headline",
+          "items": {
+            "$ref": "#/$defs/EvalResult"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "description": "Run notes, e.g. a skipped section and why",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -1693,10 +2515,114 @@
         "invariant_pass_rate",
         "results",
         "check_rates",
-        "by_tag"
+        "by_tag",
+        "llm_scores",
+        "stability",
+        "metrics",
+        "onboarding",
+        "notes"
       ],
       "title": "Scoreboard",
       "type": "object"
+    },
+    "SkillProposal": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "skill": {
+          "type": "string"
+        },
+        "from_version": {
+          "type": "string"
+        },
+        "to_version": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "diff": {
+          "description": "Unified diff against SKILL.md / policy.yaml",
+          "type": "string"
+        },
+        "evidence_case_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "replay_before": {
+          "additionalProperties": true,
+          "description": "Eval summary on current skill",
+          "type": "object"
+        },
+        "replay_after": {
+          "additionalProperties": true,
+          "description": "Eval summary with the proposal applied",
+          "type": "object"
+        },
+        "loosens": {
+          "default": false,
+          "description": "Loosening needs controller + second sign-off (ratchet)",
+          "type": "boolean"
+        },
+        "status": {
+          "$ref": "#/$defs/SkillProposalStatus"
+        },
+        "approved_by": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "engine": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "created_at": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "skill",
+        "from_version",
+        "to_version",
+        "rationale",
+        "diff",
+        "evidence_case_ids",
+        "replay_before",
+        "replay_after",
+        "loosens",
+        "status",
+        "approved_by",
+        "engine",
+        "created_at"
+      ],
+      "title": "SkillProposal",
+      "type": "object"
+    },
+    "SkillProposalStatus": {
+      "enum": [
+        "proposed",
+        "approved",
+        "rejected",
+        "applied"
+      ],
+      "title": "SkillProposalStatus",
+      "type": "string"
     },
     "SkillStatus": {
       "enum": [
@@ -1950,6 +2876,46 @@
       "title": "StepStatus",
       "type": "string"
     },
+    "SupplierEmail": {
+      "additionalProperties": false,
+      "description": "Outbound email to the vendor's contact on file (never reply-to-sender). SIMULATED: not actually sent.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "case_id": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "subject": {
+          "description": "Carries the case reference, e.g. '[REC case_02] ...', so replies link back",
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "idempotency_key": {
+          "type": "string"
+        },
+        "sent_at": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "case_id",
+        "to",
+        "subject",
+        "body",
+        "idempotency_key",
+        "sent_at"
+      ],
+      "title": "SupplierEmail",
+      "type": "object"
+    },
     "TagScore": {
       "additionalProperties": false,
       "description": "Per-tag breakdown (format:*, channel:*, attack, dedup, ...).",
@@ -2030,6 +2996,42 @@
         "on_probation": {
           "default": false,
           "type": "boolean"
+        },
+        "probation_until": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "contact_email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Verified contact on file; outbound goes here, never reply-to"
+        },
+        "expected_schedule": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "daily | weekly: expected-file schedule (missing-file alerts)"
         }
       },
       "required": [
@@ -2043,7 +3045,10 @@
         "channels",
         "tax_id",
         "critical",
-        "on_probation"
+        "on_probation",
+        "probation_until",
+        "contact_email",
+        "expected_schedule"
       ],
       "title": "Vendor",
       "type": "object"

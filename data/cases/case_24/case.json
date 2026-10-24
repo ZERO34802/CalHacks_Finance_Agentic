@@ -1,6 +1,7 @@
 {
   "id": "case_24",
   "title": "Aerolane monthly retainer (October) looks like paid September invoice",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

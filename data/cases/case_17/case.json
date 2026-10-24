@@ -1,6 +1,7 @@
 {
   "id": "case_17",
   "title": "Formosa resends INV-730, already paid",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

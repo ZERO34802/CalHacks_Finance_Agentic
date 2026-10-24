@@ -18,10 +18,13 @@ from __future__ import annotations
 from datetime import date
 from typing import Optional
 
+import re
+
 from backend.core.stage import Ctx
+from backend.pipeline.lib.refs import rec_refs
 from backend.pipeline.lib.ids import invoice_line_hash, levenshtein, normalize_invoice_no
 from contracts import (Case, CaseLink, CaseLinkType, Citation, Discrepancy, DiscrepancyType, DocKind, Invoice,
-                       PaidInvoice)
+                       PaidInvoice, StepStatus)
 
 WINDOW_DAYS = 14
 MAX_EDIT = 2
@@ -115,25 +118,31 @@ class DocDedup:
     def run(self, case: Case, ctx: Ctx) -> Case:
         inv = case.invoice
         if inv is None:
+            if rec_refs(case):  # supplier reply without an invoice: nothing to dedup
+                ctx.trace.annotate(status=StepStatus.skipped, detail={"reason": "supplier reply, no invoice"})
+                return case
             raise ValueError("doc_dedup: no invoice on case")
+        corrects = normalize_invoice_no(inv.corrects) if inv.corrects else None
         hits: list[dict] = []
         notes: list[str] = []
         my_hash = invoice_line_hash(inv)
 
         # file hash (any invoice doc of this case seen in another case)
         for d in case.documents:
-            if d.kind != DocKind.invoice:
+            if d.kind not in (DocKind.invoice, DocKind.credit_note):
                 continue
             for cid, other in ctx.store.find_documents(d.sha256):
-                if cid != case.id:
+                if cid != case.id and not re.match(rf"^{re.escape(case.id)}-\d+$", cid):
                     hits.append({"rule": "file_hash", "case_id": cid, "doc_id": other.id, "invoice_no": None,
                                  "mine": d.id, "detail": f"{d.filename} sha256 {d.sha256[:12]} seen in {cid}"})
 
         # prior cases of the same vendor
         for other in ctx.store.list_cases(case.vendor_id):
-            if other.id == case.id or other.invoice is None:
-                continue
+            if other.id == case.id or other.invoice is None or other.parent_id:
+                continue  # sub-cases carry their parent's invoice; never compare against them
             o = other.invoice
+            if bool(o.credit_for) != bool(inv.credit_for) or normalize_invoice_no(o.invoice_no) == corrects:
+                continue  # credit notes vs invoices, and a corrected invoice vs the one it replaces
             rules = compare(inv, o.invoice_no, o.total, o.currency, o.invoice_date, invoice_line_hash(o), o.po_number)
             for r in rules:
                 hits.append({"rule": r, "case_id": other.id, "doc_id": o.doc_id, "invoice_no": o.invoice_no,
@@ -141,6 +150,8 @@ class DocDedup:
 
         # paid history
         for p in ctx.store.list_paid(case.vendor_id):
+            if inv.credit_for or normalize_invoice_no(p.invoice_no) == corrects:
+                continue
             rules = compare(inv, p.invoice_no, p.total, p.currency, p.paid_on, p.line_hash, p.po_number)
             for r in rules:
                 hits.append({"rule": f"paid:{r}", "case_id": None, "doc_id": paid_ref(p), "invoice_no": p.invoice_no,

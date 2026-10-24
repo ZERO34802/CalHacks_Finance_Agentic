@@ -1,0 +1,14 @@
+{
+  "id": "case_40",
+  "title": "Probation vendor bills 0.20 TWD/unit over PO (a normal vendor would auto-accept)",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "s3",
+      "path": "TSC-0107.csv",
+      "sender": "s3://helix-ap-inbound/tsc/",
+      "received_at": "2026-10-23T03:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-23"
+}

@@ -1,6 +1,7 @@
 {
   "id": "case_25",
   "title": "Kestrel second shipment with identical lines on a different PO (API v2)",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "api",

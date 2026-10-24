@@ -19,7 +19,9 @@ from backend.pipeline.lib.money import parse_decimal, q2
 from contracts import Invoice, LineItem
 
 ADAPTER_VERSIONS = {"csv": "csv.invoice.v1", "xlsx": "xlsx.invoice.v1",
-                    "kestrel.invoice.v2": "kestrel.invoice.v2", "aerolane.invoice.v1": "aerolane.invoice.v1"}
+                    "kestrel.invoice.v2": "kestrel.invoice.v2", "aerolane.invoice.v1": "aerolane.invoice.v1",
+                    "helix.erp.ap_invoice.v1": "helix.erp.ap_invoice.v1 (SIMULATED ERP export)"}
+ERP_SCHEMA = "helix.erp.ap_invoice.v1"
 
 COLUMNS = ["invoice_number", "invoice_date", "po_number", "currency", "line_no", "sku", "description",
            "quantity", "unit_price", "line_amount", "remit_last4"]
@@ -190,6 +192,14 @@ def parse_api(data: bytes, doc_id: str, vendor_id: str) -> tuple[Invoice, str]:
         mk = lambda i, li: _line(i, str(_req(li, "code")).strip(), str(li.get("text", "")),  # noqa: E731
                                  _req(li, "qty"), _req(li, "rate"), li.get("amount"), flags)
         head = ("inv_no", "date", "ccy", "po", "invoice_total", "bank_last4")
+    elif schema == ERP_SCHEMA:  # SIMULATED ERP export: same fields as the canonical Invoice
+        known = {"schema", "vendor_id", "invoice_no", "invoice_date", "due_date", "currency", "po_number", "lines",
+                 "total", "bank_last4", "credit_for", "corrects", "doc_id", "flags"}
+        items = _req(p, "lines")
+        mk = lambda i, li: _line(int(li.get("line_no") or i), str(_req(li, "sku")).strip(),  # noqa: E731
+                                 str(li.get("description", "")), _req(li, "qty"), _req(li, "unit_price"),
+                                 li.get("amount"), flags)
+        head = ("invoice_no", "invoice_date", "currency", "po_number", "total", "bank_last4")
     else:
         raise IngestError(f"unknown API schema {schema!r}")
     extra = set(p) - known
@@ -201,9 +211,29 @@ def parse_api(data: bytes, doc_id: str, vendor_id: str) -> tuple[Invoice, str]:
     no, dt, ccy, po, tot, bank = head
     inv = _invoice(doc_id, vendor_id, _req(p, no), _req(p, dt), _req(p, ccy), p.get(po), lines,
                    _num(_req(p, tot), "total"), p.get(bank), flags)
-    if schema == "kestrel.invoice.v2" and p.get("due_date"):
+    if schema in ("kestrel.invoice.v2", ERP_SCHEMA) and p.get("due_date"):
         inv.due_date = _date(p["due_date"], "due_date")
-    return inv, schema
+    if schema == ERP_SCHEMA:
+        inv.credit_for = (str(p.get("credit_for") or "").strip() or None)
+        inv.corrects = (str(p.get("corrects") or "").strip() or None)
+    return inv, ADAPTER_VERSIONS[schema]
+
+
+def erp_vendor_id(data: bytes) -> Optional[str]:
+    try:
+        p = json.loads(data.decode("utf-8-sig"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None
+    return str(p.get("vendor_id") or "") or None if isinstance(p, dict) and p.get("schema") == ERP_SCHEMA else None
+
+
+def derive_links(inv: Invoice) -> Invoice:
+    """Corrected invoice: number ends in -R (e.g. INV-881-R corrects INV-881)."""
+    if inv.corrects is None and inv.credit_for is None:
+        m = re.match(r"^(.*\S)-R\d?$", inv.invoice_no.strip(), re.I)
+        if m:
+            inv.corrects = m.group(1)
+    return inv
 
 
 def parse_structured(kind: str, data: bytes, doc_id: str, vendor_id: str) -> tuple[Invoice, str]:

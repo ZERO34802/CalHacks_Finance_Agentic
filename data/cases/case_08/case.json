@@ -1,6 +1,7 @@
 {
   "id": "case_08",
   "title": "Penang bills 1,712.00/unit against PO price 1,650.00",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

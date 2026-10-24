@@ -1,0 +1,14 @@
+{
+  "id": "case_41",
+  "title": "Penang invoice keyed in the ERP, exported as helix.erp.ap_invoice.v1",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "erp",
+      "path": "erp-ppt-6702.json",
+      "sender": "erp-export",
+      "received_at": "2026-10-22T18:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-22"
+}

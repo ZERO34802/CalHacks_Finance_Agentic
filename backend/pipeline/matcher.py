@@ -24,8 +24,11 @@ from typing import Optional
 
 from backend.core.stage import Ctx
 from backend.pipeline.lib.money import convert, q2, to_usd
+from backend.pipeline.lib.refs import rec_refs
+from backend.pipeline.lib.split import on_probation, split
 from backend.pipeline.registry import registry_for_discrepancies
-from contracts import Case, Citation, ContractTerm, Discrepancy, DiscrepancyType as T, Invoice, PO, Receipt
+from contracts import (Case, Citation, ContractTerm, Discrepancy, DiscrepancyType as T, Invoice, PO, Receipt,
+                       StepStatus)
 
 MINE = {T.unknown_po, T.currency_mismatch, T.missing_receipt, T.qty_short, T.price_over, T.unapproved_freight,
         T.total_mismatch, T.below_materiality}
@@ -80,6 +83,10 @@ def match(case: Case, ctx: Ctx) -> tuple[list[Discrepancy], dict]:
                                        citations=[Citation(doc_id=inv.doc_id, locator=f"line {li.line_no}",
                                                            quote=f"printed amount {printed}")]))
 
+    if inv.credit_for:  # credit note: no 3-way match; it offsets the credited invoice (hooks.py closes follow-ups)
+        info["credit_note_for"] = inv.credit_for
+        case.po, case.receipts = None, []
+        return out, info
     po = ctx.store.get_po(inv.po_number) if inv.po_number else None
     if po is None or po.vendor_id != case.vendor_id:
         why = "no PO number on invoice" if not inv.po_number else (
@@ -120,6 +127,12 @@ def match(case: Case, ctx: Ctx) -> tuple[list[Discrepancy], dict]:
         by_sku.setdefault(li.sku, []).append(li)
     po_by_sku = {pl.sku: pl for pl in po.lines}
     tol_q, tol_p = pol.tolerances.qty_pct, pol.tolerances.price_pct
+    vendor = ctx.store.get_vendor(case.vendor_id)
+    if on_probation(vendor, case.as_of):  # new vendor: zero tolerance, full 3-way, no pay before first GRN
+        tol_q = Decimal(str(pol.probation.get("qty_pct", "0")))
+        tol_p = Decimal(str(pol.probation.get("price_pct", "0")))
+        info["probation"] = {"until": str(vendor.probation_until) if vendor.probation_until else None,
+                             "qty_pct": str(tol_q), "price_pct": str(tol_p)}
     prices = {}
     for sku, lis in by_sku.items():
         first = lis[0]
@@ -173,16 +186,36 @@ class Matcher:
 
     def run(self, case: Case, ctx: Ctx) -> Case:
         if case.invoice is None:
+            if rec_refs(case):  # supplier reply without an invoice: linked by the Registry, nothing to match
+                ctx.trace.annotate(status=StepStatus.skipped, detail={"reason": "supplier reply, no invoice"})
+                return case
             raise ValueError("matcher: no invoice on case")
         found, info = match(case, ctx)
+        probation = "probation" in info  # zero tolerance AND no materiality allowance (data/FORMATS.md P1)
         for d in found:
             # within tolerance (material=False from match) or below materiality -> logged, auto-accepted
-            if d.type in MATERIALITY_APPLIES and d.delta is not None and (
+            if d.type in MATERIALITY_APPLIES and d.delta is not None and not probation and (
                     not d.material or not is_material(d.delta, case.invoice, ctx)):
                 d.original_type, d.type, d.material = d.type, T.below_materiality, False
         kept = [d for d in case.discrepancies if d.type not in MINE]
         case.discrepancies = kept + found
         fps = registry_for_discrepancies(case, ctx)
+        if case.invoice.corrects:  # make the delta a code fact before anyone decides (no double payment)
+            from backend.pipeline.poster import ap_booked
+            from backend.pipeline.registry import find_invoice_case
+            orig = find_invoice_case(ctx, case.vendor_id, case.invoice.corrects, case.id)
+            booked = ap_booked(orig, ctx)
+            delta = q2(max(Decimal(0), case.invoice.total - booked))
+            info["correction"] = {"original": orig.id if orig else None, "already_booked": str(booked),
+                                  "delta_to_post": str(delta)}
+            note = (f"matcher: {case.invoice.invoice_no} corrects {case.invoice.corrects}"
+                    + (f" ({orig.id}); {booked} {case.invoice.currency} already booked there, so approving posts "
+                       f"only the delta {delta} {case.invoice.currency} (no double payment)" if orig else
+                       "; original not on file"))
+            case.notes = [n for n in case.notes if not n.startswith(f"matcher: {case.invoice.invoice_no} corrects")]
+            case.notes.append(note)
+        sp = split(case)
+        case.disputed_amount = sp["disputed"] if sp["separable"] else None
         material = [d for d in case.discrepancies if d.material]
         ctx.trace.annotate(
             inputs=[case.invoice.doc_id] + ([case.po.doc_id] if case.po else []) + [r.doc_id for r in case.receipts],
@@ -192,5 +225,7 @@ class Matcher:
                                                      and d.type != T.currency_mismatch), Decimal(0)))),
                     "discrepancies": [{"type": d.type.value, "sku": d.sku, "line": d.line_no, "delta": str(d.delta),
                                        "material": d.material} for d in case.discrepancies],
-                    "fingerprints": fps})
+                    "fingerprints": fps, "separable": sp["separable"],
+                    "disputed_amount": str(sp["disputed"]) if sp["separable"] else None,
+                    "undisputed_amount": str(sp["undisputed"]) if sp["separable"] else None})
         return case

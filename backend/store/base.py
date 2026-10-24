@@ -5,10 +5,15 @@ same Protocol later, so nobody else changes code.
 """
 from __future__ import annotations
 
-from typing import Optional, Protocol
+from typing import Optional, Protocol, TypeVar
+
+from pydantic import BaseModel
 
 from contracts import (Case, ContractTerm, Document, Employee, MemoryEntry, PaidInvoice, PO, Receipt, Scoreboard,
                        Step, Vendor)
+
+
+T = TypeVar("T", bound=BaseModel)
 
 
 class Store(Protocol):
@@ -42,9 +47,16 @@ class Store(Protocol):
     def save_employee(self, emp: Employee) -> None: ...
     def list_employees(self) -> list[Employee]: ...
 
+    # generic records for P1 workflow data (follow-ups, onboarding, skill proposals, controls...)
+    # kind: short snake name; key: unique within kind; idx: secondary lookup (e.g. case_id or vendor_id)
+    def put_record(self, kind: str, key: str, model: BaseModel, idx: str = "") -> None: ...
+    def get_record(self, model: type[T], kind: str, key: str) -> Optional[T]: ...
+    def list_records(self, model: type[T], kind: str, idx: Optional[str] = None) -> list[T]: ...
+
     # memory
     def save_memory(self, entry: MemoryEntry) -> None: ...
     def list_memory(self, subject: Optional[str] = None) -> list[MemoryEntry]: ...
+    def delete_memory(self, entry_id: str) -> None: ...  # forget (Memory Writer); history stays in records
 
     # evals
     def save_scoreboard(self, board: Scoreboard) -> None: ...

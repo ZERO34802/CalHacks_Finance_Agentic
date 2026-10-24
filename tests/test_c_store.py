@@ -107,7 +107,7 @@ def test_world_vendors_memory_scoreboards(store):
     assert {t.unit_price for t in store.list_contract_terms("V-KESTREL")} >= {Decimal("1180.00"), Decimal("1240.00")}
     assert store.list_paid("V-AEROLANE")[0].invoice_no == "INV-2291"
     assert any(e.email == "m.chen@helix.example" for e in store.list_employees())
-    assert store.get_vendor("V-PENANG").bank_last4 == "4418" and len(store.list_vendors()) == 4
+    assert store.get_vendor("V-PENANG").bank_last4 == "4418" and len(store.list_vendors()) == 5
     assert store.list_memory("aerolane-freight")
     store.save_memory(MemoryEntry(id="x:0", folder=MemoryFolder.patterns, subject="x", text="t", provenance="test",
                                   valid_from="2026-10-01"))
@@ -116,6 +116,29 @@ def test_world_vendors_memory_scoreboards(store):
         store.save_scoreboard(Scoreboard(run_id=f"r{i}", at=at, total=0, passed=0, catch_rate=1, false_alarm_rate=0,
                                          invariant_pass_rate=1, results=[]))
     assert store.latest_scoreboard().run_id == "r1"
+
+
+def test_records_roundtrip_and_delete_memory(store):
+    from contracts import Alert, Controls
+    a1 = Alert(id="a1", kind="missing_file", vendor_id="V-KESTREL", at=T0, message="it's late")
+    a2 = Alert(id="a2", kind="payment_at_risk", case_id="case_46", at=T0, message="due soon")
+    store.put_record("alert", "a2", a2, idx="case_46")
+    store.put_record("alert", "a1", a1, idx="V-KESTREL")
+    assert [a.id for a in store.list_records(Alert, "alert")] == ["a1", "a2"]
+    assert [a.id for a in store.list_records(Alert, "alert", idx="case_46")] == ["a2"]
+    assert store.get_record(Alert, "alert", "a1").message == "it's late"
+    assert store.get_record(Alert, "alert", "zz") is None
+    store.put_record("controls", "global", Controls(paused_vendors=["V-KESTREL"]))
+    store.put_record("controls", "global", Controls())  # upsert
+    assert store.get_record(Controls, "controls", "global").paused_vendors == []
+    with pytest.raises(AssertionError):
+        store.put_record("po", "x", a1)  # reserved world kinds
+    m = MemoryEntry(id="y:0", folder=MemoryFolder.patterns, subject="y", text="t", provenance="test",
+                    valid_from="2026-10-01")
+    store.save_memory(m)
+    store.delete_memory("y:0")
+    store.delete_memory("never-existed")
+    assert store.list_memory("y") == []
 
 
 def test_reset_keeps_scoreboards(store):

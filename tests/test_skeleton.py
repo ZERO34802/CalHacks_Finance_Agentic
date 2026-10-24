@@ -18,8 +18,12 @@ def _ctx():
 def test_every_fixture_runs_and_every_step_finishes():
     ctx = _ctx()
     for cid in case_ids():
-        case = run_fixture(load_fixture(cid), case_dir(cid), ctx)
+        fx = load_fixture(cid)
+        case = run_fixture(fx, case_dir(cid), ctx)
         steps = ctx.store.list_steps(cid, ctx.run_id)
+        if fx.kind == "tick":  # no intake: sweeps only
+            assert all(s.stage.startswith("sweep.") for s in steps)
+            continue
         assert steps[0].stage == "intake"
         assert all(s.status != StepStatus.running and s.duration_ms is not None for s in steps)
         assert case.decision is not None
@@ -60,3 +64,18 @@ def test_api_post_case_and_read_back(monkeypatch):
     assert client.get("/vendors/V-KESTREL").json()["bank_last4"] == "5150"
     with client.websocket_connect("/events"):
         pass
+
+
+def test_kill_switch_and_handoff_pause_agent_stages():
+    from contracts import Controls
+    ctx = _ctx()
+    ctx.store.put_record("controls", "global", Controls(paused_vendors=["V-KESTREL"], updated_by="m.chen@helix.example"))
+    case = run_fixture(load_fixture("case_03"), case_dir("case_03"), ctx)  # Kestrel API invoice
+    stages = [s.stage for s in ctx.store.list_steps("case_03", ctx.run_id)]
+    assert case.status == CaseStatus.paused and "gate" in stages
+    assert "router" not in stages and "poster" not in stages and case.journal_entry is None
+
+    ctx.store.put_record("controls", "global", Controls())
+    case.assigned_to, case.status = "d.ortiz@helix.example", CaseStatus.in_progress
+    case = run_case(case, ctx, start_at="router")
+    assert case.status == CaseStatus.paused and "handed off" in case.notes[-1]

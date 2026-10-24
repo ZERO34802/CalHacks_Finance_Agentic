@@ -27,7 +27,7 @@ from typing import Optional
 
 from backend.core.stage import Ctx
 from backend.evals.fixtures import WORLD, api_keys
-from backend.intake.adapters import IngestError, parse_structured
+from backend.intake.adapters import IngestError, erp_vendor_id, parse_structured
 from backend.intake.raw import put_raw
 from backend.intake.sniff import Sniff, check_extension, sniff
 from backend.pipeline.lib.ids import levenshtein
@@ -45,6 +45,54 @@ def sftp_accounts() -> dict[str, str]:
     """SIMULATED SFTP account -> vendor_id (data/world/sftp_accounts.json)."""
     p = WORLD / "sftp_accounts.json"
     return json.loads(p.read_text()) if p.exists() else {}
+
+
+def s3_prefixes() -> dict[str, str]:
+    """SIMULATED S3 bucket prefix -> vendor_id (data/world/s3_prefixes.json; empty if absent)."""
+    p = WORLD / "s3_prefixes.json"
+    return json.loads(p.read_text()) if p.exists() else {}
+
+
+def s3_owner(prefix: str) -> Optional[str]:
+    m = s3_prefixes()
+    if prefix in m:
+        return m[prefix]
+    best = max((k for k in m if prefix.startswith(k)), key=len, default=None)  # longest registered prefix
+    return m[best] if best else None
+
+
+MANIFEST = "manifest.json"
+
+
+def check_manifest(fx: CaseFixture, folder: Path) -> tuple[list[str], set[str]]:
+    """SFTP batch manifest: count, missing files, sha256. Any problem quarantines the whole batch.
+    Returns (problems, manifest item paths)."""
+    items = [i for i in fx.inbound if i.channel == Channel.sftp]
+    mans = [i for i in items if Path(i.path).name == MANIFEST]
+    if not mans:
+        return [], set()
+    problems: list[str] = []
+    files = [i for i in items if Path(i.path).name != MANIFEST]
+    try:
+        m = json.loads((folder / mans[0].path).read_bytes().decode("utf-8-sig"))
+        listed = {str(f["path"]): str(f["sha256"]).lower() for f in m["files"]}
+        count = int(m["count"])
+    except Exception as e:
+        return [f"manifest {mans[0].path}: unreadable ({type(e).__name__})"], {i.path for i in mans}
+    if count != len(files) or count != len(listed):
+        problems.append(f"manifest count {count} != {len(files)} files received / {len(listed)} listed")
+    by_name = {i.path: i for i in files} | {Path(i.path).name: i for i in files}
+    for path, sha in listed.items():
+        item = by_name.get(path) or by_name.get(Path(path).name)
+        f = (folder / item.path) if item else None
+        if f is None or not f.is_file():
+            problems.append(f"manifest lists {path} but it was not received")
+        elif _sha(f.read_bytes()) != sha:
+            problems.append(f"manifest sha256 mismatch for {path}")
+    for i in files:
+        if i.path not in listed and Path(i.path).name not in listed:
+            problems.append(f"{i.path} received but not in the manifest")
+    return [f"batch manifest: {p}" for p in problems], {i.path for i in mans}
 
 
 def malware_scan(data: bytes) -> Optional[str]:
@@ -129,6 +177,13 @@ def bind(item: InboundItem, sender: Optional[str], vendors: list[Vendor]) -> Bin
         if owner is None:
             return Binding(None, "sftp", problems=[f"SFTP account {item.sender!r} not registered"])
         b = Binding(owner, f"sftp account {item.sender}")
+    elif item.channel == Channel.s3:  # SIMULATED connector: watched prefix per vendor
+        owner = s3_owner(item.sender or "")
+        if owner is None:
+            return Binding(None, "s3", problems=[f"S3 prefix {item.sender!r} not registered"])
+        b = Binding(owner, f"s3 prefix {item.sender} (SIMULATED)")
+    elif item.channel == Channel.erp:  # SIMULATED internal ERP export; vendor bound from the payload
+        return Binding(None, "erp export (internal, SIMULATED)")
     elif item.channel == Channel.upload:
         return Binding(None, f"internal upload by {item.sender}",
                        notes=[f"intake: internal upload by {item.sender}; vendor bound from document"])
@@ -157,10 +212,11 @@ def ingest(fx: CaseFixture, folder: Path, ctx: Ctx) -> Case:
     root = folder.resolve()
 
     def add_doc(item: InboundItem, filename: str, data: bytes, s: Sniff, kind: DocKind,
-                text: Optional[str], sender: Optional[str]) -> Document:
+                text: Optional[str], sender: Optional[str], subject: Optional[str] = None) -> Document:
         put_raw(data)
         d = Document(id=f"{fx.id}-d{len(docs) + 1}", kind=kind, channel=item.channel, filename=filename,
-                     sha256=_sha(data), mime=s.mime, received_at=item.received_at, text=text, sender=sender)
+                     sha256=_sha(data), mime=s.mime, received_at=item.received_at, text=text, sender=sender,
+                     subject=subject)
         docs.append(d)
         return d
 
@@ -179,7 +235,12 @@ def ingest(fx: CaseFixture, folder: Path, ctx: Ctx) -> Case:
                 problems.append(f"{where}: {e}")
         return s
 
+    man_problems, manifest_paths = check_manifest(fx, folder)
+    problems.extend(man_problems)
     for item in fx.inbound:
+        if item.path in manifest_paths:
+            item_log.append({"path": item.path, "channel": item.channel.value, "manifest": True})
+            continue
         path = (folder / item.path).resolve()
         log: dict = {"path": item.path, "channel": item.channel.value}
         item_log.append(log)
@@ -212,7 +273,8 @@ def ingest(fx: CaseFixture, folder: Path, ctx: Ctx) -> Case:
                 notes.append(f"intake: {item.path}: auth spf={auth['spf']} dkim={auth['dkim']} dmarc={auth['dmarc']}")
             body = msg.get_body(preferencelist=("plain",))
             body_text = body.get_content() if body else ""
-            add_doc(item, item.path, data, Sniff("eml", "message/rfc822"), DocKind.email, body_text, sender)
+            subject = str(msg.get("Subject", "")) or None
+            add_doc(item, item.path, data, Sniff("eml", "message/rfc822"), DocKind.email, body_text, sender, subject)
             has_invoice = False
             for part in msg.iter_attachments():
                 name = part.get_filename() or "attachment"
@@ -221,15 +283,21 @@ def ingest(fx: CaseFixture, folder: Path, ctx: Ctx) -> Case:
                 kind = DocKind.invoice if ps.kind in INVOICE_KINDS else DocKind.email
                 has_invoice |= kind == DocKind.invoice
                 text = payload.decode("utf-8-sig", "replace") if ps.kind in {"csv", "json", "text"} else None
-                add_doc(item, name, payload, ps, kind, text, sender)
+                add_doc(item, name, payload, ps, kind, text, sender, subject)
             # a body-only email may itself be the invoice; Reader decides
             if b.vendor_id:
                 (invoice_vendors if has_invoice else other_vendors).append(b.vendor_id)
         else:
             b = bind(item, sender, vendors)
+            if item.channel == Channel.erp:
+                vid = erp_vendor_id(data)
+                if vid is None or vid not in {v.id for v in vendors}:
+                    b.problems.append(f"ERP export names unknown vendor {vid!r}")
+                else:
+                    b.vendor_id = vid
             s = check_file(item.path, Path(item.path).name, data)
-            if item.channel == Channel.api and s.kind != "json":
-                problems.append(f"{item.path}: API payload is not JSON ({s.kind})")
+            if item.channel in (Channel.api, Channel.erp) and s.kind != "json":
+                problems.append(f"{item.path}: {item.channel.value} payload is not JSON ({s.kind})")
             if s.kind == "eml":
                 problems.append(f"{item.path}: email message on non-email channel {item.channel.value}")
             kind = DocKind.invoice if s.kind in INVOICE_KINDS else DocKind.statement

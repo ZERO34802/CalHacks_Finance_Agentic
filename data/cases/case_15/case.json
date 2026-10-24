@@ -1,6 +1,7 @@
 {
   "id": "case_15",
   "title": "Formosa re-bills paid INV-0042 as invoice '42'",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

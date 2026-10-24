@@ -36,6 +36,7 @@ import {
 // Import all reducer arg schemas
 import AppendStepReducer from "./append_step_reducer";
 import ClaimFingerprintReducer from "./claim_fingerprint_reducer";
+import DeleteMemoryReducer from "./delete_memory_reducer";
 import PutMemoryReducer from "./put_memory_reducer";
 import PutScoreboardReducer from "./put_scoreboard_reducer";
 import PutVendorReducer from "./put_vendor_reducer";
@@ -168,6 +169,7 @@ const tablesSchema = __schema({
 const reducersSchema = __reducers(
   __reducerSchema("append_step", AppendStepReducer),
   __reducerSchema("claim_fingerprint", ClaimFingerprintReducer),
+  __reducerSchema("delete_memory", DeleteMemoryReducer),
   __reducerSchema("put_memory", PutMemoryReducer),
   __reducerSchema("put_scoreboard", PutScoreboardReducer),
   __reducerSchema("put_vendor", PutVendorReducer),

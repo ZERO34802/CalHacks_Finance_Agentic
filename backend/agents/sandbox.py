@@ -52,7 +52,7 @@ def vendor_memory(ctx: Ctx, vendor: Optional[Vendor]) -> tuple[Optional[str], li
     Lookup is by exact vendor-master name/alias slug (also with legal suffixes like "Co., Ltd." removed) ->
     memory subject. Deterministic, never similarity across vendors.
     """
-    if vendor is None:
+    if vendor is None or memory_off():
         return None, [], None
     names = [vendor.name, *vendor.aliases]
     candidates = [_slug(n) for n in names] + [_slug(LEGAL.sub("", n)) for n in names]
@@ -65,7 +65,14 @@ def vendor_memory(ctx: Ctx, vendor: Optional[Vendor]) -> tuple[Optional[str], li
     return None, [], None
 
 
+def memory_off() -> bool:
+    """RECONAI_MEMORY=off: C's 'with vs without memory' eval. No vendor memory, no preferences."""
+    return os.environ.get("RECONAI_MEMORY", "on").lower() == "off"
+
+
 def controller_preferences(ctx: Ctx) -> list[str]:
+    if memory_off():
+        return []
     return [f"- [{m.provenance} | {m.valid_from}] {m.text}" for m in ctx.store.list_memory()
             if m.folder == MemoryFolder.controller_preferences]
 
@@ -84,24 +91,73 @@ def usd_equivalents(case: Case, ctx: Ctx) -> dict[str, Any]:
             "approval_limits_usd": {k: str(v) for k, v in ctx.policy.approval_limits.items()}}
 
 
+# Explicit, stable projections: only these fields are mounted (and hashed into the Droid cache key), so additive
+# contract changes never change what the agent sees or invalidate cached runs. The field sets equal the P0
+# contract, so mounts (and Droid cache keys) are byte-identical to the P0 eval run.
+F_INVOICE = ("doc_id", "vendor_id", "invoice_no", "invoice_date", "due_date", "currency", "po_number", "total",
+             "bank_last4", "flags")
+F_LINE = ("line_no", "sku", "description", "qty", "unit_price", "amount")
+F_PO = ("doc_id", "po_number", "vendor_id", "po_date", "currency", "requester")
+F_POLINE = ("line_no", "sku", "description", "qty", "unit_price")
+F_RECEIPT = ("doc_id", "po_number", "received_date", "received_by")
+F_DISC = ("type", "line_no", "sku", "material", "expected", "actual", "delta", "original_type", "fingerprint")
+F_CITE = ("doc_id", "locator", "quote")
+F_LINK = ("type", "case_id", "invoice_no", "reason")
+F_DOC = ("id", "kind", "channel", "filename", "mime", "sha256")
+F_VENDOR = ("id", "name", "aliases", "country", "currency", "email_domain", "bank_last4", "channels", "critical",
+            "on_probation")
+F_TERM = ("doc_id", "vendor_id", "sku", "unit_price", "currency", "effective_from")
+F_PAID = ("vendor_id", "invoice_no", "po_number", "total", "currency", "paid_on", "line_hash")
+
+
+def pick(obj, fields: tuple[str, ...]) -> Optional[dict[str, Any]]:
+    if obj is None:
+        return None
+    d = obj.model_dump(mode="json")
+    return {k: d.get(k) for k in fields}
+
+
 def canonical_case(case: Case) -> dict[str, Any]:
     """Extracted, structured facts only. Document.text (untrusted) is never included."""
-    data = case.model_dump(mode="json", include={"id", "vendor_id", "invoice", "po", "receipts", "discrepancies",
-                                                  "links", "as_of", "skill"})
-    data["documents"] = [d.model_dump(mode="json", include={"id", "kind", "channel", "filename", "mime", "sha256"})
-                         for d in case.documents]
-    return data
+    inv = pick(case.invoice, F_INVOICE)
+    if inv is not None:
+        inv["lines"] = [pick(li, F_LINE) for li in case.invoice.lines]
+    po = pick(case.po, F_PO)
+    if po is not None:
+        po["lines"] = [pick(pl, F_POLINE) for pl in case.po.lines]
+    receipts = []
+    for r in case.receipts:
+        rd = pick(r, F_RECEIPT)
+        rd["lines"] = [{"sku": rl.sku, "qty_received": str(rl.qty_received)} for rl in r.lines]
+        receipts.append(rd)
+    discs = []
+    for d in case.discrepancies:
+        dd = pick(d, F_DISC)
+        dd["citations"] = [pick(c, F_CITE) for c in d.citations]
+        discs.append(dd)
+    return {"id": case.id, "vendor_id": case.vendor_id, "as_of": str(case.as_of) if case.as_of else None,
+            "skill": case.skill, "invoice": inv, "po": po, "receipts": receipts, "discrepancies": discs,
+            "links": [pick(lk, F_LINK) for lk in case.links],
+            "documents": [pick(d, F_DOC) for d in case.documents]}
 
 
 def erp_snapshot(case: Case, ctx: Ctx, vendor: Optional[Vendor]) -> dict[str, Any]:
     vid = vendor.id if vendor else case.vendor_id
     po = case.po or (ctx.store.get_po(case.invoice.po_number) if case.invoice and case.invoice.po_number else None)
+    po_d = pick(po, F_PO)
+    if po_d is not None:
+        po_d["lines"] = [pick(pl, F_POLINE) for pl in po.lines]
+    receipts = []
+    for r in (ctx.store.list_receipts(po.po_number) if po else []):
+        rd = pick(r, F_RECEIPT)
+        rd["lines"] = [{"sku": rl.sku, "qty_received": str(rl.qty_received)} for rl in r.lines]
+        receipts.append(rd)
     snap = {
-        "vendor_master": vendor.model_dump(mode="json", exclude={"tax_id"}) if vendor else None,
-        "po": po.model_dump(mode="json") if po else None,
-        "receipts": [r.model_dump(mode="json") for r in (ctx.store.list_receipts(po.po_number) if po else [])],
-        "contract_terms": [t.model_dump(mode="json") for t in ctx.store.list_contract_terms(vid)],
-        "paid_history": [p.model_dump(mode="json") for p in ctx.store.list_paid(vid)],
+        "vendor_master": pick(vendor, F_VENDOR),
+        "po": po_d,
+        "receipts": receipts,
+        "contract_terms": [pick(t, F_TERM) for t in ctx.store.list_contract_terms(vid)],
+        "paid_history": [pick(p, F_PAID) for p in ctx.store.list_paid(vid)],
         "ledger": {"system": "beancount", "note": "reference only; agents never write the ledger"},
     }
     snap["snapshot_version"] = "erp:" + _sha(json.dumps(snap, sort_keys=True).encode())[:12]
@@ -118,6 +174,7 @@ class Sandbox:
     events: list[dict] = field(default_factory=list)          # mounts, permission decisions, violations
     memory_version: Optional[str] = None
     snapshot_version: Optional[str] = None
+    autonomy: str = "off"   # Droid autonomy: "off" = read-only (Investigator); skill evolution uses "low"
 
     @property
     def ro(self) -> Path:

@@ -4,7 +4,7 @@
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "Role".
  */
-export type Role = "system" | "reader" | "investigator" | "approver" | "controller" | "requester";
+export type Role = "system" | "reader" | "investigator" | "approver" | "controller" | "requester" | "cfo";
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "ApprovalDecision".
@@ -23,7 +23,10 @@ export type CaseStatus =
   | "escalated"
   | "posted"
   | "quarantined"
-  | "resolved";
+  | "resolved"
+  | "paused"
+  | "awaiting_vendor"
+  | "reopened";
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "DocKind".
@@ -66,9 +69,24 @@ export type DiscrepancyType =
 export type Decision = "approve" | "hold" | "reject" | "escalate";
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "FollowUpKind".
+ */
+export type FollowUpKind = "credit_note" | "corrected_invoice" | "callback" | "supplier_reply" | "resend";
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "FollowUpStatus".
+ */
+export type FollowUpStatus = "open" | "done" | "overdue";
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "StepStatus".
  */
 export type StepStatus = "running" | "ok" | "retried" | "failed" | "blocked" | "escalated" | "skipped";
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "FixtureKind".
+ */
+export type FixtureKind = "inbound" | "tick";
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "MemoryFolder".
@@ -77,12 +95,31 @@ export type MemoryFolder =
   "company" | "controller-preferences" | "counterparties" | "people" | "open-matters" | "patterns";
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "SkillProposalStatus".
+ */
+export type SkillProposalStatus = "proposed" | "approved" | "rejected" | "applied";
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "SkillStatus".
  */
 export type SkillStatus = "shadow" | "active" | "retired";
 
 export interface ReconAIContracts {
   [k: string]: unknown;
+}
+/**
+ * Stored as a record (kind='alert'). E.g. expected vendor file missing, SLA breach, payment due at risk.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "Alert".
+ */
+export interface Alert {
+  id: string;
+  kind: string;
+  vendor_id: string | null;
+  case_id: string | null;
+  at: string;
+  message: string;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -94,6 +131,10 @@ export interface Approval {
   approver: string;
   role: Role;
   decision: ApprovalDecision;
+  /**
+   * full | undisputed (pay only the undisputed part of a hold)
+   */
+  scope: string | null;
   comment: string;
   limit: string | null;
   at: string;
@@ -107,6 +148,26 @@ export interface ApprovalRequest {
   role: Role;
   decision: ApprovalDecision;
   comment: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "BusinessMetrics".
+ */
+export interface BusinessMetrics {
+  /**
+   * Decimal amount as string
+   */
+  dollars_caught_usd: string;
+  /**
+   * ESTIMATE, labeled as such in the UI
+   */
+  hours_saved_est: string;
+  on_time_payment_rate: number;
+  exceptions_per_vendor: {
+    [k: string]: number;
+  };
+  avg_time_to_resolve_hours: number | null;
+  notes: string[];
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -139,6 +200,28 @@ export interface Case {
    * Business 'today' for this case (posting date, period locks)
    */
   as_of: string | null;
+  /**
+   * One sub-case per discrepancy (parent = invoice)
+   */
+  sub_case_ids: string[];
+  /**
+   * Undisputed part posted for payment
+   */
+  paid_amount: string | null;
+  disputed_amount: string | null;
+  follow_ups: FollowUp[];
+  outbound: SupplierEmail[];
+  pending_approval: PendingApproval | null;
+  /**
+   * Human who took over; agent stages skip while set
+   */
+  assigned_to: string | null;
+  handoffs: Handoff[];
+  /**
+   * Queue priority score; higher = sooner
+   */
+  priority: number | null;
+  reopens: number;
   created_at: string;
   updated_at: string | null;
   notes: string[];
@@ -161,6 +244,10 @@ export interface Document {
    */
   text: string | null;
   sender: string | null;
+  /**
+   * Email Subject header (UNTRUSTED); carries [REC <case_id>] on replies
+   */
+  subject: string | null;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -187,6 +274,14 @@ export interface Invoice {
    * Reader flags, e.g. embedded_instructions
    */
   flags: string[];
+  /**
+   * Credit note: invoice number it credits (amounts positive)
+   */
+  credit_for: string | null;
+  /**
+   * Corrected invoice: invoice number it replaces
+   */
+  corrects: string | null;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -367,6 +462,67 @@ export interface Posting {
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "FollowUp".
+ */
+export interface FollowUp {
+  id: string;
+  case_id: string;
+  kind: FollowUpKind;
+  due: string;
+  status: FollowUpStatus;
+  note: string;
+  created_at: string;
+  /**
+   * Doc id / case id / person that closed it
+   */
+  closed_by: string | null;
+}
+/**
+ * Outbound email to the vendor's contact on file (never reply-to-sender). SIMULATED: not actually sent.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "SupplierEmail".
+ */
+export interface SupplierEmail {
+  id: string;
+  case_id: string;
+  to: string;
+  /**
+   * Carries the case reference, e.g. '[REC case_02] ...', so replies link back
+   */
+  subject: string;
+  body: string;
+  idempotency_key: string;
+  sent_at: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "PendingApproval".
+ */
+export interface PendingApproval {
+  role: Role;
+  approver: string;
+  requested_at: string;
+  due_at: string;
+  reminded_at: string | null;
+  /**
+   * Backup approver after SLA breach
+   */
+  escalated_to: string | null;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "Handoff".
+ */
+export interface Handoff {
+  case_id: string;
+  from_actor: string;
+  to_actor: string;
+  at: string;
+  note: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "CaseDetail".
  */
 export interface CaseDetail {
@@ -412,6 +568,7 @@ export interface Step {
 export interface CaseFixture {
   id: string;
   title: string;
+  kind: FixtureKind;
   inbound: InboundItem[];
   /**
    * 'Today' for this case (period locks, due dates)
@@ -455,6 +612,18 @@ export interface ContractTerm {
   effective_from: string;
 }
 /**
+ * Kill switch. Stored as a record (kind='controls', key='global').
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "Controls".
+ */
+export interface Controls {
+  paused_global: boolean;
+  paused_vendors: string[];
+  updated_by: string;
+  updated_at: string | null;
+}
+/**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "Employee".
  */
@@ -493,7 +662,10 @@ export interface EvalResult {
  */
 export interface ExpectedOutcome {
   case_id: string;
-  decision: Decision;
+  /**
+   * None for tick fixtures (use asserts)
+   */
+  decision: Decision | null;
   discrepancies: DiscrepancyType[];
   skill: string | null;
   quarantined: boolean;
@@ -511,6 +683,16 @@ export interface ExpectedOutcome {
    * Expected disputed amount, to the cent
    */
   variance: string | null;
+  /**
+   * Expected undisputed amount posted (pay what's clean)
+   */
+  paid_amount: string | null;
+  /**
+   * '<case_id>.<dotted.path>' -> expected str value, checked after this fixture
+   */
+  asserts: {
+    [k: string]: string;
+  };
   /**
    * e.g. attack, onboarding, format:xlsx, channel:sftp
    */
@@ -535,6 +717,24 @@ export interface Event {
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "LLMJudgeScore".
+ */
+export interface LLMJudgeScore {
+  case_id: string;
+  /**
+   * explanation | supplier_email | escalation | defend_decision | skill_proposal
+   */
+  rubric: string;
+  /**
+   * Mean 1-5 over runs
+   */
+  score: number;
+  runs: number;
+  rationale: string;
+  model: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "MemoryEntry".
  */
 export interface MemoryEntry {
@@ -551,6 +751,66 @@ export interface MemoryEntry {
   provenance: string;
   valid_from: string;
   version: number;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "OnboardingCheck".
+ */
+export interface OnboardingCheck {
+  /**
+   * e.g. duplicate_tax_id, sanctions, employee_bank, lookalike_domain, tax_form
+   */
+  name: string;
+  passed: boolean;
+  detail: string;
+  simulated: boolean;
+}
+/**
+ * data/onboarding/onb_*.json. Always started by an internal requester (vendors never self-sign-up).
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "OnboardingRequest".
+ */
+export interface OnboardingRequest {
+  id: string;
+  title: string;
+  received_at: string;
+  requested_by: string;
+  legal_name: string;
+  trade_names: string[];
+  country: string;
+  tax_id: string | null;
+  tax_form: string | null;
+  email_domain: string;
+  bank_last4: string;
+  currency: string;
+  channels: Channel[];
+  payment_terms: string | null;
+  expected_annual_spend_usd: string | null;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "OnboardingResult".
+ */
+export interface OnboardingResult {
+  request_id: string;
+  checks: OnboardingCheck[];
+  /**
+   * Names of failed checks
+   */
+  flags: string[];
+  /**
+   * low | medium | high
+   */
+  risk_tier: string | null;
+  decision: Decision | null;
+  approvals: Approval[];
+  /**
+   * Set only once activated
+   */
+  vendor_id: string | null;
+  probation_until: string | null;
+  notes: string[];
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -591,6 +851,20 @@ export interface Scoreboard {
     [k: string]: number;
   };
   by_tag: TagScore[];
+  llm_scores: LLMJudgeScore[];
+  /**
+   * Decision stability across repeated runs (0-1)
+   */
+  stability: number | null;
+  metrics: BusinessMetrics | null;
+  /**
+   * Vendor-onboarding results; reported separately from the headline
+   */
+  onboarding: EvalResult[];
+  /**
+   * Run notes, e.g. a skipped section and why
+   */
+  notes: string[];
 }
 /**
  * Per-tag breakdown (format:*, channel:*, attack, dedup, ...).
@@ -603,6 +877,42 @@ export interface TagScore {
   total: number;
   passed: number;
   pass_rate: number;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "SkillProposal".
+ */
+export interface SkillProposal {
+  id: string;
+  skill: string;
+  from_version: string;
+  to_version: string;
+  rationale: string;
+  /**
+   * Unified diff against SKILL.md / policy.yaml
+   */
+  diff: string;
+  evidence_case_ids: string[];
+  /**
+   * Eval summary on current skill
+   */
+  replay_before: {
+    [k: string]: unknown;
+  };
+  /**
+   * Eval summary with the proposal applied
+   */
+  replay_after: {
+    [k: string]: unknown;
+  };
+  /**
+   * Loosening needs controller + second sign-off (ratchet)
+   */
+  loosens: boolean;
+  status: SkillProposalStatus;
+  approved_by: string[];
+  engine: string | null;
+  created_at: string;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -635,4 +945,13 @@ export interface Vendor {
   tax_id: string | null;
   critical: boolean;
   on_probation: boolean;
+  probation_until: string | null;
+  /**
+   * Verified contact on file; outbound goes here, never reply-to
+   */
+  contact_email: string | null;
+  /**
+   * daily | weekly: expected-file schedule (missing-file alerts)
+   */
+  expected_schedule: string | null;
 }

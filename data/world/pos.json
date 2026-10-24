@@ -527,6 +527,142 @@
     "requester": "j.park@helix.example"
   },
   {
+    "doc_id": "erp-PO-9101",
+    "po_number": "PO-9101",
+    "vendor_id": "V-TSC",
+    "po_date": "2026-10-02",
+    "currency": "TWD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "SUB-ABF-55",
+        "description": "ABF substrate 55x55mm",
+        "qty": "5000",
+        "unit_price": "38.40"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-9102",
+    "po_number": "PO-9102",
+    "vendor_id": "V-TSC",
+    "po_date": "2026-10-06",
+    "currency": "TWD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "SUB-ABF-55",
+        "description": "ABF substrate 55x55mm",
+        "qty": "2000",
+        "unit_price": "38.40"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-6103",
+    "po_number": "PO-6103",
+    "vendor_id": "V-PENANG",
+    "po_date": "2026-10-08",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "PKG-COWOS-L",
+        "description": "CoWoS-L packaging + final test",
+        "qty": "60",
+        "unit_price": "1650.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-8890",
+    "po_number": "PO-8890",
+    "vendor_id": "V-AEROLANE",
+    "po_date": "2026-10-15",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "FRT-AIR-PEN-SJC",
+        "description": "Air freight PEN->SJC, 9 pallets",
+        "qty": "1",
+        "unit_price": "16400.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7011",
+    "po_number": "PO-7011",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-10",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "200",
+        "unit_price": "1450.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7012",
+    "po_number": "PO-7012",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-10",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "150",
+        "unit_price": "1450.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7013",
+    "po_number": "PO-7013",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-10",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-12H-24G",
+        "description": "HBM3E 12-high 24GB stack",
+        "qty": "180",
+        "unit_price": "1450.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
+    "doc_id": "erp-PO-7014",
+    "po_number": "PO-7014",
+    "vendor_id": "V-KESTREL",
+    "po_date": "2026-10-12",
+    "currency": "USD",
+    "lines": [
+      {
+        "line_no": 1,
+        "sku": "HBM3E-8H-24G",
+        "description": "HBM3E 8-high 24GB stack",
+        "qty": "200",
+        "unit_price": "1180.00"
+      }
+    ],
+    "requester": "j.park@helix.example"
+  },
+  {
     "doc_id": "erp-PO-6950",
     "po_number": "PO-6950",
     "vendor_id": "V-KESTREL",

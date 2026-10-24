@@ -1,0 +1,22 @@
+[
+  {
+    "role": "approver",
+    "approver": "d.ortiz@helix.example",
+    "backup": "ap.backup@helix.example",
+    "limit": "100000.00",
+    "out_of_office": []
+  },
+  {
+    "role": "controller",
+    "approver": "m.chen@helix.example",
+    "backup": "controller.backup@helix.example",
+    "limit": "1000000.00",
+    "out_of_office": [
+      {
+        "from": "2026-10-26",
+        "to": "2026-10-30",
+        "note": "SIMULATED: no response; SLA sweep must route to backup"
+      }
+    ]
+  }
+]

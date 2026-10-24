@@ -8,6 +8,7 @@ import { type Infer as __Infer } from "spacetimedb";
 // Import all reducer arg schemas
 import AppendStepReducer from "../append_step_reducer";
 import ClaimFingerprintReducer from "../claim_fingerprint_reducer";
+import DeleteMemoryReducer from "../delete_memory_reducer";
 import PutMemoryReducer from "../put_memory_reducer";
 import PutScoreboardReducer from "../put_scoreboard_reducer";
 import PutVendorReducer from "../put_vendor_reducer";
@@ -17,6 +18,7 @@ import SaveCaseReducer from "../save_case_reducer";
 
 export type AppendStepParams = __Infer<typeof AppendStepReducer>;
 export type ClaimFingerprintParams = __Infer<typeof ClaimFingerprintReducer>;
+export type DeleteMemoryParams = __Infer<typeof DeleteMemoryReducer>;
 export type PutMemoryParams = __Infer<typeof PutMemoryReducer>;
 export type PutScoreboardParams = __Infer<typeof PutScoreboardReducer>;
 export type PutVendorParams = __Infer<typeof PutVendorReducer>;

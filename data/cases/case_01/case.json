@@ -1,6 +1,7 @@
 {
   "id": "case_01",
   "title": "Clean Kestrel HBM invoice",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

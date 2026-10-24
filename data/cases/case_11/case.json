@@ -1,6 +1,7 @@
 {
   "id": "case_11",
   "title": "Formosa XLSX via SFTP: wafers OK, unapproved expedited-shipping line",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "sftp",

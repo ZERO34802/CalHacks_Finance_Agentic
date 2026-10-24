@@ -1,6 +1,7 @@
 {
   "id": "case_21",
   "title": "Aerolane freight 12.50 above PO (API v1)",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "api",

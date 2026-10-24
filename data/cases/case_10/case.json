@@ -1,6 +1,7 @@
 {
   "id": "case_10",
   "title": "Aerolane adds an unapproved expedite surcharge (API v1)",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "api",

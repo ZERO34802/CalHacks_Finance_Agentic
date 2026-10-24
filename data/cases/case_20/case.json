@@ -1,6 +1,7 @@
 {
   "id": "case_20",
   "title": "Kestrel scanned invoice, unit price off by 0.20",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",

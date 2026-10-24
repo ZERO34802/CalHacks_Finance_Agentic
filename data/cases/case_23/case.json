@@ -1,6 +1,7 @@
 {
   "id": "case_23",
   "title": "Kestrel USD 174k invoice, over AP lead limit, scanned JPEG",
+  "kind": "inbound",
   "inbound": [
     {
       "channel": "email",
