@@ -3,14 +3,19 @@
 TypeScript is generated from the schema by json-schema-to-typescript (see Makefile).
 The OpenAPI examples come from running the fixtures through the current pipeline,
 so the Prism mock serves realistic, contract-valid data.
+Examples are built OFFLINE (no Claude / Droid calls): they only need to be contract-valid.
 """
 import json
+import os
+
+os.environ["RECONAI_LLM"] = "off"
+os.environ["RECONAI_DROID"] = "off"
 
 from pydantic.json_schema import models_json_schema
 
 from backend.core.config import ROOT
-from backend.core.runner import make_ctx, run_case
-from backend.evals.fixtures import case_ids, load_case, seed
+from backend.core.runner import make_ctx, run_fixture
+from backend.evals.fixtures import case_dir, case_ids, load_fixture, seed
 from backend.evals.harness import run_eval
 from backend.store.sqlite import SQLiteStore
 from contracts import ALL_MODELS, CaseDetail
@@ -31,7 +36,7 @@ store = SQLiteStore(":memory:")
 seed(store)
 ctx = make_ctx(store, run_id="run_mock")
 for cid in case_ids():
-    run_case(load_case(cid), ctx)
+    run_fixture(load_fixture(cid), case_dir(cid), ctx)
 board = run_eval(store)
 cases = store.list_cases()
 first = cases[0]

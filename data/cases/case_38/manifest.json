@@ -1,0 +1,18 @@
+{
+  "batch": "FWW-2026-10-24-01",
+  "count": 3,
+  "files": [
+    {
+      "path": "FWW_INV-1047.csv",
+      "sha256": "d2fa0f4e6ea4f4ae9d9b3143d98686251c21be68ef8ec22d88c4fa823e9484a1"
+    },
+    {
+      "path": "FWW_INV-1048.csv",
+      "sha256": "d121be3103007b41edf96f8262925f8c7d61894afe9a041843b631f69445bc57"
+    },
+    {
+      "path": "FWW_INV-1049.csv",
+      "sha256": "ffa63583dfa6706b87d284b86b0d693a161e4840aad2c5cf6b5d27c3b9621f7d"
+    }
+  ]
+}

@@ -2,23 +2,29 @@
 
 AP specialist + vendor-master clerk for Helix Silicon. Full plan: [CLAUDE.md](CLAUDE.md).
 
-This is the **walking skeleton**: every stage is a stub that returns valid output, so the pipeline runs end to end today. Replace your own stubs; don't touch anyone else's.
+P0 for A (intake, pipeline, controls), B (agents, sandbox, approvals) and C (data, state, evals) is built. D's UI is still the minimal shell.
+
+**Keys.** Put `ANTHROPIC_API_KEY` and `FACTORY_API_KEY` in `.env` at the repo root (template: `config/.env.example`). Without them, every LLM/Droid step takes its offline fallback, and PDF, image and email invoices escalate as "evidence missing".
 
 ## Quick start
 
 ```bash
 make setup                 # .venv (Python 3.12) + ui/node_modules
-make run CASE=case_02      # one fixture through all 10 stages, prints the trace
+make run CASE=case_02      # one fixture: intake + 10 stages, prints the trace
 make eval                  # all fixtures -> scoreboard; exits 1 if any invariant fails
 make test                  # skeleton guarantees
 
-make api                   # real backend (stub stages) on :8000, WS /events, docs at /docs
+make api                   # real backend on :8000, WS /events, docs at /docs
 make mock                  # Prism mock of the same OpenAPI spec on :4010 (no WS)
 make ui                    # UI on :5173; set VITE_API_URL in ui/.env (default: mock)
 make types                 # after a contract change: JSON Schema + OpenAPI + TS types
+make data                  # regenerate data/world + 33 cases + answer key (deterministic)
+
+make stdb-start            # SpacetimeDB on :3000 (separate terminal), then:
+make stdb-publish          # publish the module; RECONAI_STORE=spacetime make eval
 ```
 
-Current baseline with stubs: **1/5 passed, catch 50%, false alarms 0%, invariants 100%.** Every point gained from here comes from a real stage.
+Current baseline (no keys, LLM off): **12/33 passed, catch 96%, false alarm 70%, invariants 100%**, identical on SQLite and SpacetimeDB. Every PDF and image case misses because the Reader cannot run offline. Every structured case (API, CSV, XLSX) and every quarantine case passes, except case_16 (its duplicate check needs case_01 to be extracted first).
 
 ## Layout and owners
 
@@ -26,7 +32,7 @@ Current baseline with stubs: **1/5 passed, catch 50%, false alarms 0%, invariant
 | --- | --- | --- |
 | `contracts/models.py` | everyone | Pydantic models, the single source of truth. **Announce changes, then `make types`.** |
 | `backend/core/` | shared | `Stage` protocol, `Ctx`, `run_case` + `PIPELINE`, policy loader |
-| `backend/intake/` | A | connectors, ingest validation, adapters (not in skeleton yet) |
+| `backend/intake/` | A | connectors, ingest validation + quarantine, CSV/XLSX/API adapters |
 | `backend/pipeline/` | A | reader, doc_dedup, registry, matcher, vendor_guard, validators, poster |
 | `backend/agents/` | B | router, investigator, approver |
 | `backend/skills/` | B | `ap-3way-match/`, `vendor-bank-change/` |
@@ -53,6 +59,21 @@ class Matcher:
 
 The runner wraps every stage in a trace step and saves the case after it. Timing, failures, and WS events are automatic. Raise to fail the step. Use `annotate(status=...)` for skipped, blocked, or escalated.
 
+## Where Droid runs (Factory)
+
+| Job | Trigger | Can touch |
+| --- | --- | --- |
+| Investigator (`backend/agents/investigator.py`, `droid.py`) | material exception after the Matcher | read-only `ro/` mount with extracted JSON (never raw document text), ERP snapshot, this vendor's memory, the skill; writes only `scratch/` and `proposal.json` |
+
+- Droid runs at the lowest autonomy, with tools limited to `backend/skills/<skill>/tools.yaml`.
+- A permission handler allows Create/Edit only on `proposal.json` and `scratch/`.
+- A per-run sandbox settings file denies reads of `.env`, `backend/`, `data/`, the DB and the caches. There is no network beyond Factory itself.
+- The proposal is validated by code (`Validators`), and the agent can never recommend below the policy floor computed in code.
+- Fallback chain: Droid → Claude (structured output, no tools) → a fixed template (labelled `deterministic fallback`).
+- `RECONAI_DROID=live|replay|off`.
+- Not enforced: there is no container, and Droid's own file reads are limited only by the settings deny list.
+- Skill evolution and adapter generation (the other two Droid jobs) are P1/P2.
+
 ## Fixtures
 
 | Case | Vendor | Planted | Expected |
@@ -63,7 +84,7 @@ The runner wraps every stage in a trace step and saves the case after it. Timing
 | case_04 | Penang | bank change from look-alike domain | escalate, bank_change + lookalike_domain |
 | case_05 | Aerolane | paid INV-2291 resent as INV-2291-A | reject, duplicate_invoice |
 
-Fixtures arrive pre-parsed (`invoice`, `po`, `receipts` filled in). Raw document text is in `documents[].text` for the real Reader.
+These are the 5 seed cases. `data/generate.py` builds 33 cases in total: PDFs in 3 layouts, scans, CSV, XLSX, API JSON and `.eml`; email, SFTP and API channels; attacks; dedup of each type; and controls. Each case's reasoning is in `data/answer_key.json` (`note`). The formats contract is [data/FORMATS.md](data/FORMATS.md). Vendor-onboarding data is in `data/onboarding/` and is not part of the eval yet.
 
 ## Rules
 

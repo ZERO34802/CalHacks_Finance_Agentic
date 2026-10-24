@@ -1,0 +1,15 @@
+{
+  "id": "case_43",
+  "title": "Kestrel HBM price creep within tolerance (1455.80 vs 1,450.00): controller rejects",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "api",
+      "path": "kestrel-km-inv-30640.json",
+      "sender": "V-KESTREL",
+      "api_key": "sim-key-kestrel-7f3a",
+      "received_at": "2026-10-24T10:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-24"
+}

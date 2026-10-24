@@ -1,0 +1,14 @@
+{
+  "id": "case_37",
+  "title": "Formosa sends corrected INV-881-R for the 940 wafers received",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "email",
+      "path": "case_37.eml",
+      "sender": "billing@formosawafer.com.tw",
+      "received_at": "2026-10-24T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-24"
+}

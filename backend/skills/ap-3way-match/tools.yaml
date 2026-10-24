@@ -1,0 +1,6 @@
+# Droid tool allowlist for this skill (SessionConfig.restrict_tools). Never elevates.
+# Read-only: Droid runs at Autonomy OFF and returns a structured finding; code writes proposal.json.
+skill: ap-3way-match
+tools: [Read, Grep, Glob, LS]
+writable: []   # the agent writes nothing; code writes proposal.json from the validated output
+network: false

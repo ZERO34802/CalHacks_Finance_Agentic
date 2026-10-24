@@ -1,0 +1,15 @@
+{
+  "id": "case_06",
+  "title": "Kestrel bills 60 HBM stacks, 48 received (API v2)",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "api",
+      "path": "kestrel-km-inv-30163.json",
+      "sender": "V-KESTREL",
+      "api_key": "sim-key-kestrel-7f3a",
+      "received_at": "2026-10-14T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-14"
+}

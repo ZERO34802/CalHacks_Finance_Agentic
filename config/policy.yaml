@@ -32,3 +32,26 @@ accounts:
 skills:               # event type -> skill (Router reads this; documents never choose)
   three_way_match: "ap-3way-match"
   bank_change: "vendor-bank-change"
+
+sla:                  # approvals waiting on a human (simulated clock)
+  approval_hours: 24          # reminder at due_at
+  escalate_after_hours: 48    # then route to backup approver (still != requester, within limit)
+  payment_at_risk_days: 2     # flag when the invoice due date is this close and still not approved
+
+probation:            # new vendors (CLAUDE.md 10d step 7)
+  days: 90
+  invoices: 5
+  qty_pct: "0"
+  price_pct: "0"              # tighter than tolerances above
+  pay_after_first_delivery: true
+
+queue:                # priority = weights . features (A computes; higher = sooner)
+  due_soon_days: 5
+  weight_due: 3
+  weight_amount: 2
+  weight_discount: 2
+  weight_critical: 2
+
+metrics:              # ESTIMATES, labeled as such in the UI
+  minutes_saved_clean: 6
+  minutes_saved_exception: 45

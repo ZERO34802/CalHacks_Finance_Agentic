@@ -1,0 +1,66 @@
+[
+  {
+    "id": "onb_01",
+    "decision": "approve",
+    "flags": [],
+    "note": "No duplicate tax ID/bank/name, not on the SIMULATED sanctions list, bank not an employee's, domain is unique, tax form present.",
+    "tags": [
+      "onboarding"
+    ]
+  },
+  {
+    "id": "onb_02",
+    "decision": "hold",
+    "flags": [
+      "duplicate_tax_id"
+    ],
+    "note": "tax_id equals V-PENANG's; different bank (7340 vs 4418). Duplicate vendor under a new name is a fraud signal.",
+    "tags": [
+      "onboarding"
+    ]
+  },
+  {
+    "id": "onb_03",
+    "decision": "hold",
+    "flags": [
+      "sanctions_hit"
+    ],
+    "note": "Name and tax ID are on data/world/sanctions_simulated.json (fictional test identity).",
+    "tags": [
+      "onboarding"
+    ]
+  },
+  {
+    "id": "onb_04",
+    "decision": "hold",
+    "flags": [
+      "bank_matches_employee"
+    ],
+    "note": "bank_last4 6610 = employee E-104 Dana Ortiz, who is also the requester. Insider-fraud signal; requester can't approve.",
+    "tags": [
+      "onboarding"
+    ]
+  },
+  {
+    "id": "onb_05",
+    "decision": "hold",
+    "flags": [
+      "lookalike_domain"
+    ],
+    "note": "kestrel-memory.co.kr is one edit from V-KESTREL's kestrelmemory.co.kr; alias collides with 'Kestrel'.",
+    "tags": [
+      "onboarding"
+    ]
+  },
+  {
+    "id": "onb_06",
+    "decision": "hold",
+    "flags": [
+      "missing_tax_form"
+    ],
+    "note": "US vendor without a W-9. Request the form; no activation until received.",
+    "tags": [
+      "onboarding"
+    ]
+  }
+]

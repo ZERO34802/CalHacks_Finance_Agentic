@@ -1,0 +1,20 @@
+From: billing@formosawafer.com.tw
+To: ap@helix.example
+Subject: Re: [REC case_02] Short delivery on INV-881
+Date: Fri, 16 Oct 2026 11:00:00 +0000
+Message-ID: <case_34.1@formosawafer.com.tw>
+Authentication-Results: mx.helix.example; spf=pass; dkim=pass; dmarc=pass
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Dear Helix AP,
+
+We confirm the 60-wafer shortfall on INV-881 (PO-5501). We will issue credit =
+note CN-118 for TWD 1,116,000.00 by 2026-10-20.
+
+Best regards,
+Formosa Wafer Works, Accounts Receivable
+
+> [REC case_02] Helix Silicon: INV-881 billed 1,000 wafers, 940 received. Ple=
+ase issue a credit note.

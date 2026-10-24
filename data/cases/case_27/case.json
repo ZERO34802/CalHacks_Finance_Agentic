@@ -1,0 +1,14 @@
+{
+  "id": "case_27",
+  "title": "Formosa workbook with a VBA macro (named .xlsx)",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "sftp",
+      "path": "FWW_INV-158.xlsx",
+      "sender": "sftp-formosa",
+      "received_at": "2026-10-18T02:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-18"
+}

@@ -1,0 +1,2 @@
+invoice_number,invoice_date,po_number,currency,line_no,sku,description,quantity,unit_price,line_amount,remit_last4
+INV-1047,2026-10-24,PO-5506,TWD,1,WFR-N3-300,300mm N3 engineering wafer,10,18600.00,186000.00,2207

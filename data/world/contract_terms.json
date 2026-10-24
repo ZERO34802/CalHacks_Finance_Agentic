@@ -1,0 +1,58 @@
+[
+  {
+    "doc_id": "erp-KESTREL-MSA",
+    "vendor_id": "V-KESTREL",
+    "sku": "HBM3E-8H-24G",
+    "unit_price": "1180.00",
+    "currency": "USD",
+    "effective_from": "2026-01-01"
+  },
+  {
+    "doc_id": "erp-KESTREL-MSA-AMD3",
+    "vendor_id": "V-KESTREL",
+    "sku": "HBM3E-8H-24G",
+    "unit_price": "1240.00",
+    "currency": "USD",
+    "effective_from": "2026-11-01"
+  },
+  {
+    "doc_id": "erp-KESTREL-MSA",
+    "vendor_id": "V-KESTREL",
+    "sku": "HBM3E-12H-24G",
+    "unit_price": "1450.00",
+    "currency": "USD",
+    "effective_from": "2026-01-01"
+  },
+  {
+    "doc_id": "erp-FORMOSA-MSA",
+    "vendor_id": "V-FORMOSA",
+    "sku": "WFR-N3-300",
+    "unit_price": "18600.00",
+    "currency": "TWD",
+    "effective_from": "2026-01-01"
+  },
+  {
+    "doc_id": "erp-PENANG-MSA",
+    "vendor_id": "V-PENANG",
+    "sku": "PKG-COWOS-L",
+    "unit_price": "1650.00",
+    "currency": "USD",
+    "effective_from": "2026-01-01"
+  },
+  {
+    "doc_id": "erp-AEROLANE-MSA",
+    "vendor_id": "V-AEROLANE",
+    "sku": "SVC-CUSTOMS-RET",
+    "unit_price": "2500.00",
+    "currency": "USD",
+    "effective_from": "2026-01-01"
+  },
+  {
+    "doc_id": "erp-TSC-MSA",
+    "vendor_id": "V-TSC",
+    "sku": "SUB-ABF-55",
+    "unit_price": "38.40",
+    "currency": "TWD",
+    "effective_from": "2026-10-01"
+  }
+]

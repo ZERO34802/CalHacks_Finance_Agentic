@@ -1,0 +1,14 @@
+{
+  "id": "case_20",
+  "title": "Kestrel scanned invoice, unit price off by 0.20",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "email",
+      "path": "case_20.eml",
+      "sender": "ar@kestrelmemory.co.kr",
+      "received_at": "2026-10-17T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-17"
+}

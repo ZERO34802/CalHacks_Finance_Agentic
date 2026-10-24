@@ -1,0 +1,14 @@
+{
+  "id": "case_35",
+  "title": "Formosa credit note CN-121 closes case_07's follow-up",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "email",
+      "path": "case_35.eml",
+      "sender": "billing@formosawafer.com.tw",
+      "received_at": "2026-10-21T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-21"
+}

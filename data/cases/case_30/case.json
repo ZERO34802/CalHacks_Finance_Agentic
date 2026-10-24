@@ -1,0 +1,14 @@
+{
+  "id": "case_30",
+  "title": "Kestrel CSV arrives over SFTP, a channel not registered for Kestrel",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "sftp",
+      "path": "KM-INV-30384.csv",
+      "sender": "sftp-kestrel",
+      "received_at": "2026-10-18T03:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-18"
+}

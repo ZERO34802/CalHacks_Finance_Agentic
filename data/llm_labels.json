@@ -1,0 +1,200 @@
+[
+  {
+    "id": "lab_01",
+    "rubric": "explanation",
+    "human_score": 5,
+    "artifact": {
+      "facts": {
+        "case_id": "case_03",
+        "decision": "hold",
+        "invoice": {
+          "invoice_no": "KM-INV-30152",
+          "po": "PO-7002",
+          "currency": "USD",
+          "total": "49600.00"
+        },
+        "discrepancies": [
+          {
+            "type": "price_over",
+            "expected": "1180.00",
+            "actual": "1240.00",
+            "delta": "2400.00"
+          }
+        ]
+      },
+      "explanation": "Amendment 3 (1,240.00) takes effect 2026-11-01; the invoice is dated 2026-10-16, so the MSA/PO price 1,180.00 wins. Over by 60.00 x 40 = USD 2,400.00 (KM-INV-30152 line 1). Hold 2,400.00, pay the undisputed 47,200.00.",
+      "citations": [
+        {
+          "doc_id": "erp-KESTREL-MSA-AMD3",
+          "locator": "effective_from"
+        }
+      ]
+    }
+  },
+  {
+    "id": "lab_02",
+    "rubric": "explanation",
+    "human_score": 1,
+    "artifact": {
+      "facts": {
+        "case_id": "case_03",
+        "decision": "hold",
+        "discrepancies": [
+          {
+            "type": "price_over",
+            "delta": "2400.00"
+          }
+        ]
+      },
+      "explanation": "The price looks a little high compared to what we usually pay. Probably fine but holding it just in case.",
+      "citations": []
+    }
+  },
+  {
+    "id": "lab_03",
+    "rubric": "explanation",
+    "human_score": 2,
+    "artifact": {
+      "facts": {
+        "case_id": "case_02",
+        "decision": "hold",
+        "invoice": {
+          "invoice_no": "INV-881",
+          "currency": "TWD",
+          "total": "18600000.00"
+        },
+        "discrepancies": [
+          {
+            "type": "qty_short",
+            "expected": "940",
+            "actual": "1000",
+            "delta": "1116000.00"
+          }
+        ]
+      },
+      "explanation": "Formosa billed 1,000 wafers but the receipt shows 950, so we hold TWD 930,000.00.",
+      "citations": [
+        {
+          "doc_id": "erp-GRN-PO-5501",
+          "locator": "line 1"
+        }
+      ]
+    }
+  },
+  {
+    "id": "lab_04",
+    "rubric": "supplier_email",
+    "human_score": 5,
+    "artifact": {
+      "facts": {
+        "case_id": "case_02",
+        "discrepancies": [
+          {
+            "type": "qty_short",
+            "delta": "1116000.00"
+          }
+        ]
+      },
+      "to": "ar.team@formosawafer.com.tw",
+      "subject": "[REC case_02] INV-881: 60 wafers short, credit note please",
+      "body": "Hello Formosa team,\n\nINV-881 (PO-5501) bills 1,000 wafers; our goods receipt shows 940. We are paying the 940 received and holding TWD 1,116,000.00 for the 60 not delivered. Please send a credit note for that amount, or a corrected invoice.\n\nThank you,\nHelix Silicon AP"
+    }
+  },
+  {
+    "id": "lab_05",
+    "rubric": "supplier_email",
+    "human_score": 1,
+    "artifact": {
+      "facts": {
+        "case_id": "case_04",
+        "discrepancies": [
+          {
+            "type": "bank_change"
+          },
+          {
+            "type": "lookalike_domain"
+          }
+        ]
+      },
+      "to": "finance@penang-packtest.com",
+      "subject": "Re: URGENT: updated bank details",
+      "body": "Hi, our controller Maya Chen thinks this might be fraud and her approval limit is only $1M, so we cannot pay the $3.3M today. Please confirm the new account ending 9902 and we will release it."
+    }
+  },
+  {
+    "id": "lab_06",
+    "rubric": "escalation",
+    "human_score": 5,
+    "artifact": {
+      "facts": {
+        "case_id": "case_04",
+        "decision": "escalate",
+        "discrepancies": [
+          {
+            "type": "bank_change"
+          },
+          {
+            "type": "lookalike_domain"
+          }
+        ]
+      },
+      "explanation": "Escalated: the bank-change request came from penang-packtest.com, not the domain on file (penangpacktest.com.my), and asks to pay a new account ending 9902 (master: 4418) the day before a USD 3.3M payment. Nothing was paid or changed. Next step: callback to the number on the vendor master, not the email sender.",
+      "notes": []
+    }
+  },
+  {
+    "id": "lab_07",
+    "rubric": "escalation",
+    "human_score": 2,
+    "artifact": {
+      "facts": {
+        "case_id": "case_19",
+        "decision": "escalate",
+        "discrepancies": [
+          {
+            "type": "unknown_po"
+          }
+        ]
+      },
+      "explanation": "Something seems off with this invoice. Escalating for review.",
+      "notes": []
+    }
+  },
+  {
+    "id": "lab_08",
+    "rubric": "skill_proposal",
+    "human_score": 1,
+    "artifact": {
+      "skill": "ap-3way-match",
+      "rationale": "Kestrel always bills a bit high; raise the price tolerance to 2% so these stop bothering the controller.",
+      "diff": "-price_pct: 0.005\n+price_pct: 0.02",
+      "evidence": [],
+      "loosens": true,
+      "replay_before": {},
+      "replay_after": {}
+    }
+  },
+  {
+    "id": "lab_09",
+    "rubric": "skill_proposal",
+    "human_score": 5,
+    "artifact": {
+      "skill": "ap-3way-match",
+      "rationale": "The controller rejected two Kestrel HBM invoices priced above contract but within the 0.5% tolerance (case_43, case_44) for the same reason. Hold any HBM unit price above the contract price at Kestrel.",
+      "diff": "+- HBM at V-KESTREL: unit price above contract -> price_over (material), even within tolerance",
+      "evidence": [
+        "case_43",
+        "case_44"
+      ],
+      "loosens": false,
+      "replay_before": {
+        "passed": 46,
+        "total": 48
+      },
+      "replay_after": {
+        "passed": 48,
+        "total": 48
+      }
+    }
+  }
+]

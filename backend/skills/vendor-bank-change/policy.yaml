@@ -1,0 +1,7 @@
+skill: vendor-bank-change
+version: v1
+applies_to: [bank_change, lookalike_domain]
+recommendation_floor:
+  order: [approve, hold, reject, escalate]
+  minimum: escalate
+required_actions: [hold_payment, callback_contact_on_file, second_person_confirms]

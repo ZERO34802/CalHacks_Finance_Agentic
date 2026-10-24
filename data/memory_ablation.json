@@ -1,0 +1,12 @@
+{
+  "case_42": {
+    "decision": "approve",
+    "discrepancies": [
+      "below_materiality"
+    ],
+    "skill": null,
+    "variance": null,
+    "paid_amount": null,
+    "note": "Without memory the 45.00 expedite is just below materiality: auto-accept and log."
+  }
+}

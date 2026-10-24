@@ -1,0 +1,21 @@
+{
+  "schema": "helix.erp.ap_invoice.v1",
+  "vendor_id": "V-PENANG",
+  "invoice_no": "PPT-6702",
+  "invoice_date": "2026-10-22",
+  "due_date": null,
+  "currency": "USD",
+  "po_number": "PO-6103",
+  "lines": [
+    {
+      "line_no": 1,
+      "sku": "PKG-COWOS-L",
+      "description": "CoWoS-L packaging + final test",
+      "qty": "60",
+      "unit_price": "1650.00",
+      "amount": "99000.00"
+    }
+  ],
+  "total": "99000.00",
+  "bank_last4": "4418"
+}

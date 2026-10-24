@@ -1,0 +1,19 @@
+# ap-3way-match policy. Tolerances/materiality mirror config/policy.yaml; code enforces them.
+skill: ap-3way-match
+version: v1
+applies_to: [qty_short, price_over, unapproved_freight, currency_mismatch, fx_gap, total_mismatch]
+recommendation_floor:        # code-computed; the agent may only go further up this list
+  order: [approve, hold, reject, escalate]
+materiality:
+  abs: "50.00"
+  pct: "0.001"
+source_precedence:
+  quantity: goods_receipt
+  price: po_or_contract_in_effect_on_invoice_date
+  unlisted_lines: po
+  currency: po
+  total: recomputed_line_sum
+escalate_when:
+  - evidence_missing
+  - two_plausible_explanations
+  - embedded_instructions

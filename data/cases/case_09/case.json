@@ -1,0 +1,14 @@
+{
+  "id": "case_09",
+  "title": "Kestrel bills amended price after the amendment took effect",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "email",
+      "path": "case_09.eml",
+      "sender": "ar@kestrelmemory.co.kr",
+      "received_at": "2026-11-02T15:00:00Z"
+    }
+  ],
+  "as_of": "2026-11-03"
+}

@@ -1,0 +1,8 @@
+# Planted seed cases this skill must handle (full answer key: data/answer_key.json).
+# tests/test_b_investigator.py replays these through the Investigator with discrepancies set by hand.
+- case_id: case_02
+  discrepancy: {type: qty_short, line_no: 1, sku: WFR-N3-300, expected: "940", actual: "1000", delta: "1116000.00"}
+  expect: {recommendation: hold, source_wins: receipt}
+- case_id: case_03
+  discrepancy: {type: price_over, line_no: 1, sku: HBM3E-8H-24G, expected: "1180.00", actual: "1240.00", delta: "2400.00"}
+  expect: {recommendation: hold, source_wins: contract}

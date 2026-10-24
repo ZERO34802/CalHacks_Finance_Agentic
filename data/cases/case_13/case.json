@@ -1,0 +1,14 @@
+{
+  "id": "case_13",
+  "title": "Formosa clean invoice INV-905 by email",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "email",
+      "path": "case_13.eml",
+      "sender": "billing@formosawafer.com.tw",
+      "received_at": "2026-10-16T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-16"
+}

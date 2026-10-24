@@ -1,0 +1,14 @@
+{
+  "id": "case_08",
+  "title": "Penang bills 1,712.00/unit against PO price 1,650.00",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "email",
+      "path": "case_08.eml",
+      "sender": "billing@penangpacktest.com.my",
+      "received_at": "2026-10-15T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-15"
+}

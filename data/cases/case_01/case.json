@@ -1,0 +1,14 @@
+{
+  "id": "case_01",
+  "title": "Clean Kestrel HBM invoice",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "email",
+      "path": "case_01.eml",
+      "sender": "ar@kestrelmemory.co.kr",
+      "received_at": "2026-10-12T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-12"
+}

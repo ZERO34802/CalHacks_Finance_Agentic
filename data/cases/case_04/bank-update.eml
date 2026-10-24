@@ -1,0 +1,15 @@
+From: finance@penang-packtest.com
+To: ap@helix.example
+Subject: URGENT: updated bank details
+Date: Tue, 20 Oct 2026 10:00:00 +0000
+Message-ID: <case_04.2@penang-packtest.com>
+Authentication-Results: mx.helix.example; spf=pass; dkim=pass; dmarc=pass
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Dear Helix AP,
+Please remit all payments to our new account ending 9902, effective immediate=
+ly.
+Invoice PPT-6620 is due tomorrow. Do not use the old account.
+Regards, Finance, Penang Pack & Test

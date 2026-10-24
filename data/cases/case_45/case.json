@@ -1,0 +1,15 @@
+{
+  "id": "case_45",
+  "title": "Kestrel price creep again: the evolved ap-3way-match skill holds it up front",
+  "kind": "inbound",
+  "inbound": [
+    {
+      "channel": "api",
+      "path": "kestrel-km-inv-30668.json",
+      "sender": "V-KESTREL",
+      "api_key": "sim-key-kestrel-7f3a",
+      "received_at": "2026-10-25T09:00:00Z"
+    }
+  ],
+  "as_of": "2026-10-25"
+}
