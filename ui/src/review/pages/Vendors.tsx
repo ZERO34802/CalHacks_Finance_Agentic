@@ -25,7 +25,7 @@ export default function Vendors({ openId }: { openId?: string }) {
   useEffect(() => { if (openId && vendors[openId]) setOpen(vendors[openId]); }, [openId, vendors]);
   const list = Object.values(vendors);
   const of = (v: Vendor) => bills.filter((b) => b.vendor_id === v.id);
-  const openUsd = (v: Vendor) => sumMoney(of(v).filter((b) => !["paid", "rejected"].includes(b.stage)).map((b) => b.amount_usd));
+  const openUsd = (v: Vendor) => sumMoney(of(v).filter((b) => !["paid", "rejected"].includes(b.stage)).map((b) => b.payable_usd ?? b.amount_usd));
   const risk = (v: Vendor) => (of(v).some((b) => b.risk === "high") ? "high" : of(v).some((b) => b.risk === "medium") ? "medium" : "low");
   const pending = onb.filter((c) => c.status === "needs_review").length;
 
@@ -216,7 +216,7 @@ function Onboarding({ cases, reload }: { cases: OnboardingCase[]; reload: () => 
 }
 
 const BLANK: OnboardingRequestIn = { legal_name: "", country: "US", currency: "USD", tax_id: "", address: "", city: "", state: "", zip: "", email_domain: "",
-  website: "", bank_last4: "", contact_name: "", contact_phone: "", expected_annual_spend_usd: "0", requested_by: "" };
+  website: "", bank_last4: "", contact_name: "", contact_phone: "", expected_annual_spend_usd: "0", requested_by: "", tax_form: null, trade_names: [] };
 
 function RequestForm({ opened, onClose, onDone }: { opened: boolean; onClose: () => void; onDone: (c: OnboardingCase) => void }) {
   const { seat } = useApp();
@@ -238,7 +238,9 @@ function RequestForm({ opened, onClose, onDone }: { opened: boolean; onClose: ()
         <SimpleGrid cols={2}>
           <TextInput label="Legal name" required {...f("legal_name")} />
           <TextInput label="Country (ISO)" required {...f("country")} />
-          <TextInput label="Tax ID (W-9 / W-8BEN-E)" {...f("tax_id")} />
+          <TextInput label="Tax ID" {...f("tax_id")} />
+          <Select label="Tax form received" placeholder="None yet" clearable value={r.tax_form ?? null} onChange={(v) => setR({ ...r, tax_form: v })}
+            data={["W-9", "W-8BEN-E"]} description="W-9 for US vendors, W-8BEN-E otherwise" />
           <TextInput label="Currency" {...f("currency")} />
           <TextInput label="Street address" {...f("address")} />
           <TextInput label="City" {...f("city")} />

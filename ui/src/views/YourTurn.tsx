@@ -43,7 +43,7 @@ export default function YourTurn({ tick }: LiveProps) {
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const s = SIGNERS[signer];
     try {
-      await api.approve(cur.case_id, { approver: s.approver, role: s.role, decision: mode, comment: "" });
+      await api.approve(cur.case_id, { approver: s.approver, role: s.role, decision: mode, comment: "", scope: null });
       setInk({ x: e.clientX - r.left, y: e.clientY - r.top, d: mode });
       setTimeout(() => { setDone((d) => [{ id: cur.case_id, d: mode, name: shortName(cur.vendor_name) }, ...d]); setInk(null); }, 950);
     } catch (err) { setError(String(err)); }

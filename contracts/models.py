@@ -966,6 +966,8 @@ class OnboardingRequestIn(Model):
     contact_phone: str = ""
     expected_annual_spend_usd: Money = Decimal("0")
     requested_by: str
+    tax_form: Optional[str] = Field(None, description="W-9 (US) | W-8BEN-E (non-US); null = not received")
+    trade_names: list[str] = []
 
 
 class VendorCheck(Model):
@@ -1018,6 +1020,15 @@ class Bill(Model):
     discount: Optional[EarlyPayOffer] = None
     credit_available: Optional[Money] = Field(None, description="advance-payment credit open for this vendor")
     warning: Optional[str] = Field(None, description="one line shown under the bill in lists")
+    payable: Optional[Money] = Field(None, description="AP booked by the Poster and not yet credited: what a payment "
+                                                       "run may pay (the undisputed part of a partial hold)")
+    payable_usd: Optional[Money] = None
+    disputed: Optional[Money] = Field(None, description="held part of a hold (invoice currency)")
+    case_status: Optional[CaseStatus] = Field(None, description="the pipeline's case status")
+    disagreements: list[str] = Field(default_factory=list,
+                                     description="where the second-line checks and the agents' decision disagree")
+    sub_case_ids: list[str] = Field(default_factory=list, description="one sub-case per discrepancy, grouped here")
+    po_number: Optional[str] = None
 
 
 class ActivityItem(Model):
@@ -1109,6 +1120,7 @@ class ApprovalRequest(Model):
     role: Role
     decision: ApprovalDecision
     comment: str = ""
+    scope: Optional[str] = Field(None, description="full | undisputed; default: undisputed on a hold, else full")
 
 
 Scoreboard.model_rebuild()

@@ -364,13 +364,26 @@
         "comment": {
           "default": "",
           "type": "string"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "full | undisputed; default: undisputed on a hold, else full"
         }
       },
       "required": [
         "approver",
         "role",
         "decision",
-        "comment"
+        "comment",
+        "scope"
       ],
       "title": "ApprovalRequest",
       "type": "object"
@@ -631,6 +644,84 @@
           ],
           "default": null,
           "description": "one line shown under the bill in lists"
+        },
+        "payable": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "AP booked by the Poster and not yet credited: what a payment run may pay (the undisputed part of a partial hold)"
+        },
+        "payable_usd": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "disputed": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "held part of a hold (invoice currency)"
+        },
+        "case_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CaseStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "the pipeline's case status"
+        },
+        "disagreements": {
+          "description": "where the second-line checks and the agents' decision disagree",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "sub_case_ids": {
+          "description": "one sub-case per discrepancy, grouped here",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "po_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -657,7 +748,14 @@
         "overbilled",
         "discount",
         "credit_available",
-        "warning"
+        "warning",
+        "payable",
+        "payable_usd",
+        "disputed",
+        "case_status",
+        "disagreements",
+        "sub_case_ids",
+        "po_number"
       ],
       "title": "Bill",
       "type": "object"
@@ -3271,6 +3369,25 @@
         },
         "requested_by": {
           "type": "string"
+        },
+        "tax_form": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "W-9 (US) | W-8BEN-E (non-US); null = not received"
+        },
+        "trade_names": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -3288,7 +3405,9 @@
         "contact_name",
         "contact_phone",
         "expected_annual_spend_usd",
-        "requested_by"
+        "requested_by",
+        "tax_form",
+        "trade_names"
       ],
       "title": "OnboardingRequestIn",
       "type": "object"

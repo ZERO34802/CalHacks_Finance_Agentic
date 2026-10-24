@@ -39,7 +39,7 @@ export default function Bills({ tab: tabParam }: { tab?: string }) {
 
   const bulk = async (dec: ApprovalDecision) => {
     setBusy(true);
-    const res = await Promise.allSettled(selected.map((id) => ap.decide(id, { approver: who.email, role: who.role, decision: dec, comment: "bulk" })));
+    const res = await Promise.allSettled(selected.map((id) => ap.decide(id, { approver: who.email, role: who.role, decision: dec, comment: "bulk", scope: null })));
     const bad = res.map((r, i) => (r.status === "rejected" ? `${selected[i]}: ${(r.reason as Error).message}` : null)).filter(Boolean);
     notifications.show({ color: bad.length ? "orange" : "brand", title: `${res.length - bad.length} of ${res.length} recorded`, message: bad.join(" · ") || "Done." });
     setSelected([]); setBusy(false); refresh();
@@ -79,7 +79,7 @@ export default function Bills({ tab: tabParam }: { tab?: string }) {
             </Group>
           )}
           {tab === "payment" && (
-            <Group gap="xs"><Text fz="xs" c="dimmed">{selected.length ? `${selected.length} selected · ${usd(sumMoney(bills.filter((b) => selected.includes(b.case_id)).map((b) => b.amount_usd)))}` : "Select approved bills to schedule"}</Text>
+            <Group gap="xs"><Text fz="xs" c="dimmed">{selected.length ? `${selected.length} selected · ${usd(sumMoney(bills.filter((b) => selected.includes(b.case_id)).map((b) => b.payable_usd ?? b.amount_usd)))}` : "Select approved bills to schedule"}</Text>
               <Button size="xs" disabled={!selected.length} onClick={() => setDrawer(true)}>Schedule selected</Button></Group>
           )}
         </Group>
@@ -134,7 +134,7 @@ function ReviewPayments({ opened, onClose, selected, onDone }: { opened: boolean
         {toSchedule.length > 0 && (
           <Card withBorder>
             <Text fw={600} mb={4}>Schedule {toSchedule.length} approved bill{toSchedule.length > 1 ? "s" : ""}</Text>
-            <Group justify="space-between" mb="sm"><Text fz={26} fw={600}>{usd(sumMoney(toSchedule.map((b) => b.amount_usd)))}</Text>
+            <Group justify="space-between" mb="sm"><Text fz={26} fw={600}>{usd(sumMoney(toSchedule.map((b) => b.payable_usd ?? b.amount_usd)))}</Text>
               <TextInput type="date" size="xs" label="Payment date" value={date} min={today()} onChange={(e) => setDate(e.currentTarget.value)} /></Group>
             {toSchedule.map((b) => {
               const v = vendors[b.vendor_id];
@@ -145,7 +145,8 @@ function ReviewPayments({ opened, onClose, selected, onDone }: { opened: boolean
                     {b.discount?.status === "available" && <Text fz="xs" c={date <= b.discount.pay_by ? "green.8" : "orange.8"}>
                       {date <= b.discount.pay_by ? `saves ${amount(b.discount.discount_amount, b.currency)} (pay by ${day(b.discount.pay_by)})` : `pay by ${day(b.discount.pay_by)} to save ${amount(b.discount.discount_amount, b.currency)}`}</Text>}
                     {b.credit_available && <Text fz="xs" c="blue.8">{amount(b.credit_available, b.currency)} prepaid credit will be applied</Text>}</div></Group>
-                  <Text fz="sm" ff="monospace">{amount(b.amount, b.currency)}</Text>
+                  <Stack gap={0} align="flex-end"><Text fz="sm" ff="monospace">{amount(b.payable ?? b.amount, b.currency)}</Text>
+                    {b.payable && b.payable !== b.amount && <Text fz="xs" c="dimmed">undisputed part of {amount(b.amount, b.currency)}</Text>}</Stack>
                 </Group>
               );
             })}

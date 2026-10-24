@@ -7,10 +7,11 @@ position in the queue can be explained by its `reasons`.
 from __future__ import annotations
 
 from collections import Counter
-from datetime import date
+from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Optional
 
+from backend.ap.state import is_bill
 from backend.core.config import Policy
 from backend.store.base import Store
 from contracts import (DashboardMetrics, Case, CaseStatus, Decision, FailureItem, QueueItem, StageStat, StepStatus,
@@ -53,8 +54,11 @@ def approval_queue(store: Store, policy: Policy, today: date) -> list[QueueItem]
     """Open cases, highest priority first: due date, amount, supplier criticality, needs-a-human."""
     vendors = {v.id: v for v in store.list_vendors()}
     items = []
-    for case in store.list_cases():
-        if case.status in CLOSED or case.status == CaseStatus.approved:
+    cases = store.list_cases()
+    for case in cases:
+        # bills only (sub-cases, replies and credit notes live under their bill); nothing booked yet
+        if case.status in CLOSED or case.status == CaseStatus.approved or not is_bill(case, cases) \
+                or case.journal_entry is not None or case.decision == Decision.reject:
             continue
         vendor = vendors.get(case.vendor_id)
         inv = case.invoice
@@ -65,8 +69,9 @@ def approval_queue(store: Store, policy: Policy, today: date) -> list[QueueItem]
             pts, why = _amount_points(usd)
             priority += pts
             reasons += [why] if why else []
-            if inv.due_date is not None:
-                days = (inv.due_date - today).days
+            due = inv.due_date or _due_from_terms(inv, vendor)
+            if due is not None:
+                days = (due - today).days
                 pts, why = _due_points(days)
                 priority += pts
                 reasons += [why] if why else []
@@ -81,10 +86,16 @@ def approval_queue(store: Store, policy: Policy, today: date) -> list[QueueItem]
             status=case.status, decision=case.decision,
             invoice_no=inv.invoice_no if inv else None, total=inv.total if inv else None,
             currency=inv.currency if inv else None, total_usd=usd,
-            due_date=inv.due_date if inv else None, days_to_due=days,
+            due_date=(inv.due_date or _due_from_terms(inv, vendor)) if inv else None, days_to_due=days,
             at_risk=days is not None and days <= AT_RISK_DAYS,
             critical_vendor=bool(vendor and vendor.critical), priority=priority, reasons=reasons))
     return sorted(items, key=lambda i: (-i.priority, i.days_to_due if i.days_to_due is not None else 10**6, i.case_id))
+
+
+def _due_from_terms(inv, vendor) -> Optional[date]:
+    """No due date printed: invoice date + net days from the vendor master (never from invoice text)."""
+    net = vendor.terms.net_days if vendor and vendor.terms else 30
+    return inv.invoice_date + timedelta(days=net)
 
 
 def _exposure_usd(case: Case, policy: Policy) -> Decimal:
@@ -92,13 +103,16 @@ def _exposure_usd(case: Case, policy: Policy) -> Decimal:
     inv = case.invoice
     if inv is None:
         return Decimal(0)
-    deltas = [abs(d.delta) for d in case.discrepancies if d.delta is not None]
-    return _usd(sum(deltas, Decimal(0)) if deltas else inv.total, inv.currency, policy)
+    if case.decision == Decision.reject or any(d.type.value == "duplicate_invoice" for d in case.discrepancies):
+        return _usd(inv.total, inv.currency, policy)  # the whole bill was stopped
+    deltas = [abs(d.delta) for d in case.discrepancies if d.delta is not None and d.material]
+    return _usd(min(sum(deltas, Decimal(0)), abs(inv.total)) if deltas else inv.total, inv.currency, policy)
 
 
 def business_metrics(store: Store, policy: Policy) -> DashboardMetrics:
     vendors = {v.id: v for v in store.list_vendors()}
-    cases = store.list_cases()
+    every = store.list_cases()
+    cases = [c for c in every if is_bill(c, every)]  # one row per bill; sub-cases are grouped under it
     exceptions = [c for c in cases if c.decision in EXCEPTION_DECISIONS]
     handled = [c for c in cases if c.decision is not None]
 
@@ -163,5 +177,6 @@ def stage_stats(store: Store) -> list[StageStat]:
                              skipped=sum(s.status == StepStatus.skipped for s in steps),
                              flagged=sum(s.status in FAILURE_STATUSES for s in steps),
                              avg_ms=round(sum(ms) / len(ms), 1) if ms else None))
-    first_seq = {st: min(s.seq for s in steps) for st, steps in by_stage.items()}
-    return sorted(out, key=lambda x: first_seq[x.stage])
+    from backend.core.runner import PIPELINE  # late: the runner imports the whole pipeline
+    order = ["intake"] + [st.name for st in PIPELINE] + ["gate"]
+    return sorted(out, key=lambda x: (order.index(x.stage) if x.stage in order else len(order), x.stage))

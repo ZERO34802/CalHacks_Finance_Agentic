@@ -289,6 +289,10 @@ export interface ApprovalRequest {
   role: Role;
   decision: ApprovalDecision;
   comment: string;
+  /**
+   * full | undisputed; default: undisputed on a hold, else full
+   */
+  scope: string | null;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -356,6 +360,28 @@ export interface Bill {
    * one line shown under the bill in lists
    */
   warning: string | null;
+  /**
+   * AP booked by the Poster and not yet credited: what a payment run may pay (the undisputed part of a partial hold)
+   */
+  payable: string | null;
+  payable_usd: string | null;
+  /**
+   * held part of a hold (invoice currency)
+   */
+  disputed: string | null;
+  /**
+   * the pipeline's case status
+   */
+  case_status: CaseStatus | null;
+  /**
+   * where the second-line checks and the agents' decision disagree
+   */
+  disagreements: string[];
+  /**
+   * one sub-case per discrepancy, grouped here
+   */
+  sub_case_ids: string[];
+  po_number: string | null;
 }
 /**
  * A pre-payment check run by code at review time.
@@ -1345,6 +1371,11 @@ export interface OnboardingRequestIn {
    */
   expected_annual_spend_usd: string;
   requested_by: string;
+  /**
+   * W-9 (US) | W-8BEN-E (non-US); null = not received
+   */
+  tax_form: string | null;
+  trade_names: string[];
 }
 /**
  * One onboarding check as shown in the UI (D): CRS or code, pass/warn/fail.

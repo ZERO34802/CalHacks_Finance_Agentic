@@ -47,7 +47,7 @@ export default function BillPage({ id, tab: tabParam }: { id: string; tab?: stri
             <ScrollArea style={{ flex: 1 }} px="xl" pt="lg">
               <Text c="dimmed" fz="sm">{STAGES[d.bill.stage]?.label}</Text>
               <Group justify="space-between" align="flex-start" mb="xs" wrap="nowrap">
-                <Text fz={30} fw={650} lh={1.15}>{shortName(d.bill.vendor_name)} INV# {d.bill.invoice_no}</Text>
+                <Text fz={30} fw={650} lh={1.15}>{shortName(d.bill.vendor_name)} {d.bill.invoice_no ? `INV# ${d.bill.invoice_no}` : `· ${d.bill.case_id}`}</Text>
                 <Box style={{ flexShrink: 0 }} pt={8}><StageBadge stage={d.bill.stage} /></Box>
               </Group>
               <Tabs value={tab} onChange={(t) => setTab(t ?? "overview")} mb="lg">
@@ -110,7 +110,7 @@ function BillList({ id }: { id: string }) {
                   onClick={() => go(`bill/${b.case_id}`)}>
                   <Group gap="sm" wrap="nowrap"><Avatarish name={b.vendor_name} size={24} />
                     <div style={{ minWidth: 0, flex: 1 }}><Text fz="sm" fw={500} truncate>{shortName(b.vendor_name)}</Text>
-                      <Text fz="xs" c="dimmed" truncate>{amount(b.amount, b.currency)} · Due {day(b.due_date)}</Text></div>
+                      <Text fz="xs" c="dimmed" truncate>{b.amount ? `${amount(b.payable ?? b.amount, b.currency)} · Due ${day(b.due_date)}` : `not read · ${b.case_id}`}</Text></div>
                     {b.risk === "high" && <IconAlertTriangle size={14} color="var(--mantine-color-red-6)" />}
                   </Group>
                 </Box>
@@ -140,7 +140,7 @@ function Overview({ d, packet, onAsk }: { d: BillDetail; packet: ReviewPacket; o
   const vd = VERDICT[d.verdict as keyof typeof VERDICT] ?? VERDICT.review;
   const failed = d.checks.filter((c) => !c.passed), passed = d.checks.filter((c) => c.passed);
   const [showAll, setShowAll] = useState(false);
-  const po = packet.files.find((f) => f.kind === "po")?.filename.replace(/\.json$/, "") ?? "—";
+  const po = b.po_number ?? "—";
   return (
     <Stack gap="xl">
       <Card withBorder padding="lg" style={{ borderColor: `var(--mantine-color-${vd.color}-4)` }} bg={d.verdict === "risk" ? "red.0" : undefined}>
@@ -156,6 +156,11 @@ function Overview({ d, packet, onAsk }: { d: BillDetail; packet: ReviewPacket; o
             ))}
           </Stack>
         )}
+        {b.disagreements.length > 0 && <Alert mt="sm" color="orange" variant="light" title="Second-line checks vs the agents">
+          {b.disagreements.map((x) => <Text key={x} fz="sm">{x}</Text>)}</Alert>}
+        {b.payable && b.payable !== b.amount && <Alert mt="sm" color="blue" variant="light" title="Pay what's clean">
+          The undisputed {amount(b.payable, cur)} is booked and payable; {amount(b.disputed, cur)} stays held until the vendor credits or corrects it{b.sub_case_ids.length ? ` (${b.sub_case_ids.join(", ")})` : ""}.</Alert>}
+        {!b.invoice_no && b.warning && <Alert mt="sm" color="orange" variant="light">{b.warning}</Alert>}
         {d.verdict === "risk" && <Text fz="sm" fw={600} c="red.8" mt="sm">Call the vendor on the number in the vendor master (never the one on the invoice or email) before paying.</Text>}
         <Text fz="sm" fw={600} mt="md" mb={4}>Checks passed</Text>
         <Stack gap={3}>
@@ -254,6 +259,7 @@ function PaymentStatus({ d }: { d: BillDetail }) {
     <div>
       <Group justify="space-between" mb="xs">
         <div><Text fz="xs" c="dimmed">Payment status</Text><Text fz="xl" fw={600} c={s === "blocked" || s === "rejected" ? "red.7" : undefined}>{label[s] ?? s}</Text></div>
+        {d.bill.payable && <div style={{ textAlign: "right" }}><Text fz="xs" c="dimmed">Booked, to pay</Text><Text fz="xl" fw={600}>{amount(d.bill.payable, d.bill.currency)}</Text></div>}
         <div style={{ textAlign: "right" }}><Text fz="xs" c="dimmed">Estimated payment date</Text><Text fz="xl" fw={600}>{day(d.est_pay_date)}</Text></div>
       </Group>
       <Stepper active={active} size="xs" color={s === "blocked" ? "red" : "brand"}>
@@ -309,13 +315,13 @@ function ActionBar({ d, onDone }: { d: BillDetail; onDone: (text?: string) => vo
     if (b.payment) ap.runs().then((rs) => setRun(rs.find((r) => r.id === b.payment!.batch_id) ?? null)).catch(() => {});
     else setRun(null);
   }, [b.payment?.batch_id, b.payment?.status]);
-  const canSign = b.needs === seat;
+  const canSign = b.needs === seat && !!b.invoice_no;   // nothing to approve when no invoice was read
   const fail = (e: unknown, title: string) => notifications.show({ color: "red", title, message: e instanceof Error ? e.message : String(e) });
 
   const decide = async (dec: ApprovalDecision) => {
     setBusy(dec);
     try {
-      await ap.decide(b.case_id, { approver: who.email, role: who.role, decision: dec, comment: "" });
+      await ap.decide(b.case_id, { approver: who.email, role: who.role, decision: dec, comment: "", scope: null });
       const text = dec === "rejected" ? `Rejected by ${who.name}. Nothing will be paid.` : `Put on hold by ${who.name}. Nothing is paid until it's resolved.`;
       notifications.show({ color: dec === "rejected" ? "red" : "yellow", title: "Recorded", message: text }); onDone(text);
     } catch (e) { fail(e, "Not allowed"); } finally { setBusy(null); }
@@ -323,10 +329,15 @@ function ActionBar({ d, onDone }: { d: BillDetail; onDone: (text?: string) => vo
   const schedule = async (approveFirst: boolean) => {
     setBusy("schedule");
     try {
-      if (approveFirst) await ap.decide(b.case_id, { approver: who.email, role: who.role, decision: "approved", comment: "" });
-      if (b.payment_block) {
-        notifications.show({ color: "orange", title: "Approved, but payment is blocked", message: b.payment_block });
-        onDone(`Approved by ${who.name}. Payment blocked: ${b.payment_block}`); return;
+      let cur = b;
+      if (approveFirst) {
+        await ap.decide(b.case_id, { approver: who.email, role: who.role, decision: "approved", comment: "", scope: null });
+        cur = (await ap.bill(b.case_id)).bill;   // the Poster booked it (or refused): read the result
+      }
+      if (cur.stage !== "ready_to_pay") {
+        const why = cur.payment_block ?? cur.warning ?? "not payable yet";
+        notifications.show({ color: "orange", title: "Approved, but not payable yet", message: why });
+        onDone(`Approved by ${who.name}. Not scheduled: ${why}`); return;
       }
       const r = await ap.createRun([b.case_id], payChoice.date || new Date().toISOString().slice(0, 10), who.email,
         { [b.case_id]: payChoice.method ?? d.default_method ?? "ach" });
@@ -347,7 +358,7 @@ function ActionBar({ d, onDone }: { d: BillDetail; onDone: (text?: string) => vo
     right = <>
       <Button variant="default" loading={busy === "ask"} onClick={() => decide("ask")}>Hold</Button>
       <Button variant="outline" color="red" leftSection={<IconX size={15} />} loading={busy === "rejected"} onClick={() => decide("rejected")}>Reject</Button>
-      <Tooltip label={`Approval needs the ${PEOPLE[b.needs as Seat]?.title}. Switch person (top right).`} disabled={canSign}>
+      <Tooltip label={!b.invoice_no ? "No invoice was read: reject, or ask the vendor to resend." : `Approval needs the ${PEOPLE[b.needs as Seat]?.title}. Switch person (top right).`} disabled={canSign}>
         <Button color="green" disabled={!canSign} loading={busy === "schedule"} leftSection={<IconCheck size={16} />} onClick={() => schedule(true)}>Approve & schedule</Button>
       </Tooltip></>;
   } else if (b.stage === "ready_to_pay") {
@@ -401,11 +412,11 @@ function Trace({ packet }: { packet: ReviewPacket }) {
     <Stack>
       <Text fw={600}>What each agent reported</Text>
       <Stack gap={6}>
-        {packet.findings.map((f) => (
-          <Group key={f.check} gap="sm" wrap="nowrap" align="flex-start">
+        {packet.findings.map((f, i) => (
+          <Group key={`${f.check}-${i}`} gap="sm" wrap="nowrap" align="flex-start">
             <ThemeIcon size="sm" radius="xl" color={findingColor(f.status)} variant={f.status === "unchecked" ? "light" : "filled"}>{f.status === "ok" ? "✓" : f.status === "flag" ? "!" : "?"}</ThemeIcon>
             <div><Group gap={6}><Text fz="sm" fw={600}>{f.check}</Text><Text fz="xs" c="dimmed">{f.agent}</Text>
-              {f.status === "unchecked" && <Badge size="xs" variant="light" color="gray">placeholder</Badge>}</Group><Text fz="sm" c="dimmed">{f.detail}</Text></div>
+              {f.status === "unchecked" && <Badge size="xs" variant="light" color="gray">not checked</Badge>}</Group><Text fz="sm" c="dimmed">{f.detail}</Text></div>
           </Group>
         ))}
       </Stack>
@@ -417,7 +428,7 @@ function Trace({ packet }: { packet: ReviewPacket }) {
               {s.detail.stub === true && <Badge size="xs" variant="outline" color="gray">placeholder</Badge>}</Group>}>
             <Text fz="xs" c="dimmed">{s.role} · {s.duration_ms ?? "…"} ms{s.skill ? ` · ${s.skill}@${s.skill_version}` : ""}{s.error ? ` · ${s.error}` : ""}</Text>
             {Object.entries(s.detail).filter(([k]) => k !== "stub").length > 0 &&
-              <Text fz="xs" ff="monospace" c="dimmed">{Object.entries(s.detail).filter(([k]) => k !== "stub").map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(" · ")}</Text>}
+              <Text fz="xs" ff="monospace" c="dimmed" style={{ wordBreak: "break-word" }}>{Object.entries(s.detail).filter(([k]) => k !== "stub").map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(" · ").slice(0, 600)}</Text>}
           </Timeline.Item>
         ))}
       </Timeline>
@@ -491,6 +502,7 @@ function DocPane({ packet, d }: { packet: ReviewPacket | null; d: BillDetail | n
                 <Table.Td ta="right">{amount(d.gl.find((g) => g.sku === m.sku)?.amount)}</Table.Td></Table.Tr>)}</Table.Tbody>
             </Table>
             <Group justify="flex-end" mt="sm"><Text fw={700} fz="sm">Total {amount(b.amount, b.currency)}</Text></Group>
+            {!b.invoice_no && <Text fz="sm" c="dimmed" mt="md">No invoice could be read from what arrived. See Documents.</Text>}
             <Paper bg={changed ? "red.0" : "gray.0"} p="sm" mt="lg"><Text fz={10} c="dimmed" tt="uppercase">Payment information (as printed)</Text>
               <Text fz="xs">Remit to account •••• {d.invoice_bank_last4 ?? "—"}</Text>
               {changed && <Badge color="red" size="xs" mt={4}>Differs from the vendor master (•••• {v?.bank_last4})</Badge>}</Paper>

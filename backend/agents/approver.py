@@ -247,6 +247,14 @@ def llm_review(case: Case, proposal: Proposal, role: Role, who: str, ctx: Ctx, h
         "vendor_id": case.vendor_id, "your_limit_usd": str(limit),
         "controller_preferences": prefs, "vendor_memory": vendor_lines, "your_earlier_feedback": history,
     }
+    if case.links:  # cases the proposal may refer to (dedup / related-pattern links found by code)
+        payload["related_cases_by_code"] = [lk.model_dump(mode="json") for lk in case.links]
+    payload["explanation_lines_by_code"] = len([ln for ln in proposal.explanation.splitlines() if ln.strip()])
+    usd = amount_usd(case, ctx)
+    payload["routing_by_code"] = (
+        f"Code routed this review to you ({role.value}, {who}) because the amount to post is USD {usd} and your limit "
+        f"is USD {limit}. You are the approver for this case, including any undisputed payment below; approval "
+        "routing and limits are decided by code, not by the proposal's wording.")
     corr = correction(case, ctx)
     if corr:
         payload["correction"] = {
@@ -279,6 +287,14 @@ def default_review(case, proposal, role, who, ctx, history):
     return deterministic_review(case, proposal, role, who, ctx, history)
 
 
+def human_role(case: Case, ctx: Ctx) -> Role:
+    """Who must decide an escalation: the controller within her limit, else the CFO (same USD amount as routing)."""
+    usd = amount_usd(case, ctx)
+    if usd is not None and usd <= ctx.policy.approval_limits["controller"]:
+        return Role.controller
+    return Role.cfo
+
+
 def sla_pending(case: Case, ctx: Ctx, role: Role, who: str) -> PendingApproval:
     from backend.agents.supplier import sim_time
     at = sim_time(case, ctx)
@@ -299,10 +315,10 @@ class Approver:
         from backend.agents.supplier import outreach
         case.decision, case.status = decision, STATUS[decision]
         if decision == Decision.escalate:
-            role = human or Role.controller
+            role = human or human_role(case, ctx)
             who, _ = identity(role, case, ctx)
             case.pending_approval = sla_pending(case, ctx, role, who)
-            detail["pending_approval"] = {"role": role.value, "approver": who,
+            detail["pending_approval"] = {"role": role.value, "approver": who, "simulated_identity": True,
                                           "due_at": case.pending_approval.due_at.isoformat()}
         if decision in (Decision.hold, Decision.escalate):
             with ctx.trace.step(case.id, "supplier.outreach"):
@@ -370,6 +386,7 @@ class Approver:
                                            "backup": bool(override), **meta})
             detail["reviews"].append({"identity": who, "role": role.value, "decision": review.decision.value,
                                       "reason": review.reason, "engine": meta.get("engine")})
+            rule_meta = meta
             tag = "[simulated role-play]" if meta.get("engine") == "claude" else "[simulated: deterministic policy approver]"
 
             if review.decision == ApprovalDecision.approved:
@@ -420,7 +437,8 @@ class Approver:
             case.replans += 1
             with ctx.trace.step(case.id, "investigator.replan", role=Role.investigator):
                 if case.skill:
-                    case.proposal, meta = investigate(case, ctx, feedback=review.reason, attempt=case.replans)
+                    case.proposal, meta = investigate(case, ctx, feedback=review.reason, attempt=case.replans,
+                                                      code_only=bool(rule_meta.get("rule")))
                     ctx.trace.annotate(skill=meta["skill"].name, skill_version=meta["skill"].version,
                                        memory_version=meta["memory_version"],
                                        inputs=meta["inputs"], outputs=["proposal.json"],

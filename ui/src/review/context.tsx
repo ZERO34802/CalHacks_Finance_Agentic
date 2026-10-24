@@ -46,7 +46,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const human = b.stage === "needs_review";
         notifications.show({
           title: human ? "Ready for review" : b.stage === "blocked" ? "Cleared by agents, but payment is blocked" : "Cleared by the agents",
-          message: `${b.vendor_name} · ${b.invoice_no}. Click to open.`, autoClose: 7000,
+          message: `${b.vendor_name} · ${b.invoice_no ?? b.case_id}. Click to open.`, autoClose: 7000,
           color: human ? "violet" : b.stage === "blocked" ? "red" : "brand",
           onClick: () => go(`bill/${b.case_id}`), style: { cursor: "pointer" },
         });

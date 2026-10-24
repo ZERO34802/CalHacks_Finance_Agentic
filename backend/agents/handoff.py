@@ -81,3 +81,46 @@ def release(case: Case, ctx: Ctx, by: str, note: str = "") -> Case:
         case.status = STATUS[case.decision] if case.decision else CaseStatus.in_progress
     ctx.store.save_case(case)
     return case
+
+
+def close_followup(case: Case, ctx: Ctx, followup_id: str, by: str, note: str = "",
+                   outcome: Optional[str] = None) -> Case:
+    """A human records an out-of-band follow-up result (e.g. callback to the number on the vendor master).
+
+    Never the requester or an agent. 'denied' on a callback = security incident: Alert + case stays escalated.
+    'confirmed' only clears the callback; a human still approves within limit. Vendor bank details are NEVER
+    changed here (vendor-master changes are a separate two-person flow)."""
+    from backend.agents.approver import requester
+    from contracts import Alert, Decision, FollowUpKind, FollowUpStatus
+    fu = next((f for f in case.follow_ups if f.id == followup_id), None)
+    if fu is None:
+        raise LookupError(f"no follow-up {followup_id} on {case.id}")
+    if not by or by.startswith("agent") or by == requester(case, ctx):
+        raise PermissionError("must be a human who is not the requester")
+    if fu.status == FollowUpStatus.done:
+        raise ValueError(f"follow-up {followup_id} is already done")
+    if fu.kind == FollowUpKind.callback and outcome not in ("confirmed", "denied"):
+        raise ValueError("a callback needs outcome 'confirmed' or 'denied'")
+    now = ctx.now()
+    fu.status, fu.closed_by = FollowUpStatus.done, by
+    fu.note += f"; done by {by} at {now.isoformat()}" + (f" ({outcome})" if outcome else "") + (f": {note}" if note else "")
+    detail = {"followup": fu.id, "kind": fu.kind.value, "by": by, "outcome": outcome, "note": note,
+              "vendor_master_changed": False}
+    if outcome == "denied":
+        aid = f"security_incident_{case.id}"
+        ctx.store.put_record("alert", aid, Alert(id=aid, kind="security_incident", vendor_id=case.vendor_id,
+                                                 case_id=case.id, at=now,
+                                                 message=f"vendor denied the change on callback by {by}: {note}"[:300]),
+                             idx=case.id)
+        case.decision, case.status = Decision.escalate, CaseStatus.escalated
+        case.notes.append(f"callback by {by}: vendor DENIED the change -> security incident; payment stays held")
+        detail["alert"] = aid
+    elif outcome == "confirmed":
+        case.notes.append(f"callback by {by}: vendor confirmed via contact on file; a human may now approve within "
+                          "limit (bank details on the vendor master are unchanged)")
+    else:
+        case.notes.append(f"follow-up {fu.id} done by {by}")
+    with ctx.trace.step(case.id, "followup.done"):
+        ctx.trace.annotate(detail=detail)
+    ctx.store.save_case(case)
+    return case

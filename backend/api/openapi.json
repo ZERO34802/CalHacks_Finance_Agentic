@@ -183,6 +183,64 @@
         }
       }
     },
+    "/cases/{case_id}/followups/{followup_id}/done": {
+      "post": {
+        "summary": "Post Followup Done",
+        "operationId": "post_followup_done_cases__case_id__followups__followup_id__done_post",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          },
+          {
+            "name": "followup_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Followup Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FollowUpDone"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Case-Output"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/skills/proposals": {
       "get": {
         "summary": "List Proposals",
@@ -569,7 +627,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-12T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.925564Z",
+                    "updated_at": "2026-10-24T20:54:33.732432Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -633,7 +691,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-14T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.928647Z",
+                    "updated_at": "2026-10-24T20:54:33.735674Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                       "reply case_34 handled: promise"
@@ -800,7 +858,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 47200.00 USD; hold 2400.00",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:30:18.936245Z"
+                        "at": "2026-10-24T20:54:33.743559Z"
                       }
                     ],
                     "journal_entry": {
@@ -995,7 +1053,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-16T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.938894Z",
+                    "updated_at": "2026-10-24T20:54:33.746168Z",
                     "notes": [
                       "sub-case 1 of case_03: price_over delta 2400.00"
                     ]
@@ -1072,7 +1130,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-20T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.943498Z",
+                    "updated_at": "2026-10-24T20:54:33.750836Z",
                     "notes": [
                       "intake: case_04.eml: auth spf=pass dkim=pass dmarc=pass",
                       "intake: sender domain 'penang-packtest.com' is a look-alike of Penang Pack & Test Sdn Bhd (penangpacktest.com.my); normalized edit distance 0.00. Bound to V-PENANG for review, NOT trusted.",
@@ -1140,7 +1198,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-21T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.946545Z",
+                    "updated_at": "2026-10-24T20:54:33.753824Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -1296,7 +1354,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 69600.00 USD; hold 17400.00",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:30:18.953943Z"
+                        "at": "2026-10-24T20:54:33.760933Z"
                       }
                     ],
                     "journal_entry": {
@@ -1486,7 +1544,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-14T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.956471Z",
+                    "updated_at": "2026-10-24T20:54:33.763427Z",
                     "notes": [
                       "sub-case 1 of case_06: qty_short delta 17400.00"
                     ]
@@ -1642,7 +1700,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 8928000.00 TWD; hold 372000.00",
                         "limit": "1000000.00",
-                        "at": "2026-10-24T20:30:18.964435Z"
+                        "at": "2026-10-24T20:54:33.771622Z"
                       }
                     ],
                     "journal_entry": {
@@ -1832,7 +1890,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-13T02:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.966929Z",
+                    "updated_at": "2026-10-24T20:54:33.773912Z",
                     "notes": [
                       "sub-case 1 of case_07: qty_short delta 372000.00"
                     ]
@@ -1896,7 +1954,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-15T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.971155Z",
+                    "updated_at": "2026-10-24T20:54:33.778009Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -1960,7 +2018,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-11-02T15:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.974823Z",
+                    "updated_at": "2026-10-24T20:54:33.781681Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -2121,7 +2179,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 15200.00 USD; hold 2800.00",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:30:18.981016Z"
+                        "at": "2026-10-24T20:54:33.788251Z"
                       }
                     ],
                     "journal_entry": {
@@ -2314,7 +2372,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-10T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.983317Z",
+                    "updated_at": "2026-10-24T20:54:33.790628Z",
                     "notes": [
                       "sub-case 1 of case_10: unapproved_freight delta 2800.00"
                     ]
@@ -2468,7 +2526,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 3720000.00 TWD; hold 45000.00",
                         "limit": "1000000.00",
-                        "at": "2026-10-24T20:30:18.993779Z"
+                        "at": "2026-10-24T20:54:33.801666Z"
                       }
                     ],
                     "journal_entry": {
@@ -2661,7 +2719,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-14T02:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.996287Z",
+                    "updated_at": "2026-10-24T20:54:33.804117Z",
                     "notes": [
                       "sub-case 1 of case_11: unapproved_freight delta 45000.00"
                     ]
@@ -2725,7 +2783,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-17T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.001470Z",
+                    "updated_at": "2026-10-24T20:54:33.808881Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -2789,7 +2847,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-16T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.005099Z",
+                    "updated_at": "2026-10-24T20:54:33.812304Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -2840,7 +2898,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-17T02:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.007358Z",
+                    "updated_at": "2026-10-24T20:54:33.814752Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -2904,7 +2962,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-19T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.017859Z",
+                    "updated_at": "2026-10-24T20:54:33.824490Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3036,7 +3094,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within approver limit",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:30:19.020775Z"
+                        "at": "2026-10-24T20:54:33.827592Z"
                       }
                     ],
                     "journal_entry": {
@@ -3074,7 +3132,7 @@
                     "priority": 3.389,
                     "reopens": 0,
                     "created_at": "2026-10-22T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.023671Z",
+                    "updated_at": "2026-10-24T20:54:33.830560Z",
                     "notes": [
                       "poster: already posted (V-KESTREL:KMINV30190); no duplicate entry written"
                     ]
@@ -3138,7 +3196,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-18T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.026738Z",
+                    "updated_at": "2026-10-24T20:54:33.833548Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3202,7 +3260,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-18T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.029802Z",
+                    "updated_at": "2026-10-24T20:54:33.836528Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3266,7 +3324,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-19T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.033060Z",
+                    "updated_at": "2026-10-24T20:54:33.839889Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3330,7 +3388,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-17T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.039542Z",
+                    "updated_at": "2026-10-24T20:54:33.846428Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3481,7 +3539,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within approver limit",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:30:19.042885Z"
+                        "at": "2026-10-24T20:54:33.849924Z"
                       }
                     ],
                     "journal_entry": {
@@ -3519,7 +3577,7 @@
                     "priority": 1.219,
                     "reopens": 0,
                     "created_at": "2026-10-13T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.045183Z",
+                    "updated_at": "2026-10-24T20:54:33.852304Z",
                     "notes": [
                       "poster: already posted (V-AEROLANE:2336); no duplicate entry written"
                     ]
@@ -3583,7 +3641,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-19T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.048224Z",
+                    "updated_at": "2026-10-24T20:54:33.855500Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3647,7 +3705,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-20T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.053465Z",
+                    "updated_at": "2026-10-24T20:54:33.860976Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3711,7 +3769,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-23T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.056371Z",
+                    "updated_at": "2026-10-24T20:54:33.864031Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3843,7 +3901,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within approver limit",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:30:19.059126Z"
+                        "at": "2026-10-24T20:54:33.866857Z"
                       }
                     ],
                     "journal_entry": {
@@ -3881,7 +3939,7 @@
                     "priority": 3.389,
                     "reopens": 0,
                     "created_at": "2026-10-21T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.061908Z",
+                    "updated_at": "2026-10-24T20:54:33.869649Z",
                     "notes": [
                       "poster: already posted (V-KESTREL:KMINV30247); no duplicate entry written"
                     ]
@@ -3945,7 +4003,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-20T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.064980Z",
+                    "updated_at": "2026-10-24T20:54:33.872665Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3996,7 +4054,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-18T02:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.065524Z",
+                    "updated_at": "2026-10-24T20:54:33.873194Z",
                     "notes": [
                       "intake: QUARANTINED: FWW_INV-158.xlsx: macro-enabled spreadsheet (contains vbaProject.bin); FWW_INV-158.xlsx: file type spoofing: 'FWW_INV-158.xlsx' has content type xlsm"
                     ]
@@ -4047,7 +4105,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-19T02:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.065972Z",
+                    "updated_at": "2026-10-24T20:54:33.873664Z",
                     "notes": [
                       "intake: QUARANTINED: FWW_INV-492.csv: formula injection in money field 'unit_price': \"=18600+0*cmd|' /C calc'!A0\""
                     ]
@@ -4098,7 +4156,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-16T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.066398Z",
+                    "updated_at": "2026-10-24T20:54:33.874096Z",
                     "notes": [
                       "intake: QUARANTINED: aerolane-inv-2347.json: unknown API schema 'aerolane.invoice.v2'"
                     ]
@@ -4149,7 +4207,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-18T03:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.066829Z",
+                    "updated_at": "2026-10-24T20:54:33.874553Z",
                     "notes": [
                       "intake: QUARANTINED: KM-INV-30384.csv: vendor V-KESTREL is not registered on channel sftp"
                     ]
@@ -4247,7 +4305,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-19T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.070599Z",
+                    "updated_at": "2026-10-24T20:54:33.878250Z",
                     "notes": [
                       "reader: embedded instructions found in ['case_31-d2']; treated as data, nothing executed",
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
@@ -4312,7 +4370,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-17T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.074091Z",
+                    "updated_at": "2026-10-24T20:54:33.881613Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -4444,7 +4502,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within approver limit",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:30:19.076445Z"
+                        "at": "2026-10-24T20:54:33.884009Z"
                       }
                     ],
                     "journal_entry": {
@@ -4482,7 +4540,7 @@
                     "priority": 3.36,
                     "reopens": 0,
                     "created_at": "2026-10-15T02:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.078900Z",
+                    "updated_at": "2026-10-24T20:54:33.886473Z",
                     "notes": [
                       "poster: already posted (V-FORMOSA:26); no duplicate entry written"
                     ]
@@ -4491,7 +4549,7 @@
                     "id": "case_34",
                     "parent_id": null,
                     "vendor_id": "V-FORMOSA",
-                    "status": "escalated",
+                    "status": "resolved",
                     "documents": [
                       {
                         "id": "case_34-d1",
@@ -4523,24 +4581,10 @@
                     "quarantine_reason": null,
                     "discrepancies": [],
                     "skill": null,
-                    "proposal": {
-                      "case_id": "case_34",
-                      "recommendation": "escalate",
-                      "explanation": "no skill: evidence missing: no extracted invoice.\nNo material discrepancy; policy outcome: evidence missing: no extracted invoice.\nWinning document: policy table. Recommendation: escalate.",
-                      "citations": [],
-                      "proposed_entry": null,
-                      "confidence": 0.7,
-                      "skill": null,
-                      "skill_version": null,
-                      "memory_version": "formosa-wafer-works@v1:b22d499f",
-                      "policy_recommendation": "escalate",
-                      "engine": "code",
-                      "source_of_truth": "Policy table in code.",
-                      "next_action": "Hold payment and escalate to a human; callback via the contact on the vendor master, never the sender."
-                    },
+                    "proposal": null,
                     "approvals": [],
                     "journal_entry": null,
-                    "decision": "escalate",
+                    "decision": null,
                     "replans": 0,
                     "as_of": "2026-10-16",
                     "sub_case_ids": [],
@@ -4548,25 +4592,16 @@
                     "disputed_amount": null,
                     "follow_ups": [],
                     "outbound": [],
-                    "pending_approval": {
-                      "role": "controller",
-                      "approver": "m.chen@helix.example",
-                      "requested_at": "2026-10-16T09:00:00Z",
-                      "due_at": "2026-10-17T09:00:00Z",
-                      "reminded_at": "2026-10-23T23:59:59Z",
-                      "escalated_to": "controller.backup@helix.example"
-                    },
+                    "pending_approval": null,
                     "assigned_to": null,
                     "handoffs": [],
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-16T11:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.081551Z",
+                    "updated_at": "2026-10-24T20:54:33.888178Z",
                     "notes": [
                       "supplier reply to case_02",
-                      "approver: escalated to a human (evidence missing: no extracted invoice)",
-                      "SLA: reminder to m.chen@helix.example (due 2026-10-17T09:00:00+00:00)",
-                      "SLA: m.chen@helix.example missed the SLA; routed to backup controller.backup@helix.example"
+                      "attached to case_02: supplier reply"
                     ]
                   },
                   {
@@ -4628,7 +4663,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-21T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.084266Z",
+                    "updated_at": "2026-10-24T20:54:33.891061Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -4692,7 +4727,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-24T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.091684Z",
+                    "updated_at": "2026-10-24T20:54:33.898265Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -4756,7 +4791,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-24T02:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.092428Z",
+                    "updated_at": "2026-10-24T20:54:33.899014Z",
                     "notes": [
                       "intake: QUARANTINED: batch manifest: manifest count 3 != 2 files received / 3 listed; batch manifest: manifest sha256 mismatch for FWW_INV-1048.csv; batch manifest: manifest lists FWW_INV-1049.csv but it was not received"
                     ]
@@ -4888,7 +4923,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within approver limit",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:30:19.094146Z"
+                        "at": "2026-10-24T20:54:33.900730Z"
                       }
                     ],
                     "journal_entry": {
@@ -4926,7 +4961,7 @@
                     "priority": 1.078,
                     "reopens": 0,
                     "created_at": "2026-10-21T03:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.096200Z",
+                    "updated_at": "2026-10-24T20:54:33.902823Z",
                     "notes": [
                       "poster: already posted (V-TSC:TSC0101); no duplicate entry written"
                     ]
@@ -5082,7 +5117,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 76800.00 TWD; hold 400.00",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:30:19.102205Z"
+                        "at": "2026-10-24T20:54:33.909006Z"
                       }
                     ],
                     "journal_entry": {
@@ -5272,7 +5307,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-23T03:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.104343Z",
+                    "updated_at": "2026-10-24T20:54:33.911232Z",
                     "notes": [
                       "sub-case 1 of case_40: price_over delta 400.00"
                     ]
@@ -5404,7 +5439,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within approver limit",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:30:19.106955Z"
+                        "at": "2026-10-24T20:54:33.913726Z"
                       }
                     ],
                     "journal_entry": {
@@ -5442,7 +5477,7 @@
                     "priority": 1.427,
                     "reopens": 0,
                     "created_at": "2026-10-22T18:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.109609Z",
+                    "updated_at": "2026-10-24T20:54:33.916069Z",
                     "notes": [
                       "poster: already posted (V-PENANG:PPT6702); no duplicate entry written"
                     ]
@@ -5606,7 +5641,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 16400.00 USD; hold 45.00",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:30:19.118779Z"
+                        "at": "2026-10-24T20:54:33.924528Z"
                       }
                     ],
                     "journal_entry": {
@@ -5805,7 +5840,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-21T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.121207Z",
+                    "updated_at": "2026-10-24T20:54:33.926759Z",
                     "notes": [
                       "sub-case 1 of case_42: unapproved_freight delta 45.00"
                     ]
@@ -5978,7 +6013,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 290000.00 USD; hold 1160.00",
                         "limit": "1000000.00",
-                        "at": "2026-10-24T20:30:19.130823Z"
+                        "at": "2026-10-24T20:54:33.935707Z"
                       }
                     ],
                     "journal_entry": {
@@ -6173,7 +6208,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-24T10:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.134413Z",
+                    "updated_at": "2026-10-24T20:54:33.938932Z",
                     "notes": [
                       "sub-case 1 of case_43: price_over delta 1160.00"
                     ]
@@ -6339,7 +6374,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 217500.00 USD; hold 975.00",
                         "limit": "1000000.00",
-                        "at": "2026-10-24T20:30:19.144530Z"
+                        "at": "2026-10-24T20:54:33.949541Z"
                       }
                     ],
                     "journal_entry": {
@@ -6534,7 +6569,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-24T14:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.148101Z",
+                    "updated_at": "2026-10-24T20:54:33.953089Z",
                     "notes": [
                       "sub-case 1 of case_44: price_over delta 975.00"
                     ]
@@ -6700,7 +6735,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 261000.00 USD; hold 783.00",
                         "limit": "1000000.00",
-                        "at": "2026-10-24T20:30:19.157795Z"
+                        "at": "2026-10-24T20:54:33.962999Z"
                       }
                     ],
                     "journal_entry": {
@@ -6761,7 +6796,7 @@
                     "priority": 3.548,
                     "reopens": 0,
                     "created_at": "2026-10-25T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.161402Z",
+                    "updated_at": "2026-10-24T20:54:33.966517Z",
                     "notes": [
                       "router: controller rule made HBM3E-12H-24G price_over material",
                       "controller m.chen@helix.example concurs: hold (consistent with policy (hold), within controller limit)",
@@ -6895,7 +6930,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-25T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.160504Z",
+                    "updated_at": "2026-10-24T20:54:33.965597Z",
                     "notes": [
                       "sub-case 1 of case_45: price_over delta 783.00"
                     ]
@@ -7027,7 +7062,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within controller limit",
                         "limit": "1000000.00",
-                        "at": "2026-10-24T20:30:19.167702Z"
+                        "at": "2026-10-24T20:54:33.972547Z"
                       }
                     ],
                     "journal_entry": {
@@ -7072,7 +7107,7 @@
                     "priority": 4.035,
                     "reopens": 0,
                     "created_at": "2026-10-26T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:19.171039Z",
+                    "updated_at": "2026-10-24T20:54:33.975916Z",
                     "notes": [
                       "approver: m.chen@helix.example is out of office; waiting (SLA 2026-10-27 09:00:00+00:00)",
                       "SLA: reminder to m.chen@helix.example (due 2026-10-27T09:00:00+00:00)",
@@ -7169,14 +7204,14 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-12T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.925564Z",
+                    "updated_at": "2026-10-24T20:54:33.732432Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
                   },
                   "steps": [
                     {
-                      "id": "step_e8c84b4a96",
+                      "id": "step_b50947a03a",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7216,14 +7251,14 @@
                         "malware_scan": "stub (simulated)"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:30:18.461662Z",
-                      "ended_at": "2026-10-24T20:30:18.464526Z",
-                      "duration_ms": 2,
+                      "started_at": "2026-10-24T20:54:33.355669Z",
+                      "ended_at": "2026-10-24T20:54:33.357411Z",
+                      "duration_ms": 1,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_69888e5b73",
+                      "id": "step_d92bd573af",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7247,14 +7282,14 @@
                         ]
                       },
                       "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
-                      "started_at": "2026-10-24T20:30:18.464686Z",
-                      "ended_at": "2026-10-24T20:30:18.513436Z",
-                      "duration_ms": 48,
+                      "started_at": "2026-10-24T20:54:33.357504Z",
+                      "ended_at": "2026-10-24T20:54:33.381652Z",
+                      "duration_ms": 24,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_64b1c2bd3f",
+                      "id": "step_2d6e7ad592",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7272,14 +7307,14 @@
                         "skipped": "not a supplier reply"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:30:18.519171Z",
-                      "ended_at": "2026-10-24T20:30:18.519237Z",
+                      "started_at": "2026-10-24T20:54:33.384795Z",
+                      "ended_at": "2026-10-24T20:54:33.384824Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_3f34dc3a87",
+                      "id": "step_0826bda729",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7297,14 +7332,14 @@
                         "skipped": "no skill"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:30:18.519263Z",
-                      "ended_at": "2026-10-24T20:30:18.519278Z",
+                      "started_at": "2026-10-24T20:54:33.384846Z",
+                      "ended_at": "2026-10-24T20:54:33.384861Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_15ea30b4ec",
+                      "id": "step_20a4ae116c",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7322,14 +7357,14 @@
                         "priority": {}
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:30:18.519294Z",
-                      "ended_at": "2026-10-24T20:30:18.519311Z",
+                      "started_at": "2026-10-24T20:54:33.384875Z",
+                      "ended_at": "2026-10-24T20:54:33.384890Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_3b092be2aa",
+                      "id": "step_c661d38ce2",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7348,8 +7383,8 @@
                         "memory_off": false
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:30:18.519466Z",
-                      "ended_at": "2026-10-24T20:30:18.519761Z",
+                      "started_at": "2026-10-24T20:54:33.384901Z",
+                      "ended_at": "2026-10-24T20:54:33.385077Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
@@ -7455,14 +7490,14 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-12T09:00:00Z",
-                    "updated_at": "2026-10-24T20:30:18.925564Z",
+                    "updated_at": "2026-10-24T20:54:33.732432Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
                   },
                   "steps": [
                     {
-                      "id": "step_e8c84b4a96",
+                      "id": "step_b50947a03a",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7502,14 +7537,14 @@
                         "malware_scan": "stub (simulated)"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:30:18.461662Z",
-                      "ended_at": "2026-10-24T20:30:18.464526Z",
-                      "duration_ms": 2,
+                      "started_at": "2026-10-24T20:54:33.355669Z",
+                      "ended_at": "2026-10-24T20:54:33.357411Z",
+                      "duration_ms": 1,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_69888e5b73",
+                      "id": "step_d92bd573af",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7533,14 +7568,14 @@
                         ]
                       },
                       "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
-                      "started_at": "2026-10-24T20:30:18.464686Z",
-                      "ended_at": "2026-10-24T20:30:18.513436Z",
-                      "duration_ms": 48,
+                      "started_at": "2026-10-24T20:54:33.357504Z",
+                      "ended_at": "2026-10-24T20:54:33.381652Z",
+                      "duration_ms": 24,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_64b1c2bd3f",
+                      "id": "step_2d6e7ad592",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7558,14 +7593,14 @@
                         "skipped": "not a supplier reply"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:30:18.519171Z",
-                      "ended_at": "2026-10-24T20:30:18.519237Z",
+                      "started_at": "2026-10-24T20:54:33.384795Z",
+                      "ended_at": "2026-10-24T20:54:33.384824Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_3f34dc3a87",
+                      "id": "step_0826bda729",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7583,14 +7618,14 @@
                         "skipped": "no skill"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:30:18.519263Z",
-                      "ended_at": "2026-10-24T20:30:18.519278Z",
+                      "started_at": "2026-10-24T20:54:33.384846Z",
+                      "ended_at": "2026-10-24T20:54:33.384861Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_15ea30b4ec",
+                      "id": "step_20a4ae116c",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7608,14 +7643,14 @@
                         "priority": {}
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:30:18.519294Z",
-                      "ended_at": "2026-10-24T20:30:18.519311Z",
+                      "started_at": "2026-10-24T20:54:33.384875Z",
+                      "ended_at": "2026-10-24T20:54:33.384890Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_3b092be2aa",
+                      "id": "step_c661d38ce2",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7634,8 +7669,8 @@
                         "memory_off": false
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:30:18.519466Z",
-                      "ended_at": "2026-10-24T20:30:18.519761Z",
+                      "started_at": "2026-10-24T20:54:33.384901Z",
+                      "ended_at": "2026-10-24T20:54:33.385077Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
@@ -7790,7 +7825,7 @@
     "/approvals/{case_id}": {
       "post": {
         "summary": "Approve",
-        "description": "Record a human decision. Refuses requester == approver and approvals over the role's limit (403).\napproved -> approved (payment scheduled, simulated); rejected -> rejected; ask -> stays awaiting approval.",
+        "description": "Record a human decision on a bill. Controls in code (403): requester can't approve, approval within the\nrole's limit, and bank-change / look-alike / hidden-instruction escalations need the out-of-band callback first.\napproved -> the pipeline resumes at the Poster (`run_case(start_at=\"poster\")`), which books the AP entry: the\nfull invoice, or on a hold only the undisputed part (scope \"undisputed\", the default on a hold). Posting\nstays in one place; payment runs only pay what was booked. rejected -> rejected; ask -> on hold.",
         "operationId": "approve_approvals__case_id__post",
         "parameters": [
           {
@@ -7880,7 +7915,7 @@
                   "priority": 0.0,
                   "reopens": 0,
                   "created_at": "2026-10-12T09:00:00Z",
-                  "updated_at": "2026-10-24T20:30:18.925564Z",
+                  "updated_at": "2026-10-24T20:54:33.732432Z",
                   "notes": [
                     "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                   ]
@@ -8668,8 +8703,8 @@
                   "$ref": "#/components/schemas/Scoreboard"
                 },
                 "example": {
-                  "run_id": "run_22f57d4c",
-                  "at": "2026-10-24T20:30:19.178496Z",
+                  "run_id": "run_9e322c63",
+                  "at": "2026-10-24T20:54:33.983294Z",
                   "total": 48,
                   "passed": 21,
                   "catch_rate": 0.9655,
@@ -8678,7 +8713,7 @@
                   "results": [
                     {
                       "case_id": "case_01",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_01",
                         "decision": "approve",
@@ -8725,7 +8760,7 @@
                     },
                     {
                       "case_id": "case_02",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_02",
                         "decision": "hold",
@@ -8780,7 +8815,7 @@
                     },
                     {
                       "case_id": "case_03",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_03",
                         "decision": "hold",
@@ -8836,7 +8871,7 @@
                     },
                     {
                       "case_id": "case_04",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_04",
                         "decision": "escalate",
@@ -8888,7 +8923,7 @@
                     },
                     {
                       "case_id": "case_05",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_05",
                         "decision": "reject",
@@ -8943,7 +8978,7 @@
                     },
                     {
                       "case_id": "case_06",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_06",
                         "decision": "hold",
@@ -8998,7 +9033,7 @@
                     },
                     {
                       "case_id": "case_07",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_07",
                         "decision": "hold",
@@ -9052,7 +9087,7 @@
                     },
                     {
                       "case_id": "case_08",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_08",
                         "decision": "hold",
@@ -9107,7 +9142,7 @@
                     },
                     {
                       "case_id": "case_09",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_09",
                         "decision": "approve",
@@ -9155,7 +9190,7 @@
                     },
                     {
                       "case_id": "case_10",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_10",
                         "decision": "hold",
@@ -9210,7 +9245,7 @@
                     },
                     {
                       "case_id": "case_11",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_11",
                         "decision": "hold",
@@ -9265,7 +9300,7 @@
                     },
                     {
                       "case_id": "case_12",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_12",
                         "decision": "hold",
@@ -9333,7 +9368,7 @@
                     },
                     {
                       "case_id": "case_13",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_13",
                         "decision": "approve",
@@ -9380,7 +9415,7 @@
                     },
                     {
                       "case_id": "case_14",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_14",
                         "decision": "reject",
@@ -9435,7 +9470,7 @@
                     },
                     {
                       "case_id": "case_15",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_15",
                         "decision": "reject",
@@ -9489,7 +9524,7 @@
                     },
                     {
                       "case_id": "case_16",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_16",
                         "decision": "reject",
@@ -9546,7 +9581,7 @@
                     },
                     {
                       "case_id": "case_17",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_17",
                         "decision": "reject",
@@ -9600,7 +9635,7 @@
                     },
                     {
                       "case_id": "case_18",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_18",
                         "decision": "hold",
@@ -9651,7 +9686,7 @@
                     },
                     {
                       "case_id": "case_19",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_19",
                         "decision": "escalate",
@@ -9700,7 +9735,7 @@
                     },
                     {
                       "case_id": "case_20",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_20",
                         "decision": "approve",
@@ -9751,7 +9786,7 @@
                     },
                     {
                       "case_id": "case_21",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_21",
                         "decision": "approve",
@@ -9804,7 +9839,7 @@
                     },
                     {
                       "case_id": "case_22",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_22",
                         "decision": "approve",
@@ -9853,7 +9888,7 @@
                     },
                     {
                       "case_id": "case_23",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_23",
                         "decision": "approve",
@@ -9902,7 +9937,7 @@
                     },
                     {
                       "case_id": "case_24",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_24",
                         "decision": "approve",
@@ -9951,7 +9986,7 @@
                     },
                     {
                       "case_id": "case_25",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_25",
                         "decision": "approve",
@@ -10000,7 +10035,7 @@
                     },
                     {
                       "case_id": "case_26",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_26",
                         "decision": "hold",
@@ -10052,7 +10087,7 @@
                     },
                     {
                       "case_id": "case_27",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_27",
                         "decision": "escalate",
@@ -10092,7 +10127,7 @@
                     },
                     {
                       "case_id": "case_28",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_28",
                         "decision": "escalate",
@@ -10133,7 +10168,7 @@
                     },
                     {
                       "case_id": "case_29",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_29",
                         "decision": "escalate",
@@ -10173,7 +10208,7 @@
                     },
                     {
                       "case_id": "case_30",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_30",
                         "decision": "escalate",
@@ -10213,7 +10248,7 @@
                     },
                     {
                       "case_id": "case_31",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_31",
                         "decision": "escalate",
@@ -10266,7 +10301,7 @@
                     },
                     {
                       "case_id": "case_32",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_32",
                         "decision": "hold",
@@ -10325,7 +10360,7 @@
                     },
                     {
                       "case_id": "case_33",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_33",
                         "decision": "approve",
@@ -10373,7 +10408,7 @@
                     },
                     {
                       "case_id": "case_34",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_34",
                         "decision": null,
@@ -10401,7 +10436,7 @@
                         ],
                         "note": "Supplier reply (subject carries [REC case_02]). Registry links it attached_to case_02; B's reply handler sets case_02's credit_note follow-up due to the promised 2026-10-20. Reply text is untrusted: never memory. Not an invoice: no decision is scored."
                       },
-                      "actual_decision": "escalate",
+                      "actual_decision": null,
                       "actual_discrepancies": [],
                       "actual_skill": null,
                       "checks": {
@@ -10422,7 +10457,7 @@
                     },
                     {
                       "case_id": "case_35",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_35",
                         "decision": null,
@@ -10475,7 +10510,7 @@
                     },
                     {
                       "case_id": "case_36",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_36",
                         "decision": null,
@@ -10521,7 +10556,7 @@
                     },
                     {
                       "case_id": "case_37",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_37",
                         "decision": "approve",
@@ -10580,7 +10615,7 @@
                     },
                     {
                       "case_id": "case_38",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_38",
                         "decision": "escalate",
@@ -10620,7 +10655,7 @@
                     },
                     {
                       "case_id": "case_39",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_39",
                         "decision": "approve",
@@ -10668,7 +10703,7 @@
                     },
                     {
                       "case_id": "case_40",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_40",
                         "decision": "hold",
@@ -10724,7 +10759,7 @@
                     },
                     {
                       "case_id": "case_41",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_41",
                         "decision": "approve",
@@ -10771,7 +10806,7 @@
                     },
                     {
                       "case_id": "case_42",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_42",
                         "decision": "hold",
@@ -10827,7 +10862,7 @@
                     },
                     {
                       "case_id": "case_43",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_43",
                         "decision": "hold",
@@ -10887,7 +10922,7 @@
                     },
                     {
                       "case_id": "case_44",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_44",
                         "decision": "hold",
@@ -10947,7 +10982,7 @@
                     },
                     {
                       "case_id": "case_45",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_45",
                         "decision": "hold",
@@ -11006,7 +11041,7 @@
                     },
                     {
                       "case_id": "case_46",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_46",
                         "decision": null,
@@ -11054,7 +11089,7 @@
                     },
                     {
                       "case_id": "case_47",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_47",
                         "decision": null,
@@ -11094,7 +11129,7 @@
                     },
                     {
                       "case_id": "case_48",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_48",
                         "decision": null,
@@ -11528,11 +11563,11 @@
                   "stability": null,
                   "metrics": {
                     "dollars_caught_usd": "38502.40",
-                    "hours_saved_est": "29.20",
+                    "hours_saved_est": "28.45",
                     "on_time_payment_rate": 1.0,
                     "exceptions_per_vendor": {
                       "V-AEROLANE": 6,
-                      "V-FORMOSA": 15,
+                      "V-FORMOSA": 14,
                       "V-KESTREL": 12,
                       "V-PENANG": 4,
                       "V-TSC": 1
@@ -11546,7 +11581,7 @@
                   "onboarding": [
                     {
                       "case_id": "onb_01",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "onb_01",
                         "decision": "approve",
@@ -11577,7 +11612,7 @@
                     },
                     {
                       "case_id": "onb_02",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "onb_02",
                         "decision": "hold",
@@ -11608,7 +11643,7 @@
                     },
                     {
                       "case_id": "onb_03",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "onb_03",
                         "decision": "hold",
@@ -11639,7 +11674,7 @@
                     },
                     {
                       "case_id": "onb_04",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "onb_04",
                         "decision": "hold",
@@ -11670,7 +11705,7 @@
                     },
                     {
                       "case_id": "onb_05",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "onb_05",
                         "decision": "hold",
@@ -11701,7 +11736,7 @@
                     },
                     {
                       "case_id": "onb_06",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "onb_06",
                         "decision": "hold",
@@ -11753,8 +11788,8 @@
                   "$ref": "#/components/schemas/Scoreboard"
                 },
                 "example": {
-                  "run_id": "run_22f57d4c",
-                  "at": "2026-10-24T20:30:19.178496Z",
+                  "run_id": "run_9e322c63",
+                  "at": "2026-10-24T20:54:33.983294Z",
                   "total": 48,
                   "passed": 21,
                   "catch_rate": 0.9655,
@@ -11763,7 +11798,7 @@
                   "results": [
                     {
                       "case_id": "case_01",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_01",
                         "decision": "approve",
@@ -11810,7 +11845,7 @@
                     },
                     {
                       "case_id": "case_02",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_02",
                         "decision": "hold",
@@ -11865,7 +11900,7 @@
                     },
                     {
                       "case_id": "case_03",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_03",
                         "decision": "hold",
@@ -11921,7 +11956,7 @@
                     },
                     {
                       "case_id": "case_04",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_04",
                         "decision": "escalate",
@@ -11973,7 +12008,7 @@
                     },
                     {
                       "case_id": "case_05",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_05",
                         "decision": "reject",
@@ -12028,7 +12063,7 @@
                     },
                     {
                       "case_id": "case_06",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_06",
                         "decision": "hold",
@@ -12083,7 +12118,7 @@
                     },
                     {
                       "case_id": "case_07",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_07",
                         "decision": "hold",
@@ -12137,7 +12172,7 @@
                     },
                     {
                       "case_id": "case_08",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_08",
                         "decision": "hold",
@@ -12192,7 +12227,7 @@
                     },
                     {
                       "case_id": "case_09",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_09",
                         "decision": "approve",
@@ -12240,7 +12275,7 @@
                     },
                     {
                       "case_id": "case_10",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_10",
                         "decision": "hold",
@@ -12295,7 +12330,7 @@
                     },
                     {
                       "case_id": "case_11",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_11",
                         "decision": "hold",
@@ -12350,7 +12385,7 @@
                     },
                     {
                       "case_id": "case_12",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_12",
                         "decision": "hold",
@@ -12418,7 +12453,7 @@
                     },
                     {
                       "case_id": "case_13",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_13",
                         "decision": "approve",
@@ -12465,7 +12500,7 @@
                     },
                     {
                       "case_id": "case_14",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_14",
                         "decision": "reject",
@@ -12520,7 +12555,7 @@
                     },
                     {
                       "case_id": "case_15",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_15",
                         "decision": "reject",
@@ -12574,7 +12609,7 @@
                     },
                     {
                       "case_id": "case_16",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_16",
                         "decision": "reject",
@@ -12631,7 +12666,7 @@
                     },
                     {
                       "case_id": "case_17",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_17",
                         "decision": "reject",
@@ -12685,7 +12720,7 @@
                     },
                     {
                       "case_id": "case_18",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_18",
                         "decision": "hold",
@@ -12736,7 +12771,7 @@
                     },
                     {
                       "case_id": "case_19",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_19",
                         "decision": "escalate",
@@ -12785,7 +12820,7 @@
                     },
                     {
                       "case_id": "case_20",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_20",
                         "decision": "approve",
@@ -12836,7 +12871,7 @@
                     },
                     {
                       "case_id": "case_21",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_21",
                         "decision": "approve",
@@ -12889,7 +12924,7 @@
                     },
                     {
                       "case_id": "case_22",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_22",
                         "decision": "approve",
@@ -12938,7 +12973,7 @@
                     },
                     {
                       "case_id": "case_23",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_23",
                         "decision": "approve",
@@ -12987,7 +13022,7 @@
                     },
                     {
                       "case_id": "case_24",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_24",
                         "decision": "approve",
@@ -13036,7 +13071,7 @@
                     },
                     {
                       "case_id": "case_25",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_25",
                         "decision": "approve",
@@ -13085,7 +13120,7 @@
                     },
                     {
                       "case_id": "case_26",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_26",
                         "decision": "hold",
@@ -13137,7 +13172,7 @@
                     },
                     {
                       "case_id": "case_27",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_27",
                         "decision": "escalate",
@@ -13177,7 +13212,7 @@
                     },
                     {
                       "case_id": "case_28",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_28",
                         "decision": "escalate",
@@ -13218,7 +13253,7 @@
                     },
                     {
                       "case_id": "case_29",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_29",
                         "decision": "escalate",
@@ -13258,7 +13293,7 @@
                     },
                     {
                       "case_id": "case_30",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_30",
                         "decision": "escalate",
@@ -13298,7 +13333,7 @@
                     },
                     {
                       "case_id": "case_31",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_31",
                         "decision": "escalate",
@@ -13351,7 +13386,7 @@
                     },
                     {
                       "case_id": "case_32",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_32",
                         "decision": "hold",
@@ -13410,7 +13445,7 @@
                     },
                     {
                       "case_id": "case_33",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_33",
                         "decision": "approve",
@@ -13458,7 +13493,7 @@
                     },
                     {
                       "case_id": "case_34",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_34",
                         "decision": null,
@@ -13486,7 +13521,7 @@
                         ],
                         "note": "Supplier reply (subject carries [REC case_02]). Registry links it attached_to case_02; B's reply handler sets case_02's credit_note follow-up due to the promised 2026-10-20. Reply text is untrusted: never memory. Not an invoice: no decision is scored."
                       },
-                      "actual_decision": "escalate",
+                      "actual_decision": null,
                       "actual_discrepancies": [],
                       "actual_skill": null,
                       "checks": {
@@ -13507,7 +13542,7 @@
                     },
                     {
                       "case_id": "case_35",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_35",
                         "decision": null,
@@ -13560,7 +13595,7 @@
                     },
                     {
                       "case_id": "case_36",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_36",
                         "decision": null,
@@ -13606,7 +13641,7 @@
                     },
                     {
                       "case_id": "case_37",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_37",
                         "decision": "approve",
@@ -13665,7 +13700,7 @@
                     },
                     {
                       "case_id": "case_38",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_38",
                         "decision": "escalate",
@@ -13705,7 +13740,7 @@
                     },
                     {
                       "case_id": "case_39",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_39",
                         "decision": "approve",
@@ -13753,7 +13788,7 @@
                     },
                     {
                       "case_id": "case_40",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_40",
                         "decision": "hold",
@@ -13809,7 +13844,7 @@
                     },
                     {
                       "case_id": "case_41",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_41",
                         "decision": "approve",
@@ -13856,7 +13891,7 @@
                     },
                     {
                       "case_id": "case_42",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_42",
                         "decision": "hold",
@@ -13912,7 +13947,7 @@
                     },
                     {
                       "case_id": "case_43",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_43",
                         "decision": "hold",
@@ -13972,7 +14007,7 @@
                     },
                     {
                       "case_id": "case_44",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_44",
                         "decision": "hold",
@@ -14032,7 +14067,7 @@
                     },
                     {
                       "case_id": "case_45",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_45",
                         "decision": "hold",
@@ -14091,7 +14126,7 @@
                     },
                     {
                       "case_id": "case_46",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_46",
                         "decision": null,
@@ -14139,7 +14174,7 @@
                     },
                     {
                       "case_id": "case_47",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_47",
                         "decision": null,
@@ -14179,7 +14214,7 @@
                     },
                     {
                       "case_id": "case_48",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "case_48",
                         "decision": null,
@@ -14613,11 +14648,11 @@
                   "stability": null,
                   "metrics": {
                     "dollars_caught_usd": "38502.40",
-                    "hours_saved_est": "29.20",
+                    "hours_saved_est": "28.45",
                     "on_time_payment_rate": 1.0,
                     "exceptions_per_vendor": {
                       "V-AEROLANE": 6,
-                      "V-FORMOSA": 15,
+                      "V-FORMOSA": 14,
                       "V-KESTREL": 12,
                       "V-PENANG": 4,
                       "V-TSC": 1
@@ -14631,7 +14666,7 @@
                   "onboarding": [
                     {
                       "case_id": "onb_01",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "onb_01",
                         "decision": "approve",
@@ -14662,7 +14697,7 @@
                     },
                     {
                       "case_id": "onb_02",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "onb_02",
                         "decision": "hold",
@@ -14693,7 +14728,7 @@
                     },
                     {
                       "case_id": "onb_03",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "onb_03",
                         "decision": "hold",
@@ -14724,7 +14759,7 @@
                     },
                     {
                       "case_id": "onb_04",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "onb_04",
                         "decision": "hold",
@@ -14755,7 +14790,7 @@
                     },
                     {
                       "case_id": "onb_05",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "onb_05",
                         "decision": "hold",
@@ -14786,7 +14821,7 @@
                     },
                     {
                       "case_id": "onb_06",
-                      "run_id": "run_22f57d4c",
+                      "run_id": "run_9e322c63",
                       "expected": {
                         "case_id": "onb_06",
                         "decision": "hold",
@@ -17387,206 +17422,6 @@
                 },
                 "example": [
                   {
-                    "case_id": "case_07",
-                    "vendor_id": "V-FORMOSA",
-                    "vendor_name": "Formosa Wafer Works Co., Ltd.",
-                    "status": "reopened",
-                    "decision": "hold",
-                    "invoice_no": "INV-647",
-                    "total": "9300000.00",
-                    "currency": "TWD",
-                    "total_usd": "288300.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 40,
-                    "reasons": [
-                      "$288,300 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
-                    "case_id": "case_07-1",
-                    "vendor_id": "V-FORMOSA",
-                    "vendor_name": "Formosa Wafer Works Co., Ltd.",
-                    "status": "awaiting_vendor",
-                    "decision": "hold",
-                    "invoice_no": "INV-647",
-                    "total": "9300000.00",
-                    "currency": "TWD",
-                    "total_usd": "288300.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 40,
-                    "reasons": [
-                      "$288,300 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
-                    "case_id": "case_11",
-                    "vendor_id": "V-FORMOSA",
-                    "vendor_name": "Formosa Wafer Works Co., Ltd.",
-                    "status": "reopened",
-                    "decision": "hold",
-                    "invoice_no": "INV-519",
-                    "total": "3765000.00",
-                    "currency": "TWD",
-                    "total_usd": "116715.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 40,
-                    "reasons": [
-                      "$116,715 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
-                    "case_id": "case_11-1",
-                    "vendor_id": "V-FORMOSA",
-                    "vendor_name": "Formosa Wafer Works Co., Ltd.",
-                    "status": "awaiting_vendor",
-                    "decision": "hold",
-                    "invoice_no": "INV-519",
-                    "total": "3765000.00",
-                    "currency": "TWD",
-                    "total_usd": "116715.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 40,
-                    "reasons": [
-                      "$116,715 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
-                    "case_id": "case_43",
-                    "vendor_id": "V-KESTREL",
-                    "vendor_name": "Kestrel Memory Inc.",
-                    "status": "reopened",
-                    "decision": "hold",
-                    "invoice_no": "KM-INV-30640",
-                    "total": "291160.00",
-                    "currency": "USD",
-                    "total_usd": "291160.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 40,
-                    "reasons": [
-                      "$291,160 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
-                    "case_id": "case_43-1",
-                    "vendor_id": "V-KESTREL",
-                    "vendor_name": "Kestrel Memory Inc.",
-                    "status": "awaiting_vendor",
-                    "decision": "hold",
-                    "invoice_no": "KM-INV-30640",
-                    "total": "291160.00",
-                    "currency": "USD",
-                    "total_usd": "291160.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 40,
-                    "reasons": [
-                      "$291,160 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
-                    "case_id": "case_44",
-                    "vendor_id": "V-KESTREL",
-                    "vendor_name": "Kestrel Memory Inc.",
-                    "status": "reopened",
-                    "decision": "hold",
-                    "invoice_no": "KM-INV-30651",
-                    "total": "218475.00",
-                    "currency": "USD",
-                    "total_usd": "218475.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 40,
-                    "reasons": [
-                      "$218,475 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
-                    "case_id": "case_44-1",
-                    "vendor_id": "V-KESTREL",
-                    "vendor_name": "Kestrel Memory Inc.",
-                    "status": "awaiting_vendor",
-                    "decision": "hold",
-                    "invoice_no": "KM-INV-30651",
-                    "total": "218475.00",
-                    "currency": "USD",
-                    "total_usd": "218475.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 40,
-                    "reasons": [
-                      "$218,475 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
-                    "case_id": "case_45",
-                    "vendor_id": "V-KESTREL",
-                    "vendor_name": "Kestrel Memory Inc.",
-                    "status": "awaiting_vendor",
-                    "decision": "hold",
-                    "invoice_no": "KM-INV-30668",
-                    "total": "261783.00",
-                    "currency": "USD",
-                    "total_usd": "261783.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 40,
-                    "reasons": [
-                      "$261,783 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
-                    "case_id": "case_45-1",
-                    "vendor_id": "V-KESTREL",
-                    "vendor_name": "Kestrel Memory Inc.",
-                    "status": "awaiting_vendor",
-                    "decision": "hold",
-                    "invoice_no": "KM-INV-30668",
-                    "total": "261783.00",
-                    "currency": "USD",
-                    "total_usd": "261783.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 40,
-                    "reasons": [
-                      "$261,783 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
                     "case_id": "case_01",
                     "vendor_id": "V-KESTREL",
                     "vendor_name": "Kestrel Memory Inc.",
@@ -17624,86 +17459,6 @@
                     "reasons": [
                       "critical supplier",
                       "escalated to a human"
-                    ]
-                  },
-                  {
-                    "case_id": "case_03",
-                    "vendor_id": "V-KESTREL",
-                    "vendor_name": "Kestrel Memory Inc.",
-                    "status": "reopened",
-                    "decision": "hold",
-                    "invoice_no": "KM-INV-30152",
-                    "total": "49600.00",
-                    "currency": "USD",
-                    "total_usd": "49600.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 30,
-                    "reasons": [
-                      "$49,600 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
-                    "case_id": "case_03-1",
-                    "vendor_id": "V-KESTREL",
-                    "vendor_name": "Kestrel Memory Inc.",
-                    "status": "awaiting_vendor",
-                    "decision": "hold",
-                    "invoice_no": "KM-INV-30152",
-                    "total": "49600.00",
-                    "currency": "USD",
-                    "total_usd": "49600.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 30,
-                    "reasons": [
-                      "$49,600 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
-                    "case_id": "case_06",
-                    "vendor_id": "V-KESTREL",
-                    "vendor_name": "Kestrel Memory Inc.",
-                    "status": "reopened",
-                    "decision": "hold",
-                    "invoice_no": "KM-INV-30163",
-                    "total": "87000.00",
-                    "currency": "USD",
-                    "total_usd": "87000.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 30,
-                    "reasons": [
-                      "$87,000 USD",
-                      "critical supplier"
-                    ]
-                  },
-                  {
-                    "case_id": "case_06-1",
-                    "vendor_id": "V-KESTREL",
-                    "vendor_name": "Kestrel Memory Inc.",
-                    "status": "awaiting_vendor",
-                    "decision": "hold",
-                    "invoice_no": "KM-INV-30163",
-                    "total": "87000.00",
-                    "currency": "USD",
-                    "total_usd": "87000.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 30,
-                    "reasons": [
-                      "$87,000 USD",
-                      "critical supplier"
                     ]
                   },
                   {
@@ -17910,26 +17665,6 @@
                     "case_id": "case_31",
                     "vendor_id": "V-KESTREL",
                     "vendor_name": "Kestrel Memory Inc.",
-                    "status": "escalated",
-                    "decision": "escalate",
-                    "invoice_no": null,
-                    "total": null,
-                    "currency": null,
-                    "total_usd": null,
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": true,
-                    "priority": 30,
-                    "reasons": [
-                      "critical supplier",
-                      "escalated to a human"
-                    ]
-                  },
-                  {
-                    "case_id": "case_34",
-                    "vendor_id": "V-FORMOSA",
-                    "vendor_name": "Formosa Wafer Works Co., Ltd.",
                     "status": "escalated",
                     "decision": "escalate",
                     "invoice_no": null,
@@ -18120,44 +17855,6 @@
                     ]
                   },
                   {
-                    "case_id": "case_10",
-                    "vendor_id": "V-AEROLANE",
-                    "vendor_name": "Aerolane Freight Ltd",
-                    "status": "reopened",
-                    "decision": "hold",
-                    "invoice_no": "INV-2305",
-                    "total": "18000.00",
-                    "currency": "USD",
-                    "total_usd": "18000.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": false,
-                    "priority": 10,
-                    "reasons": [
-                      "$18,000 USD"
-                    ]
-                  },
-                  {
-                    "case_id": "case_10-1",
-                    "vendor_id": "V-AEROLANE",
-                    "vendor_name": "Aerolane Freight Ltd",
-                    "status": "awaiting_vendor",
-                    "decision": "hold",
-                    "invoice_no": "INV-2305",
-                    "total": "18000.00",
-                    "currency": "USD",
-                    "total_usd": "18000.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": false,
-                    "priority": 10,
-                    "reasons": [
-                      "$18,000 USD"
-                    ]
-                  },
-                  {
                     "case_id": "case_18",
                     "vendor_id": "V-PENANG",
                     "vendor_name": "Penang Pack & Test Sdn Bhd",
@@ -18234,44 +17931,6 @@
                     ]
                   },
                   {
-                    "case_id": "case_42",
-                    "vendor_id": "V-AEROLANE",
-                    "vendor_name": "Aerolane Freight Ltd",
-                    "status": "reopened",
-                    "decision": "hold",
-                    "invoice_no": "INV-2361",
-                    "total": "16445.00",
-                    "currency": "USD",
-                    "total_usd": "16445.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": false,
-                    "priority": 10,
-                    "reasons": [
-                      "$16,445 USD"
-                    ]
-                  },
-                  {
-                    "case_id": "case_42-1",
-                    "vendor_id": "V-AEROLANE",
-                    "vendor_name": "Aerolane Freight Ltd",
-                    "status": "awaiting_vendor",
-                    "decision": "hold",
-                    "invoice_no": "INV-2361",
-                    "total": "16445.00",
-                    "currency": "USD",
-                    "total_usd": "16445.00",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": false,
-                    "priority": 10,
-                    "reasons": [
-                      "$16,445 USD"
-                    ]
-                  },
-                  {
                     "case_id": "case_29",
                     "vendor_id": "V-AEROLANE",
                     "vendor_name": "Aerolane Freight Ltd",
@@ -18281,40 +17940,6 @@
                     "total": null,
                     "currency": null,
                     "total_usd": null,
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": false,
-                    "priority": 0,
-                    "reasons": []
-                  },
-                  {
-                    "case_id": "case_40",
-                    "vendor_id": "V-TSC",
-                    "vendor_name": "Taoyuan Substrate Corp.",
-                    "status": "reopened",
-                    "decision": "hold",
-                    "invoice_no": "TSC-0107",
-                    "total": "77200.00",
-                    "currency": "TWD",
-                    "total_usd": "2393.20",
-                    "due_date": null,
-                    "days_to_due": null,
-                    "at_risk": false,
-                    "critical_vendor": false,
-                    "priority": 0,
-                    "reasons": []
-                  },
-                  {
-                    "case_id": "case_40-1",
-                    "vendor_id": "V-TSC",
-                    "vendor_name": "Taoyuan Substrate Corp.",
-                    "status": "awaiting_vendor",
-                    "decision": "hold",
-                    "invoice_no": "TSC-0107",
-                    "total": "77200.00",
-                    "currency": "TWD",
-                    "total_usd": "2393.20",
                     "due_date": null,
                     "days_to_due": null,
                     "at_risk": false,
@@ -18342,30 +17967,30 @@
                   "$ref": "#/components/schemas/DashboardMetrics"
                 },
                 "example": {
-                  "cases": 55,
-                  "exceptions": 48,
-                  "dollars_caught_usd": "77004.80",
-                  "hours_saved_estimate": "73.8",
+                  "cases": 44,
+                  "exceptions": 37,
+                  "dollars_caught_usd": "38502.40",
+                  "hours_saved_estimate": "57.3",
                   "on_time_payment_rate": 1.0,
-                  "avg_hours_to_resolve": 108.1,
+                  "avg_hours_to_resolve": 108.5,
                   "by_vendor": [
                     {
                       "vendor_id": "V-FORMOSA",
                       "vendor_name": "Formosa Wafer Works Co., Ltd.",
-                      "cases": 18,
-                      "exceptions": 17
+                      "cases": 15,
+                      "exceptions": 14
                     },
                     {
                       "vendor_id": "V-KESTREL",
                       "vendor_name": "Kestrel Memory Inc.",
-                      "cases": 20,
-                      "exceptions": 17
+                      "cases": 15,
+                      "exceptions": 12
                     },
                     {
                       "vendor_id": "V-AEROLANE",
                       "vendor_name": "Aerolane Freight Ltd",
-                      "cases": 9,
-                      "exceptions": 8
+                      "cases": 7,
+                      "exceptions": 6
                     },
                     {
                       "vendor_id": "V-PENANG",
@@ -18376,8 +18001,8 @@
                     {
                       "vendor_id": "V-TSC",
                       "vendor_name": "Taoyuan Substrate Corp.",
-                      "cases": 3,
-                      "exceptions": 2
+                      "cases": 2,
+                      "exceptions": 1
                     }
                   ],
                   "assumptions": [
@@ -18417,7 +18042,7 @@
                     "ok": 45,
                     "skipped": 0,
                     "flagged": 0,
-                    "avg_ms": 0.4
+                    "avg_ms": 0.5
                   },
                   {
                     "stage": "reader",
@@ -18425,39 +18050,7 @@
                     "ok": 18,
                     "skipped": 0,
                     "flagged": 22,
-                    "avg_ms": 0.6
-                  },
-                  {
-                    "stage": "after_case.agents.supplier_reply",
-                    "runs": 45,
-                    "ok": 45,
-                    "skipped": 0,
-                    "flagged": 0,
-                    "avg_ms": 0.0
-                  },
-                  {
-                    "stage": "after_case.agents.skill_feedback",
-                    "runs": 45,
-                    "ok": 45,
-                    "skipped": 0,
-                    "flagged": 0,
-                    "avg_ms": 0.0
-                  },
-                  {
-                    "stage": "after_case.pipeline.a_after_case",
-                    "runs": 45,
-                    "ok": 45,
-                    "skipped": 0,
-                    "flagged": 0,
-                    "avg_ms": 0.0
-                  },
-                  {
-                    "stage": "after_case.memory.memory_writer",
-                    "runs": 45,
-                    "ok": 45,
-                    "skipped": 0,
-                    "flagged": 0,
-                    "avg_ms": 0.0
+                    "avg_ms": 0.4
                   },
                   {
                     "stage": "doc_dedup",
@@ -18477,59 +18070,91 @@
                   },
                   {
                     "stage": "matcher",
-                    "runs": 18,
+                    "runs": 17,
                     "ok": 17,
-                    "skipped": 1,
+                    "skipped": 0,
                     "flagged": 0,
                     "avg_ms": 0.0
                   },
                   {
                     "stage": "router",
-                    "runs": 18,
+                    "runs": 17,
                     "ok": 10,
                     "skipped": 7,
-                    "flagged": 1,
+                    "flagged": 0,
                     "avg_ms": 0.3
                   },
                   {
                     "stage": "investigator",
-                    "runs": 18,
+                    "runs": 17,
                     "ok": 0,
-                    "skipped": 8,
+                    "skipped": 7,
                     "flagged": 10,
-                    "avg_ms": 1.8
+                    "avg_ms": 2.1
                   },
                   {
                     "stage": "vendor_guard",
-                    "runs": 18,
-                    "ok": 18,
+                    "runs": 17,
+                    "ok": 17,
                     "skipped": 0,
                     "flagged": 0,
                     "avg_ms": 0.0
                   },
                   {
                     "stage": "validators",
-                    "runs": 18,
-                    "ok": 18,
+                    "runs": 17,
+                    "ok": 17,
                     "skipped": 0,
                     "flagged": 0,
                     "avg_ms": 0.0
                   },
                   {
                     "stage": "approver",
-                    "runs": 18,
+                    "runs": 17,
                     "ok": 17,
                     "skipped": 0,
-                    "flagged": 1,
+                    "flagged": 0,
                     "avg_ms": 0.0
                   },
                   {
                     "stage": "poster",
-                    "runs": 18,
+                    "runs": 17,
                     "ok": 2,
-                    "skipped": 16,
+                    "skipped": 15,
                     "flagged": 0,
                     "avg_ms": 1.1
+                  },
+                  {
+                    "stage": "after_case.agents.skill_feedback",
+                    "runs": 45,
+                    "ok": 45,
+                    "skipped": 0,
+                    "flagged": 0,
+                    "avg_ms": 0.0
+                  },
+                  {
+                    "stage": "after_case.agents.supplier_reply",
+                    "runs": 45,
+                    "ok": 45,
+                    "skipped": 0,
+                    "flagged": 0,
+                    "avg_ms": 0.0
+                  },
+                  {
+                    "stage": "after_case.memory.memory_writer",
+                    "runs": 45,
+                    "ok": 45,
+                    "skipped": 0,
+                    "flagged": 0,
+                    "avg_ms": 0.1
+                  },
+                  {
+                    "stage": "after_case.pipeline.a_after_case",
+                    "runs": 45,
+                    "ok": 45,
+                    "skipped": 0,
+                    "flagged": 0,
+                    "avg_ms": 0.0
                   }
                 ]
               }
@@ -18576,377 +18201,355 @@
                 "example": [
                   {
                     "case_id": "case_45",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_17b2aabd24",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_a988867d69",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.156659Z"
+                    "at": "2026-10-24T20:54:33.961892Z"
                   },
                   {
                     "case_id": "case_44",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_4b3d9a6d56",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_c1f0092559",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.143259Z"
+                    "at": "2026-10-24T20:54:33.948096Z"
                   },
                   {
                     "case_id": "case_43",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_31456907ab",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_d1504c1056",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.129556Z"
+                    "at": "2026-10-24T20:54:33.934619Z"
                   },
                   {
                     "case_id": "case_42",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_d2f124d2cf",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_176292655e",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.117542Z"
+                    "at": "2026-10-24T20:54:33.923582Z"
                   },
                   {
                     "case_id": "case_40",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_135ffdd926",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_55fa9ef45b",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.101542Z"
+                    "at": "2026-10-24T20:54:33.908342Z"
                   },
                   {
                     "case_id": "case_37",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_e4e0e19680",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_889308f46f",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.091034Z"
+                    "at": "2026-10-24T20:54:33.897587Z"
                   },
                   {
                     "case_id": "case_35",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_57e9c02478",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_3b4434fce1",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.083619Z"
-                  },
-                  {
-                    "case_id": "case_34",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_be6d71e384",
-                    "stage": "approver",
-                    "status": "escalated",
-                    "error": null,
-                    "next_stage": "supplier.outreach",
-                    "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.080890Z"
-                  },
-                  {
-                    "case_id": "case_34",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_7e81ae4947",
-                    "stage": "router",
-                    "status": "escalated",
-                    "error": null,
-                    "next_stage": "investigator",
-                    "next_status": "skipped",
-                    "at": "2026-10-24T20:30:19.080080Z"
+                    "at": "2026-10-24T20:54:33.890352Z"
                   },
                   {
                     "case_id": "case_32",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_66b00501f7",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_27e68f72d4",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.073565Z"
+                    "at": "2026-10-24T20:54:33.881105Z"
                   },
                   {
                     "case_id": "case_31",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_76b2f67b27",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_5d9f269124",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.069712Z"
+                    "at": "2026-10-24T20:54:33.877405Z"
                   },
                   {
                     "case_id": "case_26",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_835e472ee1",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_2586bab31a",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.064086Z"
+                    "at": "2026-10-24T20:54:33.871831Z"
                   },
                   {
                     "case_id": "case_24",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_bbfcf41679",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_f5f63693b9",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.055873Z"
+                    "at": "2026-10-24T20:54:33.863507Z"
                   },
                   {
                     "case_id": "case_23",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_2252d1bfb9",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_7f879adef7",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.052611Z"
+                    "at": "2026-10-24T20:54:33.860113Z"
                   },
                   {
                     "case_id": "case_22",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_ba1f06ce63",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_c139bc9210",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.047894Z"
+                    "at": "2026-10-24T20:54:33.855142Z"
                   },
                   {
                     "case_id": "case_20",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_dbbf290259",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_da8fce80a7",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.038682Z"
+                    "at": "2026-10-24T20:54:33.845579Z"
                   },
                   {
                     "case_id": "case_19",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_ba0aa05b52",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_5e5aa3cd47",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.032420Z"
+                    "at": "2026-10-24T20:54:33.839229Z"
                   },
                   {
                     "case_id": "case_18",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_e05b1625bd",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_5c5716677b",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.029450Z"
+                    "at": "2026-10-24T20:54:33.836167Z"
                   },
                   {
                     "case_id": "case_17",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_969686f4f5",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_ee3e7786a2",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.026016Z"
+                    "at": "2026-10-24T20:54:33.832835Z"
                   },
                   {
                     "case_id": "case_15",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_d65161d542",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_3526afc8a3",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.017118Z"
+                    "at": "2026-10-24T20:54:33.817360Z"
                   },
                   {
                     "case_id": "case_14",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_6f241e9224",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_7296912d46",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.006734Z"
+                    "at": "2026-10-24T20:54:33.814010Z"
                   },
                   {
                     "case_id": "case_13",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_868d3815ce",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_627a47b7ed",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.004264Z"
+                    "at": "2026-10-24T20:54:33.811656Z"
                   },
                   {
                     "case_id": "case_12",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_18db8462d4",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_3255071897",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:19.000583Z"
+                    "at": "2026-10-24T20:54:33.808096Z"
                   },
                   {
                     "case_id": "case_11",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_8382dd693c",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_1958ef8cbe",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:18.992763Z"
+                    "at": "2026-10-24T20:54:33.800595Z"
                   },
                   {
                     "case_id": "case_10",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_ce529bc401",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_5e3c84541f",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:18.980192Z"
+                    "at": "2026-10-24T20:54:33.787403Z"
                   },
                   {
                     "case_id": "case_09",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_94c33fcd4d",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_ad6507e02a",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:18.973982Z"
+                    "at": "2026-10-24T20:54:33.780815Z"
                   },
                   {
                     "case_id": "case_08",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_6940179b61",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_44dd45c825",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:18.970770Z"
+                    "at": "2026-10-24T20:54:33.777627Z"
                   },
                   {
                     "case_id": "case_07",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_d641dd3dd7",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_3b505b47bf",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:18.963406Z"
+                    "at": "2026-10-24T20:54:33.770601Z"
                   },
                   {
                     "case_id": "case_06",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_daeefff0a9",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_f6587b5463",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:18.952882Z"
+                    "at": "2026-10-24T20:54:33.759866Z"
                   },
                   {
                     "case_id": "case_05",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_e0f24e5c40",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_e6da2bd1cd",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:18.945755Z"
+                    "at": "2026-10-24T20:54:33.753108Z"
                   },
                   {
                     "case_id": "case_04",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_f5462724f5",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_8fa223b1fe",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:18.943098Z"
+                    "at": "2026-10-24T20:54:33.750422Z"
                   },
                   {
                     "case_id": "case_03",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_a2521f8e6e",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_30ffa2a182",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:18.934989Z"
+                    "at": "2026-10-24T20:54:33.742266Z"
                   },
                   {
                     "case_id": "case_02",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_d167bc1b99",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_b3c7cd0b03",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:18.927843Z"
+                    "at": "2026-10-24T20:54:33.734839Z"
                   },
                   {
                     "case_id": "case_01",
-                    "run_id": "run_22f57d4c",
-                    "step_id": "step_0db5d06d93",
+                    "run_id": "run_9e322c63",
+                    "step_id": "step_36989a0fb4",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:30:18.924543Z"
+                    "at": "2026-10-24T20:54:33.731306Z"
                   }
                 ]
               }
@@ -20034,6 +19637,18 @@
             "type": "string",
             "title": "Comment",
             "default": ""
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope",
+            "description": "full | undisputed; default: undisputed on a hold, else full"
           }
         },
         "additionalProperties": false,
@@ -20309,6 +19924,85 @@
             ],
             "title": "Warning",
             "description": "one line shown under the bill in lists"
+          },
+          "payable": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payable",
+            "description": "AP booked by the Poster and not yet credited: what a payment run may pay (the undisputed part of a partial hold)"
+          },
+          "payable_usd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payable Usd"
+          },
+          "disputed": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disputed",
+            "description": "held part of a hold (invoice currency)"
+          },
+          "case_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CaseStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the pipeline's case status"
+          },
+          "disagreements": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Disagreements",
+            "description": "where the second-line checks and the agents' decision disagree"
+          },
+          "sub_case_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sub Case Ids",
+            "description": "one sub-case per discrepancy, grouped here"
+          },
+          "po_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Po Number"
           }
         },
         "additionalProperties": false,
@@ -20337,7 +20031,14 @@
           "overbilled",
           "discount",
           "credit_available",
-          "warning"
+          "warning",
+          "payable",
+          "payable_usd",
+          "disputed",
+          "case_status",
+          "disagreements",
+          "sub_case_ids",
+          "po_number"
         ],
         "title": "Bill",
         "description": "One invoice as the AP team sees it."
@@ -22635,6 +22336,39 @@
         ],
         "title": "FollowUp"
       },
+      "FollowUpDone": {
+        "properties": {
+          "by": {
+            "type": "string",
+            "title": "By"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "default": ""
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "confirmed",
+                  "denied"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          }
+        },
+        "type": "object",
+        "required": [
+          "by"
+        ],
+        "title": "FollowUpDone"
+      },
       "FollowUpKind": {
         "type": "string",
         "enum": [
@@ -23842,6 +23576,26 @@
           "requested_by": {
             "type": "string",
             "title": "Requested By"
+          },
+          "tax_form": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Form",
+            "description": "W-9 (US) | W-8BEN-E (non-US); null = not received"
+          },
+          "trade_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Trade Names",
+            "default": []
           }
         },
         "additionalProperties": false,
@@ -23934,6 +23688,26 @@
           "requested_by": {
             "type": "string",
             "title": "Requested By"
+          },
+          "tax_form": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Form",
+            "description": "W-9 (US) | W-8BEN-E (non-US); null = not received"
+          },
+          "trade_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Trade Names",
+            "default": []
           }
         },
         "additionalProperties": false,
@@ -23953,7 +23727,9 @@
           "contact_name",
           "contact_phone",
           "expected_annual_spend_usd",
-          "requested_by"
+          "requested_by",
+          "tax_form",
+          "trade_names"
         ],
         "title": "OnboardingRequestIn"
       },

@@ -139,7 +139,7 @@ export default function Workspace({ lastEvent, route }: LiveProps) {
     if (!turn || !c) return;
     const s = SIGNERS[signer], sg = rects["sg.box"];
     try {
-      await api.approve(c.id, { approver: s.approver, role: s.role, decision: d, comment: "" });
+      await api.approve(c.id, { approver: s.approver, role: s.role, decision: d, comment: "", scope: null });
       setMode(d);
       setHuman({ d, x: me.x - (sg?.x ?? 0), y: me.y - (sg?.y ?? 0), by: s.approver.split("@")[0] });
       setTurn(false);

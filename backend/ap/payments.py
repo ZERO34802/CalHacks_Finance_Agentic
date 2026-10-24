@@ -1,7 +1,9 @@
 """Payment runs. Owner: D. SIMULATED: nothing leaves the building; "paid" means the run was released.
 
 Controls enforced here, in code:
-- only approved bills (by a human, or cleared by the agents within limit) can be scheduled
+- only bills the Poster booked to AP can be scheduled, for at most the booked amount (the undisputed part of a
+  partial hold); payment runs never post to the ledger
+- bank change / look-alike / hidden-instruction escalations need the out-of-band callback first
 - the payment guard blocks bills with open high-risk signals (bank mismatch, duplicate, hidden instructions)
 - payment always goes to the vendor master's bank account, never the one printed on the invoice
 - a bill can't be in two active payments
@@ -20,6 +22,7 @@ from uuid import uuid4
 from backend.core.config import Policy
 from backend.review.checks import payment_block, signals
 from backend.store.base import Store
+from backend.ap import state as S
 from backend.ap.discounts import discount
 from contracts import Case, CaseStatus, OnboardingCase, Payment, PaymentBatch, PrepayApplication, Prepayment, PrepaymentQuote
 
@@ -90,7 +93,8 @@ class PaymentStore:
 
 
 def is_approved(case: Case) -> bool:
-    return case.status in (CaseStatus.approved, CaseStatus.posted)
+    """Booked to AP by the Poster (in full, or the undisputed part of a hold). Only booked bills can be paid."""
+    return case.journal_entry is not None
 
 
 def allowed_methods(country: str) -> list[str]:
@@ -110,14 +114,19 @@ def create_batch(store: Store, pay: PaymentStore, policy: Policy, case_ids: list
         raise PaymentError("The pay date is in the past.")
     batch_id = f"run_{uuid4().hex[:6]}"
     payments, total = [], Decimal("0.00")
+    cases = store.list_cases()
     for cid in case_ids:
         case = store.get_case(cid)
-        if case is None or case.invoice is None:
+        if case is None or case.invoice is None or not S.is_bill(case, cases):
             raise PaymentError(f"{cid}: no such bill.")
-        if not is_approved(case):
-            raise PaymentError(f"{cid}: not approved yet.")
+        owed = S.payable(case, cases)
+        if owed is None:
+            refused = S.poster_refusal(case)
+            raise PaymentError(f"{cid}: not approved and booked yet" + (f" ({refused})." if refused else "."))
+        if owed <= 0:
+            raise PaymentError(f"{cid}: nothing left to pay.")
         vendor = store.get_vendor(case.vendor_id)
-        block = payment_block(signals(case, vendor, policy))
+        block = payment_block(signals(case, vendor, policy, store)) or S.oob_problem(case) or _probation_block(case, vendor, store)
         if block:
             raise PaymentError(f"{cid}: {block}")
         if pay.payment_for(cid):
@@ -127,8 +136,8 @@ def create_batch(store: Store, pay: PaymentStore, policy: Policy, case_ids: list
         method = (methods or {}).get(cid) or method_for(country)
         if method not in allowed_methods(country):
             raise PaymentError(f"{cid}: {method} isn't available for a {country} vendor (use {', '.join(allowed_methods(country))}).")
-        gross = inv.total
-        d = discount(case, vendor)
+        gross = owed                       # what the Poster booked (undisputed part of a hold), never the invoice total
+        d = discount(case, vendor, gross)
         disc = d[0] if d and pay_date <= d[1] else Decimal("0.00")      # early-payment discount, if paid in the window
         credit = min(pay.credit_available(case.vendor_id), gross - disc) if vendor else Decimal("0.00")
         if credit > 0:
@@ -147,7 +156,13 @@ def create_batch(store: Store, pay: PaymentStore, policy: Policy, case_ids: list
     return batch
 
 
-def release(pay: PaymentStore, batch_id: str, released_by: str, now: datetime) -> PaymentBatch:
+def _probation_block(case, vendor, store):
+    from backend.ap.views import _probation_block as pb  # one definition (views imports this module)
+    return pb(case, vendor, store)
+
+
+def release(pay: PaymentStore, batch_id: str, released_by: str, now: datetime,
+            store: Optional[Store] = None, policy: Optional[Policy] = None) -> PaymentBatch:
     batch = pay.get(batch_id)
     if batch is None:
         raise PaymentError("No such payment run.")
@@ -155,6 +170,18 @@ def release(pay: PaymentStore, batch_id: str, released_by: str, now: datetime) -
         raise PaymentError("This run was already released.")
     if released_by == batch.created_by:
         raise PaymentError(f"{released_by} prepared this run and cannot also release it.")
+    if store is not None and policy is not None:  # re-check at release: nothing changed since it was scheduled
+        cases = store.list_cases()
+        for p in batch.payments:
+            case = store.get_case(p.case_id)
+            owed = S.payable(case, cases) if case else None
+            if owed is None or (p.gross_amount if p.gross_amount is not None else p.amount) > owed:
+                raise PaymentError(f"{p.case_id}: the booked amount changed since this run was scheduled "
+                                   f"({owed if owed is not None else 'nothing'} booked); reschedule it.")
+            vendor = store.get_vendor(case.vendor_id)
+            block = payment_block(signals(case, vendor, policy, store)) or S.oob_problem(case)
+            if block:
+                raise PaymentError(f"{p.case_id}: {block}")
     batch.status, batch.released_by, batch.released_at = "paid", released_by, now
     for p in batch.payments:
         p.status = "paid"

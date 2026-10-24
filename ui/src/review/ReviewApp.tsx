@@ -1,6 +1,6 @@
 // AP workspace shell (layout modelled on bill-pay tools): ⌘K search, sidebar, Bill Pay > Bills as the core.
 // Flow: invoice arrives -> agents run in the background -> For approval -> For payment -> History.
-import { ActionIcon, AppShell, Badge, Button, Group, Menu, NavLink, Stack, Text, UnstyledButton } from "@mantine/core";
+import { ActionIcon, AppShell, Badge, Button, Group, Menu, NavLink, ScrollArea, Stack, Text, UnstyledButton } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Spotlight, spotlight, type SpotlightActionData } from "@mantine/spotlight";
 import { IconBuildingStore, IconChartBar, IconFileInvoice, IconHome, IconPlus, IconSearch, IconShieldCheck, IconSparkles } from "@tabler/icons-react";
@@ -35,14 +35,14 @@ function Shell() {
       await ap.intake(f);
       refresh();
       notifications.show({ title: "Invoice received", color: "gray",
-        message: `${shortName(vendors[f.vendor_id]?.name ?? f.vendor_id)} · ${f.invoice?.invoice_no}. ReconAI is reconciling it in the background.` });
+        message: `${shortName(vendors[f.vendor_id]?.name ?? f.vendor_id)} · ${f.documents[0]?.filename ?? f.id}. ReconAI is reconciling it in the background.` });
     } catch (e) { notifications.show({ color: "red", title: "Could not start", message: String(e) }); }
   };
 
   const actions: SpotlightActionData[] = [
     ...[["home", "Home"], ["bills", "Bills"], ["bills/approval", "Bills · For approval"], ["bills/payment", "Bills · For payment"],
       ["vendors", "Vendors"], ["reports", "Insights · Reports"], ["settings", "Policy"]].map(([p, l]) => ({ id: `p-${p}`, label: l, description: "Go to page", onClick: () => go(p) })),
-    ...bills.map((b) => ({ id: b.case_id, label: `${shortName(b.vendor_name)} INV# ${b.invoice_no}`, description: `${amount(b.amount, b.currency)} · ${b.stage.replace("_", " ")}`, onClick: () => go(`bill/${b.case_id}`) })),
+    ...bills.map((b) => ({ id: b.case_id, label: `${shortName(b.vendor_name)} ${b.invoice_no ? `INV# ${b.invoice_no}` : b.case_id}`, description: `${amount(b.amount, b.currency)} · ${b.stage.replace("_", " ")}`, onClick: () => go(`bill/${b.case_id}`) })),
     ...Object.values(vendors).map((v) => ({ id: v.id, label: v.name, description: `Vendor · ${v.country} · ${v.email_domain}`, onClick: () => go(`vendors/${v.id}`) })),
   ];
 
@@ -66,11 +66,14 @@ function Shell() {
               <Menu.Target><ActionIcon variant="default" size="lg" aria-label="Simulate incoming invoice"><IconPlus size={18} /></ActionIcon></Menu.Target>
               <Menu.Dropdown>
                 <Menu.Label>Simulate an invoice arriving in ap@helixsilicon.com</Menu.Label>
+                <ScrollArea.Autosize mah={420}>
                 {fixtures.map((f) => (
-                  <Menu.Item key={f.id} onClick={() => simulate(f)} rightSection={<Text fz="xs" c="dimmed">{amount(f.invoice?.total, f.invoice?.currency)}</Text>}>
-                    {shortName(vendors[f.vendor_id]?.name ?? f.vendor_id)} · {f.invoice?.invoice_no}
+                  <Menu.Item key={f.id} onClick={() => simulate(f)} rightSection={<Text fz="xs" c="dimmed">{f.documents[0]?.channel ?? ""}</Text>}>
+                    <Text fz="sm">{shortName(vendors[f.vendor_id]?.name ?? f.vendor_id)} · {f.id}</Text>
+                    <Text fz="xs" c="dimmed" truncate>{f.documents.map((d) => d.filename).join(", ")}</Text>
                   </Menu.Item>
                 ))}
+                </ScrollArea.Autosize>
               </Menu.Dropdown>
             </Menu>
             <Menu position="bottom-end" width={260}>

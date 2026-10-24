@@ -30,7 +30,7 @@ from backend.pipeline.registry import find_invoice_case
 from contracts import (Approval, ApprovalDecision, Case, CaseStatus, Decision, JournalEntry, Posting, Role,
                        StepStatus)
 
-APPROVER_ROLES = {Role.approver, Role.controller}
+APPROVER_ROLES = {Role.approver, Role.controller, Role.cfo}  # humans; the agent never holds these
 
 
 def ap_account(ctx: Ctx, vendor_id: str) -> str:
@@ -74,6 +74,14 @@ def build_entry(case: Case, ctx: Ctx, posting_date: date, approval: Approval, re
                         narration=f"{inv.invoice_no} PO {inv.po_number or '-'}{(' ' + label) if label else ''}",
                         postings=postings, requested_by=requester, approved_by=approval.approver,
                         idempotency_key=idempotency_key(case, scope))
+
+
+def credit_reversal(case: Case, ctx: Ctx) -> tuple[Optional[Case], Decimal]:
+    """Credit note: (credited case, amount to reverse). The credit consumes the never-booked (held) part first."""
+    inv = case.invoice
+    target = find_invoice_case(ctx, case.vendor_id, inv.credit_for, case.id)
+    unbooked = q2((target.invoice.total if target else Decimal(0)) - ap_booked(target, ctx))
+    return target, q2(max(Decimal(0), inv.total - max(unbooked, Decimal(0))))
 
 
 def ap_booked(c: Optional[Case], ctx: Ctx) -> Decimal:
@@ -163,11 +171,9 @@ class Poster:
 
         requester = case.po.requester if case.po else None
         if inv.credit_for:  # credit note: offsets the credited invoice; only what was booked gets reversed
-            target = find_invoice_case(ctx, case.vendor_id, inv.credit_for, case.id)
+            target, amount = credit_reversal(case, ctx)
             requester = requester or (target.po.requester if target and target.po else None)
-            booked = ap_booked(target, ctx)
-            unbooked = q2((target.invoice.total if target else Decimal(0)) - booked)
-            amount, reverse = q2(max(Decimal(0), inv.total - max(unbooked, Decimal(0)))), True
+            reverse = True
             label = f"credit note for {inv.credit_for}"
             if amount == 0:
                 case.paid_amount = Decimal("0.00")
@@ -204,9 +210,13 @@ class Poster:
             return self._refuse(case, ctx, f"requester {requester} cannot approve their own purchase", detail)
         if usd is None:
             return self._refuse(case, ctx, f"no fx rate for {inv.currency}", detail)
-        if approval.limit is None or usd > approval.limit:
+        # effective limit: the approval's own limit capped by the policy limit for its role (cfo: approval_limits.cfo)
+        limits = [x for x in (approval.limit, pol.approval_limits.get(approval.role.value)) if x is not None]
+        limit = min(limits) if limits and (approval.limit is not None or approval.role == Role.cfo) else None
+        detail["effective_limit"] = str(limit) if limit is not None else None
+        if limit is None or usd > limit:
             return self._refuse(case, ctx, f"amount USD {usd} exceeds {approval.approver}'s limit "
-                                           f"{approval.limit}; route to a higher approver", detail)
+                                           f"{limit}; route to a higher approver", detail)
         period = posting_date.strftime("%Y-%m")
         if period in pol.locked_periods:
             return self._refuse(case, ctx, f"posting period {period} is locked", detail)

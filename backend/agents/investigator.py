@@ -135,19 +135,45 @@ def _winner_doc(case: Case, d) -> Optional[str]:
     return other[0] if other else (case.po.doc_id if case.po else None)
 
 
+def replan_hold(case: Case, ctx: Ctx, feedback: str) -> AgentFinding:
+    """A reviewer rejected approving a clean / within-tolerance invoice: hold the whole invoice (nothing is
+    separable when no discrepancy is material), say which price wins, and ask for a corrected invoice."""
+    inv = case.invoice
+    cites, _, _ = clean_evidence(case, ctx)
+    cur = inv.currency if inv else ""
+    gaps, refs = [], []
+    terms = ctx.store.list_contract_terms(inv.vendor_id) if inv else []
+    for li in (inv.lines if inv else []):
+        t = max((t for t in terms if t.sku == li.sku and t.effective_from <= inv.invoice_date),
+                key=lambda t: t.effective_from, default=None)
+        pl = next((x for x in (case.po.lines if case.po else []) if x.sku == li.sku), None)
+        ref = t.unit_price if t else (pl.unit_price if pl else None)
+        if ref is not None and li.unit_price > ref:
+            d = next((d for d in case.discrepancies if d.sku == li.sku and d.delta is not None), None)
+            docs = " / ".join(x for x in ((case.po.doc_id if case.po and pl else None), t.doc_id if t else None) if x)
+            gaps.append(f"line {li.line_no} {li.sku} billed {li.unit_price} vs {ref} on {docs}"
+                        + (f" (difference {d.delta} {cur})" if d else ""))
+            refs.append(docs)
+    winners = ", ".join(dict.fromkeys(refs)) or (case.po.doc_id if case.po else "the PO")
+    total = f"{inv.total} {cur}" if inv else "the invoice"
+    lines = ["Price above contract: " + ("; ".join(gaps) or "unit price above the contract / PO price") + ".",
+             f"Winning documents: {winners}; the contract / PO price wins over the invoiced price.",
+             f"Recommendation: hold the full invoice ({total}) until the vendor sends a corrected invoice."]
+    sot = (f"The contract / PO price in force on the invoice date wins ({winners}); the invoiced unit price above it "
+           f"is not accepted, even within tolerance, per the controller's standing rule: {feedback.strip()}")
+    nxt = (f"Hold the full {total} (no part is paid: the price gap is not separable as a material line) and ask the "
+           "vendor, via the contact on file, for a corrected invoice at the contract price.")
+    return AgentFinding(recommendation=Decision.hold, explanation="\n".join(lines), source_of_truth=sot,
+                        citations=cites, next_action=nxt, confidence=0.7)
+
+
 def deterministic_finding(case: Case, ctx: Ctx, policy_rec: Decision, reasons: list[str],
                           feedback: Optional[str] = None) -> AgentFinding:
     """Templated proposal from code facts only (3 lines). Used offline and when Droid + Claude both fail.
 
     On a re-plan after a reviewer rejected an approve, the template moves up to hold (never down)."""
     if feedback and policy_rec == Decision.approve:
-        f = deterministic_finding(case, ctx, policy_rec, reasons)
-        cites, lines, sot = clean_evidence(case, ctx)
-        return AgentFinding(recommendation=Decision.hold,
-                            explanation=f"{lines[1]}\nReviewer rejected approval: {feedback.strip()}\n"
-                                        "Recommendation: hold until the vendor corrects it.",
-                            source_of_truth=sot, citations=cites, next_action=NEXT[Decision.hold] + f" ({feedback.strip()})",
-                            confidence=f.confidence)
+        return replan_hold(case, ctx, feedback)
     cur = case.invoice.currency if case.invoice else ""
     gaps, wins, winners = [], [], []
     for d in rules.material(case):
@@ -217,8 +243,12 @@ def _claude(sb: Sandbox, system: str, ctx: Ctx) -> AgentFinding:
     return r.output
 
 
-def investigate(case: Case, ctx: Ctx, feedback: Optional[str] = None, attempt: int = 0) -> tuple[Proposal, dict]:
-    """Run one investigation for a routed case (inside the current trace step). Returns (proposal, meta)."""
+def investigate(case: Case, ctx: Ctx, feedback: Optional[str] = None, attempt: int = 0,
+                code_only: bool = False) -> tuple[Proposal, dict]:
+    """Run one investigation for a routed case (inside the current trace step). Returns (proposal, meta).
+
+    code_only: the re-plan answers a reviewer's standing rule, which code already knows how to satisfy
+    (deterministic template, no agent), so the answer can't drift from the rule."""
     from backend.pipeline.vendor_guard import screen
 
     policy_rec, reasons = rules.policy_recommendation(case)
@@ -248,6 +278,9 @@ def investigate(case: Case, ctx: Ctx, feedback: Optional[str] = None, attempt: i
 
         engines = [("droid", run_droid), ("claude", lambda: _claude(sb, system, ctx)),
                    (DETERMINISTIC, lambda: deterministic_finding(case, ctx, policy_rec, reasons, feedback))]
+        if code_only:
+            engines = engines[2:]
+            pass
         proposal = pdetail = engine = None
         for name, fn in engines:
             try:
@@ -278,7 +311,8 @@ def investigate(case: Case, ctx: Ctx, feedback: Optional[str] = None, attempt: i
               "source_of_truth": proposal.source_of_truth, "next_action": proposal.next_action,
               "droid": droid_meta, "sandbox": {"events": sb.events, "manifest": sb.manifest,
                                                "snapshot_version": sb.snapshot_version, **archive},
-              "skill_sha": skill.sha, "attempt": attempt, "feedback": feedback}
+              "skill_sha": skill.sha, "attempt": attempt, "feedback": feedback,
+              "code_only": "re-plan answers a reviewer's standing rule (no agent)" if code_only else None}
     return proposal, {"detail": detail, "skill": skill, "memory_version": sb.memory_version,
                       "inputs": sorted(sb.manifest)}
 

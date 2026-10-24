@@ -19,17 +19,20 @@ def terms_label(v: Vendor) -> str:
     return f"{(t.discount_pct * 100).normalize()}/{t.discount_days} net {t.net_days}"
 
 
-def discount(case: Case, vendor: Optional[Vendor]) -> Optional[tuple[Decimal, date]]:
-    """(discount amount in invoice currency, last day to pay) or None if the vendor offers none."""
+def discount(case: Case, vendor: Optional[Vendor], base: Optional[Decimal] = None) -> Optional[tuple[Decimal, date]]:
+    """(discount amount in invoice currency, last day to pay) or None if the vendor offers none.
+    base: the amount actually paid (the undisputed part of a hold); defaults to the invoice total."""
     inv = case.invoice
-    if inv is None or vendor is None or not vendor.terms or not vendor.terms.discount_pct or not vendor.terms.discount_days:
+    if inv is None or inv.credit_for or vendor is None or not vendor.terms or not vendor.terms.discount_pct \
+            or not vendor.terms.discount_days:
         return None
-    return (inv.total * vendor.terms.discount_pct).quantize(CENT), inv.invoice_date + timedelta(days=vendor.terms.discount_days)
+    base = inv.total if base is None else base
+    return (base * vendor.terms.discount_pct).quantize(CENT), inv.invoice_date + timedelta(days=vendor.terms.discount_days)
 
 
 def offer(case: Case, vendor: Optional[Vendor], policy: Policy, today: date, stage: str,
-          block: Optional[str], payment: Optional[Payment]) -> Optional[EarlyPayOffer]:
-    d = discount(case, vendor)
+          block: Optional[str], payment: Optional[Payment], base: Optional[Decimal] = None) -> Optional[EarlyPayOffer]:
+    d = discount(case, vendor, base)
     if d is None or stage in ("rejected", "processing"):
         return None
     amount, pay_by = d

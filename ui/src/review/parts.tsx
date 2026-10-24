@@ -78,10 +78,11 @@ export function BillsTable({ bills, select, extra, footer = true }: {
                     <div><Text fz="sm" fw={500}>{shortName(b.vendor_name)}</Text><Text fz="xs" c="dimmed">ReconAI · {day(b.invoice_date)}</Text></div></Group></Table.Td>
                   <Table.Td><StageBadge stage={b.stage} /></Table.Td>
                   <Table.Td ta="right"><Text fz="sm" ff="monospace">{amount(b.amount, b.currency)}</Text>
+                    {b.payable && b.payable !== b.amount && <Text fz="xs" c="dimmed">pay {amount(b.payable, b.currency)} · {amount(b.disputed, b.currency)} held</Text>}
                     {b.currency !== "USD" && <Text fz="xs" c="dimmed">≈ {usd(b.amount_usd)}</Text>}
                     {b.discount && ["available", "needs_approval"].includes(b.discount.status) &&
                       <Text fz="xs" c="green.8">save {amount(b.discount.discount_amount, b.currency)} by {day(b.discount.pay_by).replace(/, \d{4}$/, "")}</Text>}</Table.Td>
-                  <Table.Td><Text fz="sm" ff="monospace">{b.invoice_no}</Text>
+                  <Table.Td><Text fz="sm" ff="monospace">{b.invoice_no ?? "not read"}</Text>
                     {b.overbilled && <Text fz="xs" c="red.7">{amount(b.overbilled, b.currency)} overbilled</Text>}</Table.Td>
                   <Table.Td><Text fz="sm">{day(b.due_date)}</Text><Text fz="xs" c={b.days_to_due != null && b.days_to_due < 7 ? "orange" : "dimmed"}>{due(b.days_to_due)}</Text></Table.Td>
                   <Table.Td><RiskDots bill={b} /></Table.Td>

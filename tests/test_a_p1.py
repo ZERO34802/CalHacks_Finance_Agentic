@@ -73,7 +73,7 @@ def approve(case, scope=None, approver="m.chen@helix.example", role=Role.control
             decision=Decision.hold):
     case.decision = decision
     case.approvals = [Approval(id="a1", case_id=case.id, approver=approver, role=role, scope=scope,
-                               decision=ApprovalDecision.approved, limit=D(limit), at=T0)]
+                               decision=ApprovalDecision.approved, limit=D(limit) if limit else None, at=T0)]
     return case
 
 
@@ -217,22 +217,24 @@ def test_credit_note_closes_followup_resolves_subcase(ctx):
               credit_for="INV-881")
     cnc = triage(ctx, mk_case(ctx, "cn1", cn, as_of=date(2026, 10, 22)))
     assert any(l.type == CaseLinkType.attached_to and l.case_id == "case_02" for l in cnc.links)
-    assert not cnc.discrepancies
-    cnc = approve(cnc, decision=Decision.approve)
-    cnc, s = step(ctx, cnc.id, Poster(), cnc)
-    assert s.status == StepStatus.skipped and cnc.paid_amount == D("0.00") and cnc.journal_entry is None
-    after(ctx, cnc)
+    assert not cnc.discrepancies and cnc.journal_entry is None
+    # support document: applied in the Matcher, ends resolved with no decision and no skill
+    assert cnc.status == CaseStatus.resolved and cnc.decision is None and cnc.skill is None
+    assert "credit note CN-118 applied to case_02" in cnc.notes
+    after(ctx, cnc)  # idempotent
     tgt = ctx.store.get_case("case_02")
     assert tgt.follow_ups[0].status == FollowUpStatus.done and tgt.follow_ups[0].closed_by == "cn1-d1"
     assert ctx.store.get_case("case_02-1").status == CaseStatus.resolved and tgt.status == CaseStatus.resolved
 
 
-def test_credit_note_from_escalated_case_closes_nothing(ctx):
+def test_credit_note_from_lookalike_sender_closes_nothing(ctx):
     case = after(ctx, _with_followup(ctx, approve(_case02(ctx))))
     cn = inv_("V-FORMOSA", "CN-9", date(2026, 10, 22), "TWD", None, [("WFR-N3-300", "60", "18600.00")], credit_for="INV-881")
-    cnc = triage(ctx, mk_case(ctx, "cn2", cn))
-    cnc.decision = Decision.escalate
-    after(ctx, cnc)
+    c = mk_case(ctx, "cn2", cn, save=False)
+    c.notes.append("intake: sender domain 'formosa-wafer.com' is a look-alike of Formosa (formosawafer.com.tw)")
+    ctx.store.save_case(c)
+    cnc = triage(ctx, c)
+    assert cnc.status != CaseStatus.resolved
     assert ctx.store.get_case("case_02").follow_ups[0].status == FollowUpStatus.open
 
 
@@ -286,9 +288,10 @@ def test_supplier_reply_links_same_vendor_only(ctx):
     for st in (DocDedup(), Registry(), Matcher()):
         r, s = step(ctx, r.id, st, r)
     assert any(l.type == CaseLinkType.attached_to and l.case_id == "case_02" for l in r.links)
-    assert "supplier reply to case_02" in r.notes
+    assert "supplier reply to case_02" in r.notes and "attached to case_02: supplier reply" in r.notes
+    assert r.status == CaseStatus.resolved and r.decision is None
     other = mk_case(ctx, "r2", None, vendor="V-KESTREL", docs=[body.model_copy(update={"id": "r2-d1"})])
-    with pytest.raises(ValueError):  # nothing linked, no invoice -> escalates (evidence missing)
+    with pytest.raises(ValueError, match="cannot be attached"):  # nothing linked -> runner escalates with reason
         step(ctx, other.id, Registry(), other)
     assert not other.links and any("another vendor" in n for n in other.notes)
 
@@ -360,3 +363,27 @@ def test_validators_know_linked_case_figures(ctx):
                            citations=[Citation(doc_id=cc.invoice.doc_id, locator="line 1")])
     cc, s = step(ctx, cc.id, Validators(), cc)
     assert s.status == StepStatus.ok, s.error
+
+
+def test_poster_cfo_can_book_above_controller_limit(ctx):
+    # USD 1.5M invoice: above the controller's 1M, within the CFO's policy limit
+    ctx.store.save_po(ctx.store.get_po("PO-7001").model_copy(update={"po_number": "PO-BIG", "doc_id": "erp-PO-BIG"}))
+    from contracts import Receipt, ReceiptLine
+    ctx.store.save_receipt(Receipt(doc_id="erp-GRN-BIG", po_number="PO-BIG", received_date=date(2026, 10, 10),
+                                   lines=[ReceiptLine(sku="HBM3E-12H-24G", qty_received=D("1100"))], received_by="w"))
+    big = inv_("V-KESTREL", "KM-BIG", date(2026, 10, 12), "USD", "PO-BIG", [("HBM3E-12H-24G", "1000", "1450.00")])
+    case = triage(ctx, mk_case(ctx, "cfo1", big, as_of=date(2026, 10, 12)))
+    assert not [d for d in case.discrepancies if d.material]
+    ctl = approve(case, decision=Decision.approve, role=Role.controller, limit="1000000.00")
+    ctl, s = step(ctx, ctl.id, Poster(), ctl)
+    assert s.status == StepStatus.blocked and "limit" in s.error  # controller can't
+    cfo = approve(case, decision=Decision.approve, approver="hum_cfo@helix.example", role=Role.cfo, limit=None)
+    cfo.approvals[0].limit = None  # no limit on the approval: the policy cfo limit applies
+    cfo, s = step(ctx, cfo.id, Poster(), cfo)
+    assert s.status == StepStatus.ok and cfo.paid_amount == D("1450000.00") and s.detail["effective_limit"] == "100000000.00"
+    # SoD still applies to the CFO
+    sod = approve(triage(ctx, mk_case(ctx, "cfo2", inv_("V-KESTREL", "KM-BIG2", date(2026, 10, 12), "USD", "PO-BIG",
+                                                       [("HBM3E-12H-24G", "10", "1450.00")]), as_of=date(2026, 10, 12))),
+                  decision=Decision.approve, approver="j.park@helix.example", role=Role.cfo, limit="100000000.00")
+    sod, s = step(ctx, sod.id, Poster(), sod)
+    assert s.status == StepStatus.blocked and "requester" in s.error

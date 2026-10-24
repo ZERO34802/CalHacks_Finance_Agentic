@@ -69,6 +69,12 @@ def findings(case: Case, steps: list[Step], vendor: Optional[Vendor], policy: Po
     inv = case.invoice
     out: list[Finding] = []
 
+    if case.status.value == "quarantined":
+        out.append(Finding(check="Intake validation", agent="Intake", status="blocked",
+                           detail=f"Quarantined: {case.quarantine_reason or 'failed validation'}. Nothing was read or booked."))
+    if "reader" in by and inv is None and case.status.value != "quarantined":
+        out.append(Finding(check="Read the invoice", agent="Reader", status="unchecked",
+                           detail="No invoice could be extracted (evidence missing, or the Reader was unavailable)."))
     if "reader" in by and inv:
         hidden = "embedded_instructions" in inv.flags
         out.append(Finding(check="Read the invoice", agent="Reader", status="flag" if hidden else "ok",
@@ -122,15 +128,26 @@ def findings(case: Case, steps: list[Step], vendor: Optional[Vendor], policy: Po
                    if amount is not None and amount > limit else "the agents would not sign it alone")
             out.append(Finding(check="Sign-off", agent="Approver", status="flag", detail=f"Sent to a human: {why}."))
         else:
-            signed = next((a for a in case.approvals if a.decision.value == "approved"), None)
+            signed = next((a for a in reversed(case.approvals) if a.decision.value == "approved"), None)
+            who = (f"{signed.approver} ({signed.role.value}"
+                   + (", simulated agent reviewer" if (signed.comment or "").startswith("[simulated") else "") + ")") if signed else ""
+            part = " for the undisputed part only" if signed and signed.scope == "undisputed" else ""
             out.append(Finding(check="Sign-off", agent="Approver", status="ok" if signed else "flag",
-                               detail=f"Signed by {signed.approver} ({signed.role.value})." if signed else "Waiting for a signature."))
+                               detail=f"Signed by {who}{part}." if signed else "Waiting for a signature."))
 
     if "poster" in by:
         je = case.journal_entry
-        out.append(Finding(check="Ledger", agent="Poster", status="ok" if je else "unchecked",
-                           detail=("Booked: " + "; ".join(f"{p.account} {money(p.amount, p.currency)}" for p in je.postings) + "."
-                                   if je else "Not booked. Nothing is paid until a human decides.")))
+        refused = next((n.split("REFUSED: ", 1)[1] for n in reversed(case.notes) if "poster: REFUSED: " in n), None)
+        held = (f" {money(case.disputed_amount, inv.currency)} stays held." if je and inv and case.disputed_amount
+                and je.idempotency_key.endswith(":undisputed") else "")
+        out.append(Finding(check="Ledger", agent="Poster", status="ok" if je else "blocked" if refused else "unchecked",
+                           detail=("Booked: " + "; ".join(f"{p.account} {money(p.amount, p.currency)}" for p in je.postings) + "." + held
+                                   if je else f"Not booked: {refused}" if refused else
+                                   "Not booked. Nothing is paid until a human decides.")))
+    for f in case.follow_ups:
+        out.append(Finding(check="Follow-up", agent="ReconAI", status="ok" if f.status.value == "done" else
+                           "flag" if f.status.value == "overdue" else "unchecked",
+                           detail=f"{f.kind.value.replace('_', ' ')} due {f.due}: {f.status.value}. {f.note}".strip()))
     return out
 
 
@@ -154,11 +171,13 @@ def summary(case: Case, vendor: Optional[Vendor], fs: list[Finding]) -> str:
     return f"{head} {verdict}{note}"
 
 
-def build(case: Case, steps: list[Step], vendor: Optional[Vendor], policy: Policy) -> ReviewPacket:
-    from backend.review.checks import signals as check_signals
-    ready = case.decision is not None
+def build(case: Case, steps: list[Step], vendor: Optional[Vendor], policy: Policy, store=None) -> ReviewPacket:
+    from backend.review.checks import disagreements, signals as check_signals
+    ready = case.decision is not None or case.status.value in ("quarantined", "resolved", "paused")
     fs = findings(case, steps, vendor, policy) if ready else []
-    sig = check_signals(case, vendor, policy) if ready else []
+    sig = check_signals(case, vendor, policy, store) if ready else []
+    for d in disagreements(case, sig) if ready else []:
+        fs.append(Finding(check="Second line vs agents", agent="Pre-payment checks", status="flag", detail=d))
     text = summary(case, vendor, fs) if ready else "The agents are still working on this invoice."
     if sig:
         text += " Pre-payment checks flag: " + "; ".join(s.title for s in sig) + "."
@@ -177,11 +196,16 @@ def memory_for(vendor: Optional[Vendor], memory: list[MemoryEntry]) -> list[Memo
 
 
 def signoff_problem(case: Case, approver: str, role: str, decision: str, policy: Policy) -> Optional[str]:
-    """Controls on a human decision, enforced in code: requester can't approve; approval within limit."""
+    """Controls on a human decision, enforced in code: requester can't approve; approval within limit;
+    bank change / look-alike / hidden instructions need the out-of-band callback first."""
     if decision != "approved":
         return None
-    if case.po and approver == case.po.requester:
+    if case.po and approver.lower() == case.po.requester.lower():
         return f"{approver} requested this purchase and cannot approve it."
+    from backend.ap.state import oob_problem
+    oob = oob_problem(case)
+    if oob:
+        return oob
     amount = usd(case, policy)
     limit = policy.approval_limits.get(role)
     if limit is None:

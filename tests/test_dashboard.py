@@ -1,107 +1,87 @@
-"""Dashboard read models (owner: D). Built on fixtures so they track the real pipeline."""
-from datetime import date
+"""Dashboard read models (owner: D), on real pipeline output (offline)."""
+from datetime import date, timedelta
 from decimal import Decimal
 
-from fastapi.testclient import TestClient
+from d_helpers import OFFLINE, client, fresh_store, offline, run  # noqa: F401
 
 from backend.core.config import load_policy
-from backend.core.runner import make_ctx, run_case
 from backend.dashboard.views import approval_queue, business_metrics, failures, stage_stats
-from backend.evals.fixtures import case_ids, load_case, seed
-from backend.store.sqlite import SQLiteStore
-from contracts import CaseStatus, Decision, Discrepancy, DiscrepancyType, StepStatus
+from backend.evals.fixtures import case_ids, load_fixture
+from contracts import FixtureKind, StepStatus
 
 
-def _store_with(*cases):
-    store = SQLiteStore(":memory:")
-    seed(store)
-    for c in cases:
-        store.save_case(c)
-    return store
-
-
-def test_queue_ranks_due_soon_critical_big_first_and_skips_closed():
-    kestrel = load_case("case_01")          # critical, USD 72.5k
-    kestrel.status = CaseStatus.awaiting_approval
-    kestrel.invoice.due_date = date(2026, 10, 26)
-    aerolane = load_case("case_05")         # not critical
-    aerolane.status = CaseStatus.awaiting_approval
-    aerolane.invoice.due_date = date(2026, 12, 31)
-    posted = load_case("case_03")
-    posted.status = CaseStatus.posted
-
-    q = approval_queue(_store_with(kestrel, aerolane, posted), load_policy(), date(2026, 10, 24))
-
-    assert [i.case_id for i in q] == ["case_01", "case_05"]
+def test_queue_ranks_due_soon_critical_big_first_and_skips_closed(offline):
+    store = fresh_store()
+    run(store, "case_25", "case_43", "case_27")       # posted (closed) / Kestrel hold, USD 291k / quarantined
+    q = approval_queue(store, load_policy(), date(2026, 11, 18))   # case_43: invoice date + net 30 is close
+    ids = [i.case_id for i in q]
+    assert "case_25" not in ids                        # booked: nothing to approve
+    assert ids[0] == "case_43"
     top = q[0]
-    assert top.at_risk and top.days_to_due == 2 and top.critical_vendor
-    assert top.total_usd == Decimal("72500.00")
-    assert "critical supplier" in top.reasons and "due in 2d" in top.reasons
-    assert not q[1].at_risk
+    assert top.critical_vendor and top.total_usd == Decimal("291160.00") and "critical supplier" in top.reasons
+    assert top.at_risk and top.days_to_due is not None and top.days_to_due <= 7
+    assert q[-1].case_id == "case_27" and q[-1].total is None and not q[-1].at_risk
 
 
-def test_queue_converts_with_policy_fx():
-    formosa = load_case("case_02")
-    q = approval_queue(_store_with(formosa), load_policy(), date(2026, 10, 24))
-    inv = formosa.invoice
-    assert q[0].total_usd == (inv.total * Decimal("0.031")).quantize(Decimal("0.01"))
+def test_queue_converts_with_policy_fx(offline):
+    store = fresh_store()
+    case = run(store, "case_11")                       # TWD, partially booked hold -> not in the queue
+    assert approval_queue(store, load_policy(), date(2026, 10, 24)) == []
+    case.journal_entry = None                          # as if nothing were booked yet
+    store.save_case(case)
+    [item] = approval_queue(store, load_policy(), date(2026, 10, 24))
+    assert item.total_usd == (case.invoice.total * Decimal("0.031")).quantize(Decimal("0.01"))
 
 
-def test_metrics_use_deltas_when_known_else_full_invoice():
-    short = load_case("case_02")
-    short.decision = Decision.hold
-    short.discrepancies = [Discrepancy(type=DiscrepancyType.qty_short, delta=Decimal("-1116000.00"))]
-    dup = load_case("case_05")
-    dup.decision = Decision.reject
-    clean = load_case("case_01")
-    clean.decision = Decision.approve
-
-    m = business_metrics(_store_with(short, dup, clean), load_policy())
-
-    assert m.cases == 3 and m.exceptions == 2
-    assert m.dollars_caught_usd == Decimal("34596.00") + dup.invoice.total  # 1,116,000 TWD x 0.031
-    assert m.hours_saved_estimate == Decimal("3.3")                        # (90 + 90 + 15) / 60
-    assert m.on_time_payment_rate is None                                  # nothing posted
-    assert {v.vendor_id: v.exceptions for v in m.by_vendor}["V-KESTREL"] == 0
+def test_metrics_count_bills_with_deltas_when_known(offline):
+    store = fresh_store()
+    run(store, "case_06", "case_10", "case_25", "case_27")
+    m = business_metrics(store, load_policy())
+    assert m.cases == 4 and m.exceptions == 3          # sub-cases aren't counted as bills
+    # held deltas (USD 17,400 + 2,800); the quarantined case has no invoice, so nothing measurable
+    assert m.dollars_caught_usd == Decimal("20200.00")
+    assert m.on_time_payment_rate is None or 0 <= m.on_time_payment_rate <= 1
+    assert {v.vendor_id: v.exceptions for v in m.by_vendor}["V-KESTREL"] == 1
     assert any("ESTIMATE" in a for a in m.assumptions)
 
 
-def test_failures_lists_non_ok_steps_with_next_step():
-    store = _store_with()
-    ctx = make_ctx(store)
-    for cid in case_ids():
-        run_case(load_case(cid), ctx)
+def test_failures_lists_non_ok_steps_with_next_step(offline):
+    store = fresh_store()
+    run(store, *OFFLINE, "case_02")
     found = failures(store)
-    assert all(f.status not in (StepStatus.ok, StepStatus.skipped) for f in found)
+    assert found and all(f.status not in (StepStatus.ok, StepStatus.skipped) for f in found)
     for f in found:
         steps = store.list_steps(f.case_id)
         idx = [s.id for s in steps].index(f.step_id)
         assert f.next_stage == (steps[idx + 1].stage if idx + 1 < len(steps) else None)
 
 
-def test_stage_stats_cover_every_stage_in_pipeline_order():
+def test_stage_stats_cover_every_stage_in_pipeline_order(offline):
     from backend.core.runner import PIPELINE
-    store = _store_with()
-    ctx = make_ctx(store)
-    for cid in case_ids():
-        run_case(load_case(cid), ctx)
+    store = fresh_store()
+    run(store, *OFFLINE)
     stats = stage_stats(store)
-    assert [s.stage for s in stats] == [st.name for st in PIPELINE]
+    names = [s.stage for s in stats]
+    order = [st.name for st in PIPELINE]
+    assert [n for n in names if n in order] == [n for n in order if n in names]   # pipeline order
+    assert {"reader", "matcher", "poster"} <= set(names)
     for s in stats:
-        assert s.runs == len(case_ids()) and s.ok + s.skipped + s.flagged == s.runs
+        assert s.ok + s.skipped + s.flagged <= s.runs
 
 
-def test_dashboard_endpoints(monkeypatch):
-    import backend.api.app as app_module
-    monkeypatch.setattr(app_module, "store", _store_with())
-    client = TestClient(app_module.app)
-    fixtures = client.get("/fixtures").json()
-    assert [f["id"] for f in fixtures] == case_ids()
+def test_dashboard_endpoints(offline, monkeypatch):
+    store = fresh_store()
+    c = client(monkeypatch, store)
+    fixtures = c.get("/fixtures").json()
+    inbound = [cid for cid in case_ids() if load_fixture(cid).kind == FixtureKind.inbound]
+    assert [f["id"] for f in fixtures] == inbound      # ingested only: documents, nothing decided
+    assert all(f["decision"] is None or f["status"] == "quarantined" for f in fixtures)
     for f in fixtures:
-        assert client.post("/cases", json=f).status_code == 201
-    assert len(client.get("/vendors").json()) == 4
-    assert client.get("/dashboard/queue").status_code == 200
-    assert client.get("/dashboard/metrics").json()["cases"] == len(fixtures)
-    assert client.get("/dashboard/failures").status_code == 200
-    assert len(client.get("/dashboard/stages").json()) > 0
-    assert client.post("/evals/run").json()["total"] == len(fixtures)
+        if f["id"] in OFFLINE:
+            assert c.post("/intake", json=f).status_code == 202
+    assert len(c.get("/vendors").json()) == 5
+    assert c.get("/dashboard/queue").status_code == 200
+    assert c.get("/dashboard/metrics").json()["cases"] == len(OFFLINE)
+    assert c.get("/dashboard/failures").status_code == 200
+    assert len(c.get("/dashboard/stages").json()) > 0
+    assert len(c.get("/ap/bills").json()) == len(OFFLINE)

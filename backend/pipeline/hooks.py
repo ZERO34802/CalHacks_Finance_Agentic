@@ -109,9 +109,10 @@ def _decided_ok(case: Case) -> bool:
 
 # --- credit notes ---------------------------------------------------------------------------
 
-def apply_credit_note(case: Case, ctx: Ctx) -> dict:
+def apply_credit_note(case: Case, ctx: Ctx, force: bool = False) -> dict:
+    """force: the Matcher already gated it (support document, nothing to post; see matcher.py)."""
     inv = case.invoice
-    if inv is None or not inv.credit_for or not _decided_ok(case):
+    if inv is None or not inv.credit_for or not (force or _decided_ok(case)):
         return {}
     target = find_invoice_case(ctx, case.vendor_id, inv.credit_for, case.id)
     if target is None:

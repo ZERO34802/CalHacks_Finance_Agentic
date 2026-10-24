@@ -5,10 +5,9 @@ Checks (CRS for business identity, credit, public records and watchlists; code f
   2 Business credit        CRS Intelliscore+
   3 Liens / judgments / bankruptcies   CRS public records (from the business search)
   4 Sanctions (OFAC)       CRS watchlist result
-  5 Duplicate vendor       same tax ID / bank / name as an existing vendor
-  6 Bank vs employees      vendor bank account matches an employee's
-  7 Email domain           look-alike of an existing vendor's domain
-  8 Tax form               W-9 (US) / W-8BEN-E (non-US) identifier present
+  5-8 Code checks, reused from A's backend/onboarding/checks.run_checks (the scored flow): duplicate tax ID /
+      bank / domain, simulated sanctions list, bank vs employees (world employees in the store), look-alike
+      domain, tax form, simulated domain age; plus a same-name duplicate check
 Fail closed: a CRS timeout is retried once, then the check is "incomplete" and the vendor can't be approved
 as low risk. Approvals: requester can never approve; medium/high risk needs a controller. Approved vendors
 start on probation (tighter checks until their first deliveries are confirmed).
@@ -17,30 +16,38 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from decimal import Decimal
 from functools import lru_cache
 from typing import Optional
 from uuid import uuid4
 
-from backend.core.config import ROOT
-from backend.review.checks import _edit_distance, _root
+from backend.core.config import ROOT, load_policy
 from backend.store.base import Store
 from backend.vendors.crs import CRS, CRSUnavailable
-from contracts import Channel, OnboardingCase, VendorCheck, OnboardingRequestIn, Vendor
+from contracts import Channel, OnboardingCase, OnboardingRequest, OnboardingRequestIn, VendorCheck, Vendor
 
 DATA = ROOT / "data" / "onboarding"
+HERE = Path(__file__).resolve().parent
 HIGH_SPEND_USD = Decimal("1000000")
 
 
 @lru_cache
-def employees() -> list[dict]:
-    return json.loads((DATA / "employees.json").read_text())
-
-
-@lru_cache
 def samples() -> list[dict]:
-    return json.loads((DATA / "samples.json").read_text())
+    """D's demo requests (CRS scenarios, backend/vendors/samples.json) + C's scored requests (data/onboarding/onb_*.json)."""
+    out = json.loads((HERE / "samples.json").read_text())
+    for s in out:  # D's demo requests: the tax form came with the tax ID
+        r = s["request"]
+        r.setdefault("tax_form", ("W-9" if r["country"] == "US" else "W-8BEN-E") if r.get("tax_id") else None)
+    for p in sorted(DATA.glob("onb_*.json")):
+        r = OnboardingRequest.model_validate_json(p.read_text())
+        out.append({"label": f"{r.title} ({r.id})", "request": OnboardingRequestIn(
+            legal_name=r.legal_name, country=r.country, currency=r.currency, tax_id=r.tax_id, tax_form=r.tax_form,
+            trade_names=r.trade_names, email_domain=r.email_domain, website=r.email_domain, bank_last4=r.bank_last4,
+            expected_annual_spend_usd=r.expected_annual_spend_usd or Decimal("0"),
+            requested_by=r.requested_by).model_dump(mode="json")})
+    return out
 
 
 def _norm(name: str) -> str:
@@ -99,39 +106,46 @@ def run_checks(req: OnboardingRequestIn, store: Store, crs: CRS) -> list[VendorC
                 out.append(VendorCheck(name="Sanctions (OFAC)", provider="CRS", status="warn", simulated=sim,
                                            detail="Not screened: business not found. Screen manually."))
 
-    # 5 duplicate vendor
-    dup = []
-    for v in vendors:
-        why = []
-        if req.tax_id and v.tax_id == req.tax_id:
-            why.append("same tax ID")
-        if v.bank_last4 == req.bank_last4:
-            why.append("same bank account")
-        if _norm(v.name) == _norm(req.legal_name):
-            why.append("same name")
-        if why:
-            dup.append(f"{v.name} ({', '.join(why)})")
-    out.append(VendorCheck(name="Duplicate vendor", provider="code", status="fail" if dup else "pass",
-                               detail=("Matches existing vendor " + "; ".join(dup) + ".") if dup else "No existing vendor shares this tax ID, bank or name."))
+    # 5-8: code checks, shared with the scored onboarding flow (A's backend/onboarding/checks.py)
+    out += code_checks(req, store)
+    return out
 
-    # 6 bank vs employees
-    emp = [e for e in employees() if e["bank_last4"] == req.bank_last4]
-    out.append(VendorCheck(name="Bank account vs employees", provider="code", status="fail" if emp else "pass",
-                               detail=(f"Bank account •••• {req.bank_last4} belongs to employee {emp[0]['name']} ({emp[0]['email']}). Possible insider fraud.")
-                               if emp else "No employee uses this bank account."))
 
-    # 7 look-alike domain
-    dom = req.email_domain.lower()
-    close = [v for v in vendors if dom != v.email_domain.lower()
-             and _edit_distance(_root(dom).replace("-", ""), _root(v.email_domain).replace("-", "")) <= 2]
-    out.append(VendorCheck(name="Email domain", provider="code", status="fail" if close else "pass",
-                               detail=(f"{dom} looks like {close[0].email_domain} ({close[0].name}). Look-alike domain.") if close
-                               else f"{dom} doesn't imitate an existing vendor's domain. (Domain age: check not connected.)"))
+CODE_LABEL = {
+    "duplicate_tax_id": "Duplicate vendor: tax ID", "duplicate_bank": "Duplicate vendor: bank account",
+    "duplicate_domain": "Duplicate vendor: email domain", "sanctions_hit": "Sanctions list (simulated)",
+    "bank_matches_employee": "Bank account vs employees", "lookalike_domain": "Email domain",
+    "missing_tax_form": "Tax form", "invalid_tax_form": "Tax form", "domain_age": "Domain age (simulated)",
+}
+BLOCKING = {"Sanctions (OFAC)", "Sanctions list (simulated)", "Bank account vs employees"}
 
-    # 8 tax form
-    form = "W-9" if req.country == "US" else "W-8BEN-E"
-    out.append(VendorCheck(name="Tax form", provider="code", status="pass" if req.tax_id else "fail",
-                               detail=f"{form} identifier {req.tax_id} on file." if req.tax_id else f"No tax ID: {form} not received."))
+
+def _form(req: OnboardingRequestIn) -> Optional[str]:
+    return req.tax_form or None
+
+
+def as_request(req: OnboardingRequestIn, rid: str = "onb_ui", now: Optional[datetime] = None) -> OnboardingRequest:
+    """D's UI form -> the canonical OnboardingRequest A's checks take."""
+    return OnboardingRequest(id=rid, title=req.legal_name, received_at=now or datetime.now(timezone.utc),
+                             requested_by=req.requested_by, legal_name=req.legal_name, trade_names=req.trade_names,
+                             country=req.country, tax_id=req.tax_id, tax_form=_form(req), email_domain=req.email_domain,
+                             bank_last4=req.bank_last4, currency=req.currency, channels=[Channel.email],
+                             expected_annual_spend_usd=req.expected_annual_spend_usd)
+
+
+def code_checks(req: OnboardingRequestIn, store: Store) -> list[VendorCheck]:
+    """A's deterministic checks (duplicates, simulated sanctions, employee bank, look-alike domain, tax form,
+    simulated domain age), shown as VendorChecks, plus a same-name duplicate check."""
+    from backend.core.runner import make_ctx
+    from backend.onboarding.checks import run_checks as a_checks
+    out = []
+    for c in a_checks(as_request(req), make_ctx(store)):
+        out.append(VendorCheck(name=CODE_LABEL.get(c.name, c.name.replace("_", " ").capitalize()), provider="code",
+                               status="pass" if c.passed else "fail", detail=c.detail, simulated=c.simulated))
+    same = [v for v in store.list_vendors() if _norm(v.name) == _norm(req.legal_name)]
+    out.append(VendorCheck(name="Duplicate vendor: name", provider="code", status="warn" if same else "pass",
+                           detail=f"Similar name to existing vendor {same[0].name} ({same[0].id}); confirm it is a different company." if same
+                           else "No existing vendor has this name."))
     return out
 
 
@@ -165,15 +179,17 @@ def decide(case: OnboardingCase, approver: str, role: str, decision: str, commen
             raise OnboardingError(f"{approver} requested this vendor and cannot approve it.")
         if ROLE_RANK.get(role, 0) < ROLE_RANK[case.needs]:
             raise OnboardingError(f"{case.risk_tier.capitalize()}-risk vendors need a {case.needs} to approve.")
-        if any(c.status == "fail" and c.name in ("Sanctions (OFAC)", "Bank account vs employees") for c in case.checks):
+        if any(c.status == "fail" and c.name in BLOCKING for c in case.checks):
             raise OnboardingError("Sanctions or employee-bank matches can't be approved. Reject, or escalate to compliance.")
         if any(c.status == "incomplete" for c in case.checks):
             raise OnboardingError("Verification incomplete (CRS unavailable). Re-run the checks first.")
         r = case.request
         vid = "V-" + re.sub(r"[^A-Z0-9]+", "", r.legal_name.upper())[:12]
-        store.save_vendor(Vendor(id=vid, name=r.legal_name, aliases=[], country=r.country, currency=r.currency,
+        days = int(load_policy().probation.get("days", 90))
+        store.save_vendor(Vendor(id=vid, name=r.legal_name, aliases=r.trade_names, country=r.country, currency=r.currency,
                                  email_domain=r.email_domain, bank_last4=r.bank_last4, channels=[Channel.email],
-                                 tax_id=r.tax_id, critical=False, on_probation=True))
+                                 tax_id=r.tax_id, critical=False, on_probation=True,
+                                 probation_until=(now + timedelta(days=days)).date()))
         case.vendor_id = vid
     case.status = decision
     case.decided_by, case.decided_at, case.decision_comment = approver, now, comment
