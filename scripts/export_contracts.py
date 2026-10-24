@@ -8,7 +8,10 @@ import json
 
 from pydantic.json_schema import models_json_schema
 
-from backend.core.config import ROOT
+from datetime import date
+
+from backend.core.config import ROOT, load_policy
+from backend.dashboard.views import approval_queue, business_metrics, failures, stage_stats
 from backend.core.runner import make_ctx, run_case
 from backend.evals.fixtures import case_ids, load_case, seed
 from backend.evals.harness import run_eval
@@ -45,6 +48,13 @@ examples = {
     ("/vendors/{vendor_id}", "get"): dump(store.get_vendor(first.vendor_id)),
     ("/memory", "get"): [dump(m) for m in store.list_memory()],
     ("/evals/scoreboard", "get"): dump(board),
+    ("/evals/run", "post"): dump(board),
+    ("/vendors", "get"): [dump(v) for v in store.list_vendors()],
+    ("/fixtures", "get"): [dump(load_case(cid)) for cid in case_ids()],
+    ("/dashboard/queue", "get"): [dump(i) for i in approval_queue(store, load_policy(), date(2026, 10, 24))],
+    ("/dashboard/metrics", "get"): dump(business_metrics(store, load_policy())),
+    ("/dashboard/failures", "get"): [dump(f) for f in failures(store)],
+    ("/dashboard/stages", "get"): [dump(s) for s in stage_stats(store)],
 }
 
 # 3. OpenAPI from the FastAPI app, with examples injected

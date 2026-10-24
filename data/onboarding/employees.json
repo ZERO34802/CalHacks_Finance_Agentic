@@ -1,0 +1,5 @@
+[
+  {"id": "E-1001", "name": "Jordan Park", "email": "j.park@helix.example", "bank_last4": "6612", "address": "41 Lakeview Ct, San Jose, CA"},
+  {"id": "E-1002", "name": "Ana Lee", "email": "ap.lead@helix.example", "bank_last4": "3390", "address": "9 Ridge Rd, Santa Clara, CA"},
+  {"id": "E-1003", "name": "Sam Ortiz", "email": "s.ortiz@helix.example", "bank_last4": "7781", "address": "220 Alma St, Palo Alto, CA"}
+]

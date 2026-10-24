@@ -141,7 +141,7 @@
                         "decision": "approved",
                         "comment": "stub auto-approve",
                         "limit": "100000.00",
-                        "at": "2026-10-24T11:33:30.239779Z"
+                        "at": "2026-10-24T20:08:41.929861Z"
                       }
                     ],
                     "journal_entry": {
@@ -167,7 +167,7 @@
                     },
                     "decision": "approve",
                     "created_at": "2026-10-12T09:00:00Z",
-                    "updated_at": "2026-10-24T11:33:30.239840Z",
+                    "updated_at": "2026-10-24T20:08:41.929944Z",
                     "notes": []
                   },
                   {
@@ -284,7 +284,7 @@
                     "journal_entry": null,
                     "decision": "escalate",
                     "created_at": "2026-10-14T09:00:00Z",
-                    "updated_at": "2026-10-24T11:33:30.240362Z",
+                    "updated_at": "2026-10-24T20:08:41.930600Z",
                     "notes": []
                   },
                   {
@@ -418,7 +418,7 @@
                         "decision": "approved",
                         "comment": "stub auto-approve",
                         "limit": "100000.00",
-                        "at": "2026-10-24T11:33:30.240812Z"
+                        "at": "2026-10-24T20:08:41.931146Z"
                       }
                     ],
                     "journal_entry": {
@@ -444,7 +444,7 @@
                     },
                     "decision": "approve",
                     "created_at": "2026-10-16T09:00:00Z",
-                    "updated_at": "2026-10-24T11:33:30.240882Z",
+                    "updated_at": "2026-10-24T20:08:41.931225Z",
                     "notes": []
                   },
                   {
@@ -573,7 +573,7 @@
                     "journal_entry": null,
                     "decision": "escalate",
                     "created_at": "2026-10-20T09:00:00Z",
-                    "updated_at": "2026-10-24T11:33:30.241387Z",
+                    "updated_at": "2026-10-24T20:08:41.931841Z",
                     "notes": []
                   },
                   {
@@ -703,7 +703,7 @@
                         "decision": "approved",
                         "comment": "stub auto-approve",
                         "limit": "100000.00",
-                        "at": "2026-10-24T11:33:30.241806Z"
+                        "at": "2026-10-24T20:08:41.932371Z"
                       }
                     ],
                     "journal_entry": {
@@ -729,7 +729,7 @@
                     },
                     "decision": "approve",
                     "created_at": "2026-10-21T09:00:00Z",
-                    "updated_at": "2026-10-24T11:33:30.241873Z",
+                    "updated_at": "2026-10-24T20:08:41.932445Z",
                     "notes": []
                   }
                 ]
@@ -880,7 +880,7 @@
                         "decision": "approved",
                         "comment": "stub auto-approve",
                         "limit": "100000.00",
-                        "at": "2026-10-24T11:33:30.239779Z"
+                        "at": "2026-10-24T20:08:41.929861Z"
                       }
                     ],
                     "journal_entry": {
@@ -906,12 +906,12 @@
                     },
                     "decision": "approve",
                     "created_at": "2026-10-12T09:00:00Z",
-                    "updated_at": "2026-10-24T11:33:30.239840Z",
+                    "updated_at": "2026-10-24T20:08:41.929944Z",
                     "notes": []
                   },
                   "steps": [
                     {
-                      "id": "step_80c1ce1532",
+                      "id": "step_f7a17d703d",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -931,14 +931,14 @@
                         "stub": true
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236393Z",
-                      "ended_at": "2026-10-24T11:33:30.236590Z",
+                      "started_at": "2026-10-24T20:08:41.925611Z",
+                      "ended_at": "2026-10-24T20:08:41.925808Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_beb74b0598",
+                      "id": "step_c07a9735bd",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -957,14 +957,14 @@
                         "duplicates": []
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236668Z",
-                      "ended_at": "2026-10-24T11:33:30.236688Z",
+                      "started_at": "2026-10-24T20:08:41.925887Z",
+                      "ended_at": "2026-10-24T20:08:41.925908Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_30733cd10e",
+                      "id": "step_ea371b9a8c",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -983,14 +983,14 @@
                         "action": "new_case"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236729Z",
-                      "ended_at": "2026-10-24T11:33:30.236746Z",
+                      "started_at": "2026-10-24T20:08:41.925950Z",
+                      "ended_at": "2026-10-24T20:08:41.925970Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_8687860b75",
+                      "id": "step_6f625a9cb8",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1011,14 +1011,14 @@
                         "clean": true
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236781Z",
-                      "ended_at": "2026-10-24T11:33:30.236796Z",
+                      "started_at": "2026-10-24T20:08:41.926008Z",
+                      "ended_at": "2026-10-24T20:08:41.926026Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_2fae09ac1b",
+                      "id": "step_7e42f477c7",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1037,14 +1037,14 @@
                         "reason": "clean"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236827Z",
-                      "ended_at": "2026-10-24T11:33:30.236840Z",
+                      "started_at": "2026-10-24T20:08:41.926062Z",
+                      "ended_at": "2026-10-24T20:08:41.926078Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_4cd645854b",
+                      "id": "step_d989b24a74",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1064,14 +1064,14 @@
                         "stub": true
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236868Z",
-                      "ended_at": "2026-10-24T11:33:30.236888Z",
+                      "started_at": "2026-10-24T20:08:41.926113Z",
+                      "ended_at": "2026-10-24T20:08:41.926138Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_a391ec9477",
+                      "id": "step_e213d47492",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1089,14 +1089,14 @@
                         "stub": true
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236920Z",
-                      "ended_at": "2026-10-24T11:33:30.236932Z",
+                      "started_at": "2026-10-24T20:08:41.926177Z",
+                      "ended_at": "2026-10-24T20:08:41.926191Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_82c4e8a281",
+                      "id": "step_777c9ff1c6",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1114,14 +1114,14 @@
                         "stub": true
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236961Z",
-                      "ended_at": "2026-10-24T11:33:30.236972Z",
+                      "started_at": "2026-10-24T20:08:41.926225Z",
+                      "ended_at": "2026-10-24T20:08:41.926239Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_638d52b0fc",
+                      "id": "step_6c300be230",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1140,14 +1140,14 @@
                         "decision": "approve"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.237000Z",
-                      "ended_at": "2026-10-24T11:33:30.237022Z",
+                      "started_at": "2026-10-24T20:08:41.926272Z",
+                      "ended_at": "2026-10-24T20:08:41.926298Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_081780e6ee",
+                      "id": "step_0ff8a0a2f7",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1167,8 +1167,8 @@
                         "stub": true
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.237056Z",
-                      "ended_at": "2026-10-24T11:33:30.237085Z",
+                      "started_at": "2026-10-24T20:08:41.926336Z",
+                      "ended_at": "2026-10-24T20:08:41.926364Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
@@ -1334,7 +1334,7 @@
                         "decision": "approved",
                         "comment": "stub auto-approve",
                         "limit": "100000.00",
-                        "at": "2026-10-24T11:33:30.239779Z"
+                        "at": "2026-10-24T20:08:41.929861Z"
                       }
                     ],
                     "journal_entry": {
@@ -1360,12 +1360,12 @@
                     },
                     "decision": "approve",
                     "created_at": "2026-10-12T09:00:00Z",
-                    "updated_at": "2026-10-24T11:33:30.239840Z",
+                    "updated_at": "2026-10-24T20:08:41.929944Z",
                     "notes": []
                   },
                   "steps": [
                     {
-                      "id": "step_80c1ce1532",
+                      "id": "step_f7a17d703d",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1385,14 +1385,14 @@
                         "stub": true
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236393Z",
-                      "ended_at": "2026-10-24T11:33:30.236590Z",
+                      "started_at": "2026-10-24T20:08:41.925611Z",
+                      "ended_at": "2026-10-24T20:08:41.925808Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_beb74b0598",
+                      "id": "step_c07a9735bd",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1411,14 +1411,14 @@
                         "duplicates": []
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236668Z",
-                      "ended_at": "2026-10-24T11:33:30.236688Z",
+                      "started_at": "2026-10-24T20:08:41.925887Z",
+                      "ended_at": "2026-10-24T20:08:41.925908Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_30733cd10e",
+                      "id": "step_ea371b9a8c",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1437,14 +1437,14 @@
                         "action": "new_case"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236729Z",
-                      "ended_at": "2026-10-24T11:33:30.236746Z",
+                      "started_at": "2026-10-24T20:08:41.925950Z",
+                      "ended_at": "2026-10-24T20:08:41.925970Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_8687860b75",
+                      "id": "step_6f625a9cb8",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1465,14 +1465,14 @@
                         "clean": true
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236781Z",
-                      "ended_at": "2026-10-24T11:33:30.236796Z",
+                      "started_at": "2026-10-24T20:08:41.926008Z",
+                      "ended_at": "2026-10-24T20:08:41.926026Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_2fae09ac1b",
+                      "id": "step_7e42f477c7",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1491,14 +1491,14 @@
                         "reason": "clean"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236827Z",
-                      "ended_at": "2026-10-24T11:33:30.236840Z",
+                      "started_at": "2026-10-24T20:08:41.926062Z",
+                      "ended_at": "2026-10-24T20:08:41.926078Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_4cd645854b",
+                      "id": "step_d989b24a74",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1518,14 +1518,14 @@
                         "stub": true
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236868Z",
-                      "ended_at": "2026-10-24T11:33:30.236888Z",
+                      "started_at": "2026-10-24T20:08:41.926113Z",
+                      "ended_at": "2026-10-24T20:08:41.926138Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_a391ec9477",
+                      "id": "step_e213d47492",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1543,14 +1543,14 @@
                         "stub": true
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236920Z",
-                      "ended_at": "2026-10-24T11:33:30.236932Z",
+                      "started_at": "2026-10-24T20:08:41.926177Z",
+                      "ended_at": "2026-10-24T20:08:41.926191Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_82c4e8a281",
+                      "id": "step_777c9ff1c6",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1568,14 +1568,14 @@
                         "stub": true
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.236961Z",
-                      "ended_at": "2026-10-24T11:33:30.236972Z",
+                      "started_at": "2026-10-24T20:08:41.926225Z",
+                      "ended_at": "2026-10-24T20:08:41.926239Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_638d52b0fc",
+                      "id": "step_6c300be230",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1594,14 +1594,14 @@
                         "decision": "approve"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.237000Z",
-                      "ended_at": "2026-10-24T11:33:30.237022Z",
+                      "started_at": "2026-10-24T20:08:41.926272Z",
+                      "ended_at": "2026-10-24T20:08:41.926298Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_081780e6ee",
+                      "id": "step_0ff8a0a2f7",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -1621,8 +1621,8 @@
                         "stub": true
                       },
                       "error": null,
-                      "started_at": "2026-10-24T11:33:30.237056Z",
-                      "ended_at": "2026-10-24T11:33:30.237085Z",
+                      "started_at": "2026-10-24T20:08:41.926336Z",
+                      "ended_at": "2026-10-24T20:08:41.926364Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
@@ -1645,10 +1645,139 @@
         }
       }
     },
+    "/intake": {
+      "post": {
+        "summary": "Intake",
+        "description": "The trigger: an invoice arrives. Returns at once; the pipeline runs in the background and streams on WS\n/events (step.*, case.updated, then run.finished). The reviewer picks it up from GET /cases/{id}/review.",
+        "operationId": "intake_intake_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Case-Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntakeAccepted"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}/review": {
+      "get": {
+        "summary": "Review",
+        "description": "Summary, findings, full agent trace and files audited, for the reviewer.",
+        "operationId": "review_cases__case_id__review_get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewPacket"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}/chat": {
+      "post": {
+        "summary": "Chat",
+        "description": "Ask about one case. Claude without tools, answering from the case record; deterministic fallback.",
+        "operationId": "chat_cases__case_id__chat_post",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatReply"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/approvals/{case_id}": {
       "post": {
         "summary": "Approve",
-        "description": "Record a human approval decision. STUB: records only; re-plan / post is B's + A's job.",
+        "description": "Record a human decision. Refuses requester == approver and approvals over the role's limit (403).\napproved -> approved (payment scheduled, simulated); rejected -> rejected; ask -> stays awaiting approval.",
         "operationId": "approve_approvals__case_id__post",
         "parameters": [
           {
@@ -1798,7 +1927,7 @@
                       "decision": "approved",
                       "comment": "stub auto-approve",
                       "limit": "100000.00",
-                      "at": "2026-10-24T11:33:30.239779Z"
+                      "at": "2026-10-24T20:08:41.929861Z"
                     }
                   ],
                   "journal_entry": {
@@ -1824,7 +1953,7 @@
                   },
                   "decision": "approve",
                   "created_at": "2026-10-12T09:00:00Z",
-                  "updated_at": "2026-10-24T11:33:30.239840Z",
+                  "updated_at": "2026-10-24T20:08:41.929944Z",
                   "notes": []
                 }
               }
@@ -1837,6 +1966,132 @@
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vendors": {
+      "get": {
+        "summary": "List Vendors",
+        "operationId": "list_vendors_vendors_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Vendor"
+                  },
+                  "type": "array",
+                  "title": "Response List Vendors Vendors Get"
+                },
+                "example": [
+                  {
+                    "id": "V-AEROLANE",
+                    "name": "Aerolane Freight Ltd",
+                    "aliases": [
+                      "Aerolane",
+                      "Aerolane Freight",
+                      "AFL"
+                    ],
+                    "country": "US",
+                    "currency": "USD",
+                    "email_domain": "aerolane.com",
+                    "bank_last4": "7731",
+                    "channels": [
+                      "email",
+                      "api"
+                    ],
+                    "tax_id": "US-84-3318820",
+                    "critical": false,
+                    "on_probation": false,
+                    "terms": {
+                      "net_days": 30,
+                      "discount_pct": "0.03",
+                      "discount_days": 10,
+                      "prepay_discount_pct": null,
+                      "prepay_cap_usd": null,
+                      "source": "Aerolane rate card (demo terms)"
+                    }
+                  },
+                  {
+                    "id": "V-FORMOSA",
+                    "name": "Formosa Wafer Works Co., Ltd.",
+                    "aliases": [
+                      "Formosa",
+                      "FWW",
+                      "Formosa Wafer"
+                    ],
+                    "country": "TW",
+                    "currency": "TWD",
+                    "email_domain": "formosawafer.com.tw",
+                    "bank_last4": "2207",
+                    "channels": [
+                      "email",
+                      "sftp"
+                    ],
+                    "tax_id": "TW-24551877",
+                    "critical": true,
+                    "on_probation": false,
+                    "terms": {
+                      "net_days": 30,
+                      "discount_pct": "0.02",
+                      "discount_days": 20,
+                      "prepay_discount_pct": "0.04",
+                      "prepay_cap_usd": "1000000.00",
+                      "source": "Formosa supply agreement \u00a77 (demo terms)"
+                    }
+                  },
+                  {
+                    "id": "V-KESTREL",
+                    "name": "Kestrel Memory Inc.",
+                    "aliases": [
+                      "Kestrel",
+                      "Kestrel Memory"
+                    ],
+                    "country": "KR",
+                    "currency": "USD",
+                    "email_domain": "kestrelmemory.co.kr",
+                    "bank_last4": "5150",
+                    "channels": [
+                      "api",
+                      "email"
+                    ],
+                    "tax_id": "KR-1208145923",
+                    "critical": true,
+                    "on_probation": false,
+                    "terms": {
+                      "net_days": 30,
+                      "discount_pct": "0.02",
+                      "discount_days": 15,
+                      "prepay_discount_pct": "0.03",
+                      "prepay_cap_usd": "250000.00",
+                      "source": "Kestrel MSA \u00a74.2 (demo terms)"
+                    }
+                  },
+                  {
+                    "id": "V-PENANG",
+                    "name": "Penang Pack & Test Sdn Bhd",
+                    "aliases": [
+                      "Penang Pack & Test",
+                      "PPT"
+                    ],
+                    "country": "MY",
+                    "currency": "USD",
+                    "email_domain": "penangpacktest.com.my",
+                    "bank_last4": "4418",
+                    "channels": [
+                      "email"
+                    ],
+                    "tax_id": "MY-201901033871",
+                    "critical": false,
+                    "on_probation": false,
+                    "terms": null
+                  }
+                ]
               }
             }
           }
@@ -1883,7 +2138,15 @@
                   ],
                   "tax_id": "KR-1208145923",
                   "critical": true,
-                  "on_probation": false
+                  "on_probation": false,
+                  "terms": {
+                    "net_days": 30,
+                    "discount_pct": "0.02",
+                    "discount_days": 15,
+                    "prepay_discount_pct": "0.03",
+                    "prepay_cap_usd": "250000.00",
+                    "source": "Kestrel MSA \u00a74.2 (demo terms)"
+                  }
                 }
               }
             }
@@ -2011,8 +2274,8 @@
                   "$ref": "#/components/schemas/Scoreboard"
                 },
                 "example": {
-                  "run_id": "run_88b0e4c9",
-                  "at": "2026-10-24T11:33:30.241938Z",
+                  "run_id": "run_73dda801",
+                  "at": "2026-10-24T20:08:41.932524Z",
                   "total": 5,
                   "passed": 1,
                   "catch_rate": 0.5,
@@ -2021,7 +2284,7 @@
                   "results": [
                     {
                       "case_id": "case_01",
-                      "run_id": "run_88b0e4c9",
+                      "run_id": "run_73dda801",
                       "expected": {
                         "case_id": "case_01",
                         "decision": "approve",
@@ -2047,7 +2310,7 @@
                     },
                     {
                       "case_id": "case_02",
-                      "run_id": "run_88b0e4c9",
+                      "run_id": "run_73dda801",
                       "expected": {
                         "case_id": "case_02",
                         "decision": "hold",
@@ -2070,7 +2333,7 @@
                     },
                     {
                       "case_id": "case_03",
-                      "run_id": "run_88b0e4c9",
+                      "run_id": "run_73dda801",
                       "expected": {
                         "case_id": "case_03",
                         "decision": "hold",
@@ -2098,7 +2361,7 @@
                     },
                     {
                       "case_id": "case_04",
-                      "run_id": "run_88b0e4c9",
+                      "run_id": "run_73dda801",
                       "expected": {
                         "case_id": "case_04",
                         "decision": "escalate",
@@ -2122,7 +2385,7 @@
                     },
                     {
                       "case_id": "case_05",
-                      "run_id": "run_88b0e4c9",
+                      "run_id": "run_73dda801",
                       "expected": {
                         "case_id": "case_05",
                         "decision": "reject",
@@ -2155,10 +2418,1889 @@
           }
         }
       }
+    },
+    "/evals/run": {
+      "post": {
+        "summary": "Rerun Eval",
+        "description": "Run every fixture against the answer key now (dashboard 'Run eval' button).",
+        "operationId": "rerun_eval_evals_run_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Scoreboard"
+                },
+                "example": {
+                  "run_id": "run_73dda801",
+                  "at": "2026-10-24T20:08:41.932524Z",
+                  "total": 5,
+                  "passed": 1,
+                  "catch_rate": 0.5,
+                  "false_alarm_rate": 0.0,
+                  "invariant_pass_rate": 1.0,
+                  "results": [
+                    {
+                      "case_id": "case_01",
+                      "run_id": "run_73dda801",
+                      "expected": {
+                        "case_id": "case_01",
+                        "decision": "approve",
+                        "discrepancies": [],
+                        "skill": null,
+                        "note": "Clean 3-way match, under AP lead limit."
+                      },
+                      "actual_decision": "approve",
+                      "actual_discrepancies": [],
+                      "actual_skill": null,
+                      "checks": {
+                        "decision": true,
+                        "discrepancies": true,
+                        "skill": true,
+                        "inv_trace_complete": true,
+                        "inv_balanced": true,
+                        "inv_approved_before_post": true,
+                        "inv_requester_ne_approver": true,
+                        "inv_within_limit": true,
+                        "inv_period_open": true
+                      },
+                      "passed": true
+                    },
+                    {
+                      "case_id": "case_02",
+                      "run_id": "run_73dda801",
+                      "expected": {
+                        "case_id": "case_02",
+                        "decision": "hold",
+                        "discrepancies": [
+                          "qty_short"
+                        ],
+                        "skill": "ap-3way-match",
+                        "note": "60 wafers short = TWD 1,116,000.00. Hold short part, ask for credit note."
+                      },
+                      "actual_decision": "escalate",
+                      "actual_discrepancies": [],
+                      "actual_skill": null,
+                      "checks": {
+                        "decision": false,
+                        "discrepancies": false,
+                        "skill": false,
+                        "inv_trace_complete": true
+                      },
+                      "passed": false
+                    },
+                    {
+                      "case_id": "case_03",
+                      "run_id": "run_73dda801",
+                      "expected": {
+                        "case_id": "case_03",
+                        "decision": "hold",
+                        "discrepancies": [
+                          "price_over"
+                        ],
+                        "skill": "ap-3way-match",
+                        "note": "Amendment effective 2026-11-01; invoice 2026-10-16 -> PO price wins. Over by USD 2,400.00."
+                      },
+                      "actual_decision": "approve",
+                      "actual_discrepancies": [],
+                      "actual_skill": null,
+                      "checks": {
+                        "decision": false,
+                        "discrepancies": false,
+                        "skill": false,
+                        "inv_trace_complete": true,
+                        "inv_balanced": true,
+                        "inv_approved_before_post": true,
+                        "inv_requester_ne_approver": true,
+                        "inv_within_limit": true,
+                        "inv_period_open": true
+                      },
+                      "passed": false
+                    },
+                    {
+                      "case_id": "case_04",
+                      "run_id": "run_73dda801",
+                      "expected": {
+                        "case_id": "case_04",
+                        "decision": "escalate",
+                        "discrepancies": [
+                          "bank_change",
+                          "lookalike_domain"
+                        ],
+                        "skill": "vendor-bank-change",
+                        "note": "Sender domain penang-packtest.com != penangpacktest.com.my; bank 9902 != master 4418. Hold payment, callback via number on file."
+                      },
+                      "actual_decision": "escalate",
+                      "actual_discrepancies": [],
+                      "actual_skill": null,
+                      "checks": {
+                        "decision": true,
+                        "discrepancies": false,
+                        "skill": false,
+                        "inv_trace_complete": true
+                      },
+                      "passed": false
+                    },
+                    {
+                      "case_id": "case_05",
+                      "run_id": "run_73dda801",
+                      "expected": {
+                        "case_id": "case_05",
+                        "decision": "reject",
+                        "discrepancies": [
+                          "duplicate_invoice"
+                        ],
+                        "skill": null,
+                        "note": "Same line-item hash as INV-2291, paid 2026-10-08 (see paid_history.json). Expedite line also unapproved."
+                      },
+                      "actual_decision": "approve",
+                      "actual_discrepancies": [],
+                      "actual_skill": null,
+                      "checks": {
+                        "decision": false,
+                        "discrepancies": false,
+                        "skill": true,
+                        "inv_trace_complete": true,
+                        "inv_balanced": true,
+                        "inv_approved_before_post": true,
+                        "inv_requester_ne_approver": true,
+                        "inv_within_limit": true,
+                        "inv_period_open": true
+                      },
+                      "passed": false
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fixtures": {
+      "get": {
+        "summary": "List Fixtures",
+        "description": "The hand-made fixture cases, unprocessed. The dashboard POSTs one to /cases to replay it live.",
+        "operationId": "list_fixtures_fixtures_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Case-Output"
+                  },
+                  "type": "array",
+                  "title": "Response List Fixtures Fixtures Get"
+                },
+                "example": [
+                  {
+                    "id": "case_01",
+                    "parent_id": null,
+                    "vendor_id": "V-KESTREL",
+                    "status": "new",
+                    "documents": [
+                      {
+                        "id": "case_01-d1",
+                        "kind": "invoice",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "email",
+                        "filename": "KM-INV-30118.pdf",
+                        "sha256": "635b377bb25147e1bc7ffec6bf1da9cacf5184a64b076bb75a5d5cdb7dae221f",
+                        "mime": "application/pdf",
+                        "received_at": "2026-10-12T09:00:00Z",
+                        "text": "Kestrel Memory Inc. Invoice KM-INV-30118 PO-7001\n1 HBM3E-12H-24G 50 x 1450.00 = 72500.00\nTotal USD 72500.00\nRemit to acct ****5150",
+                        "sender": "ar@kestrelmemory.co.kr"
+                      },
+                      {
+                        "id": "case_01-d2",
+                        "kind": "po",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "erp",
+                        "filename": "PO-7001.json",
+                        "sha256": "8b5b5e656ec3b43d1bf0abf4abaa7327b69acd74f80f86d22ce492cca19a0072",
+                        "mime": "application/json",
+                        "received_at": "2026-10-01T09:00:00Z",
+                        "text": "PO-7001 HBM3E-12H-24G 50 @ 1450.00",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_01-d3",
+                        "kind": "receipt",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "erp",
+                        "filename": "GRN-7001.json",
+                        "sha256": "956466c360eff7d4368d65bb9d4e454b0734219bc1b8660e487d0788f9af3c43",
+                        "mime": "application/json",
+                        "received_at": "2026-10-10T09:00:00Z",
+                        "text": "GRN PO-7001 HBM3E-12H-24G received 50",
+                        "sender": null
+                      }
+                    ],
+                    "invoice": {
+                      "doc_id": "case_01-d1",
+                      "vendor_id": "V-KESTREL",
+                      "invoice_no": "KM-INV-30118",
+                      "invoice_date": "2026-10-12",
+                      "due_date": "2026-11-12",
+                      "currency": "USD",
+                      "po_number": "PO-7001",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "HBM3E-12H-24G",
+                          "description": "HBM3E 12-high 24GB stack",
+                          "qty": "50",
+                          "unit_price": "1450.00",
+                          "amount": "72500.00"
+                        }
+                      ],
+                      "total": "72500.00",
+                      "bank_last4": "5150",
+                      "flags": []
+                    },
+                    "po": {
+                      "doc_id": "case_01-d2",
+                      "po_number": "PO-7001",
+                      "vendor_id": "V-KESTREL",
+                      "po_date": "2026-09-20",
+                      "currency": "USD",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "HBM3E-12H-24G",
+                          "description": "HBM3E 12-high 24GB stack",
+                          "qty": "50",
+                          "unit_price": "1450.00"
+                        }
+                      ],
+                      "requester": "j.park@helix.example"
+                    },
+                    "receipts": [
+                      {
+                        "doc_id": "case_01-d3",
+                        "po_number": "PO-7001",
+                        "received_date": "2026-10-10",
+                        "lines": [
+                          {
+                            "sku": "HBM3E-12H-24G",
+                            "qty_received": "50"
+                          }
+                        ],
+                        "received_by": "warehouse.lead@helix.example"
+                      }
+                    ],
+                    "fingerprint": null,
+                    "discrepancies": [],
+                    "skill": null,
+                    "proposal": null,
+                    "approvals": [],
+                    "journal_entry": null,
+                    "decision": null,
+                    "created_at": "2026-10-12T09:00:00Z",
+                    "updated_at": null,
+                    "notes": []
+                  },
+                  {
+                    "id": "case_02",
+                    "parent_id": null,
+                    "vendor_id": "V-FORMOSA",
+                    "status": "new",
+                    "documents": [
+                      {
+                        "id": "case_02-d1",
+                        "kind": "invoice",
+                        "vendor_id": "V-FORMOSA",
+                        "channel": "email",
+                        "filename": "FWW-INV-881.pdf",
+                        "sha256": "95dcba8675baf37e53fe372d8c0d833ea6303e66393f5d09890248fbc78a7708",
+                        "mime": "application/pdf",
+                        "received_at": "2026-10-14T09:00:00Z",
+                        "text": "Formosa Wafer Works Invoice INV-881 PO-5501\n1 WFR-N3-300 1000 x 18600.00 = 18600000.00\nTotal TWD 18600000.00",
+                        "sender": "billing@formosawafer.com.tw"
+                      },
+                      {
+                        "id": "case_02-d2",
+                        "kind": "po",
+                        "vendor_id": "V-FORMOSA",
+                        "channel": "erp",
+                        "filename": "PO-5501.json",
+                        "sha256": "f7ccf9ad900d44ac709047970a21d60fad2e519d611087380b2dcc6bf9d6e794",
+                        "mime": "application/json",
+                        "received_at": "2026-10-01T09:00:00Z",
+                        "text": "PO-5501 WFR-N3-300 1000 @ 18600.00",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_02-d3",
+                        "kind": "receipt",
+                        "vendor_id": "V-FORMOSA",
+                        "channel": "erp",
+                        "filename": "GRN-5501.json",
+                        "sha256": "5a1220fa221f740dcd79291badd11bb03c8c043225106a7a00d952b5419a3dae",
+                        "mime": "application/json",
+                        "received_at": "2026-10-11T09:00:00Z",
+                        "text": "GRN PO-5501 WFR-N3-300 received 940 (60 short, carrier note)",
+                        "sender": null
+                      }
+                    ],
+                    "invoice": {
+                      "doc_id": "case_02-d1",
+                      "vendor_id": "V-FORMOSA",
+                      "invoice_no": "INV-881",
+                      "invoice_date": "2026-10-14",
+                      "due_date": "2026-11-14",
+                      "currency": "TWD",
+                      "po_number": "PO-5501",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "WFR-N3-300",
+                          "description": "300mm N3 engineering wafer",
+                          "qty": "1000",
+                          "unit_price": "18600.00",
+                          "amount": "18600000.00"
+                        }
+                      ],
+                      "total": "18600000.00",
+                      "bank_last4": "2207",
+                      "flags": []
+                    },
+                    "po": {
+                      "doc_id": "case_02-d2",
+                      "po_number": "PO-5501",
+                      "vendor_id": "V-FORMOSA",
+                      "po_date": "2026-09-15",
+                      "currency": "TWD",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "WFR-N3-300",
+                          "description": "300mm N3 engineering wafer",
+                          "qty": "1000",
+                          "unit_price": "18600.00"
+                        }
+                      ],
+                      "requester": "j.park@helix.example"
+                    },
+                    "receipts": [
+                      {
+                        "doc_id": "case_02-d3",
+                        "po_number": "PO-5501",
+                        "received_date": "2026-10-11",
+                        "lines": [
+                          {
+                            "sku": "WFR-N3-300",
+                            "qty_received": "940"
+                          }
+                        ],
+                        "received_by": "warehouse.lead@helix.example"
+                      }
+                    ],
+                    "fingerprint": null,
+                    "discrepancies": [],
+                    "skill": null,
+                    "proposal": null,
+                    "approvals": [],
+                    "journal_entry": null,
+                    "decision": null,
+                    "created_at": "2026-10-14T09:00:00Z",
+                    "updated_at": null,
+                    "notes": []
+                  },
+                  {
+                    "id": "case_03",
+                    "parent_id": null,
+                    "vendor_id": "V-KESTREL",
+                    "status": "new",
+                    "documents": [
+                      {
+                        "id": "case_03-d1",
+                        "kind": "invoice",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "api",
+                        "filename": "kestrel-v2-30152.json",
+                        "sha256": "069c179074484c83947145eaf686f54dab9f7787f52a928d8bda1fc1eeecd0db",
+                        "mime": "application/json",
+                        "received_at": "2026-10-16T09:00:00Z",
+                        "text": "{\"invoice\":\"KM-INV-30152\",\"po\":\"PO-7002\",\"lines\":[{\"sku\":\"HBM3E-8H-24G\",\"qty\":40,\"price\":\"1240.00\"}],\"total\":\"49600.00\"}",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_03-d2",
+                        "kind": "po",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "erp",
+                        "filename": "PO-7002.json",
+                        "sha256": "0257d6b5bad862d43e85a8039fd50470faad6a4847ea2b1d5f6240e0ed4f4e74",
+                        "mime": "application/json",
+                        "received_at": "2026-10-02T09:00:00Z",
+                        "text": "PO-7002 HBM3E-8H-24G 40 @ 1180.00",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_03-d3",
+                        "kind": "receipt",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "erp",
+                        "filename": "GRN-7002.json",
+                        "sha256": "9ce5d0df41f322abe48364d9492773b96c81eb2d957585148e97adb3b6cebe93",
+                        "mime": "application/json",
+                        "received_at": "2026-10-15T09:00:00Z",
+                        "text": "GRN PO-7002 HBM3E-8H-24G received 40",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_03-d4",
+                        "kind": "amendment",
+                        "vendor_id": "V-KESTREL",
+                        "channel": "email",
+                        "filename": "Kestrel-MSA-Amendment-3.pdf",
+                        "sha256": "9eb7004f6fed5973d8d69a328ce0978bcc2a58efc322fe1f0e4a80815e00c390",
+                        "mime": "application/pdf",
+                        "received_at": "2026-10-05T09:00:00Z",
+                        "text": "Amendment 3: HBM3E-8H-24G unit price 1240.00 effective 2026-11-01. Prior pricing applies to POs shipped before that date.",
+                        "sender": "contracts@kestrelmemory.co.kr"
+                      }
+                    ],
+                    "invoice": {
+                      "doc_id": "case_03-d1",
+                      "vendor_id": "V-KESTREL",
+                      "invoice_no": "KM-INV-30152",
+                      "invoice_date": "2026-10-16",
+                      "due_date": "2026-11-16",
+                      "currency": "USD",
+                      "po_number": "PO-7002",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "HBM3E-8H-24G",
+                          "description": "HBM3E 8-high 24GB stack",
+                          "qty": "40",
+                          "unit_price": "1240.00",
+                          "amount": "49600.00"
+                        }
+                      ],
+                      "total": "49600.00",
+                      "bank_last4": "5150",
+                      "flags": []
+                    },
+                    "po": {
+                      "doc_id": "case_03-d2",
+                      "po_number": "PO-7002",
+                      "vendor_id": "V-KESTREL",
+                      "po_date": "2026-10-02",
+                      "currency": "USD",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "HBM3E-8H-24G",
+                          "description": "HBM3E 8-high 24GB stack",
+                          "qty": "40",
+                          "unit_price": "1180.00"
+                        }
+                      ],
+                      "requester": "j.park@helix.example"
+                    },
+                    "receipts": [
+                      {
+                        "doc_id": "case_03-d3",
+                        "po_number": "PO-7002",
+                        "received_date": "2026-10-15",
+                        "lines": [
+                          {
+                            "sku": "HBM3E-8H-24G",
+                            "qty_received": "40"
+                          }
+                        ],
+                        "received_by": "warehouse.lead@helix.example"
+                      }
+                    ],
+                    "fingerprint": null,
+                    "discrepancies": [],
+                    "skill": null,
+                    "proposal": null,
+                    "approvals": [],
+                    "journal_entry": null,
+                    "decision": null,
+                    "created_at": "2026-10-16T09:00:00Z",
+                    "updated_at": null,
+                    "notes": []
+                  },
+                  {
+                    "id": "case_04",
+                    "parent_id": null,
+                    "vendor_id": "V-PENANG",
+                    "status": "new",
+                    "documents": [
+                      {
+                        "id": "case_04-d1",
+                        "kind": "invoice",
+                        "vendor_id": "V-PENANG",
+                        "channel": "email",
+                        "filename": "PPT-INV-6620.pdf",
+                        "sha256": "fd3301233b8bc4314c694f3c010b84c11fda047c586589138b96d07dc791b452",
+                        "mime": "application/pdf",
+                        "received_at": "2026-10-20T09:00:00Z",
+                        "text": "Penang Pack & Test Invoice PPT-6620 PO-6100\n1 PKG-COWOS-L 2000 x 1650.00 = 3300000.00\nTotal USD 3300000.00\nNEW remit acct ****9902",
+                        "sender": "finance@penang-packtest.com"
+                      },
+                      {
+                        "id": "case_04-d2",
+                        "kind": "email",
+                        "vendor_id": "V-PENANG",
+                        "channel": "email",
+                        "filename": "bank-update.eml",
+                        "sha256": "fddee8137893c04f8bd838a0b2ad7a569ee84a451b87037cb6d101bbbbf68358",
+                        "mime": "message/rfc822",
+                        "received_at": "2026-10-20T09:00:00Z",
+                        "text": "From: finance@penang-packtest.com\nSubject: URGENT updated bank details\nPlease remit all payments to our new account ending 9902 effective immediately. Payment due tomorrow.",
+                        "sender": "finance@penang-packtest.com"
+                      },
+                      {
+                        "id": "case_04-d3",
+                        "kind": "po",
+                        "vendor_id": "V-PENANG",
+                        "channel": "erp",
+                        "filename": "PO-6100.json",
+                        "sha256": "bac592ff812fc16ef2f734ce0d30a7c6c40a48ff05a98ed3e678354e854c6622",
+                        "mime": "application/json",
+                        "received_at": "2026-10-01T09:00:00Z",
+                        "text": "PO-6100 PKG-COWOS-L 2000 @ 1650.00",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_04-d4",
+                        "kind": "receipt",
+                        "vendor_id": "V-PENANG",
+                        "channel": "erp",
+                        "filename": "GRN-6100.json",
+                        "sha256": "ae8c6ede0df6b68d8d1cdd2ca39d17803264dffc099bc0432584047d94b11180",
+                        "mime": "application/json",
+                        "received_at": "2026-10-18T09:00:00Z",
+                        "text": "GRN PO-6100 PKG-COWOS-L received 2000",
+                        "sender": null
+                      }
+                    ],
+                    "invoice": {
+                      "doc_id": "case_04-d1",
+                      "vendor_id": "V-PENANG",
+                      "invoice_no": "PPT-6620",
+                      "invoice_date": "2026-10-20",
+                      "due_date": "2026-11-20",
+                      "currency": "USD",
+                      "po_number": "PO-6100",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "PKG-COWOS-L",
+                          "description": "CoWoS-L packaging + final test",
+                          "qty": "2000",
+                          "unit_price": "1650.00",
+                          "amount": "3300000.00"
+                        }
+                      ],
+                      "total": "3300000.00",
+                      "bank_last4": "9902",
+                      "flags": []
+                    },
+                    "po": {
+                      "doc_id": "case_04-d3",
+                      "po_number": "PO-6100",
+                      "vendor_id": "V-PENANG",
+                      "po_date": "2026-09-25",
+                      "currency": "USD",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "PKG-COWOS-L",
+                          "description": "CoWoS-L packaging + final test",
+                          "qty": "2000",
+                          "unit_price": "1650.00"
+                        }
+                      ],
+                      "requester": "j.park@helix.example"
+                    },
+                    "receipts": [
+                      {
+                        "doc_id": "case_04-d4",
+                        "po_number": "PO-6100",
+                        "received_date": "2026-10-18",
+                        "lines": [
+                          {
+                            "sku": "PKG-COWOS-L",
+                            "qty_received": "2000"
+                          }
+                        ],
+                        "received_by": "warehouse.lead@helix.example"
+                      }
+                    ],
+                    "fingerprint": null,
+                    "discrepancies": [],
+                    "skill": null,
+                    "proposal": null,
+                    "approvals": [],
+                    "journal_entry": null,
+                    "decision": null,
+                    "created_at": "2026-10-20T09:00:00Z",
+                    "updated_at": null,
+                    "notes": []
+                  },
+                  {
+                    "id": "case_05",
+                    "parent_id": null,
+                    "vendor_id": "V-AEROLANE",
+                    "status": "new",
+                    "documents": [
+                      {
+                        "id": "case_05-d1",
+                        "kind": "invoice",
+                        "vendor_id": "V-AEROLANE",
+                        "channel": "email",
+                        "filename": "AFL-INV-2291-A.pdf",
+                        "sha256": "c10caa00967800ac242aeafca955c787aa1fae5a88473be0d8ff81a349bf75b9",
+                        "mime": "application/pdf",
+                        "received_at": "2026-10-21T09:00:00Z",
+                        "text": "Aerolane Freight Invoice INV-2291-A PO-8840\n1 FRT-AIR-TPE-SJC 1 x 18400.00\n2 FRT-EXPEDITE 1 x 3200.00\nTotal USD 21600.00",
+                        "sender": "billing@aerolane.com"
+                      },
+                      {
+                        "id": "case_05-d2",
+                        "kind": "po",
+                        "vendor_id": "V-AEROLANE",
+                        "channel": "erp",
+                        "filename": "PO-8840.json",
+                        "sha256": "c584c198c9c61ba9f7cd391dbab669d78b244c745eef9d0771656a4fe1a1e88e",
+                        "mime": "application/json",
+                        "received_at": "2026-10-01T09:00:00Z",
+                        "text": "PO-8840 FRT-AIR-TPE-SJC 1 @ 18400.00",
+                        "sender": null
+                      },
+                      {
+                        "id": "case_05-d3",
+                        "kind": "receipt",
+                        "vendor_id": "V-AEROLANE",
+                        "channel": "erp",
+                        "filename": "GRN-8840.json",
+                        "sha256": "16a38d210426e8b8b5a371ec1bffbcbf17a89877f6a56a9db997097bb49d9881",
+                        "mime": "application/json",
+                        "received_at": "2026-10-03T09:00:00Z",
+                        "text": "Delivery confirmation PO-8840 received",
+                        "sender": null
+                      }
+                    ],
+                    "invoice": {
+                      "doc_id": "case_05-d1",
+                      "vendor_id": "V-AEROLANE",
+                      "invoice_no": "INV-2291-A",
+                      "invoice_date": "2026-10-21",
+                      "due_date": "2026-11-21",
+                      "currency": "USD",
+                      "po_number": "PO-8840",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "FRT-AIR-TPE-SJC",
+                          "description": "Air freight TPE->SJC, 14 pallets",
+                          "qty": "1",
+                          "unit_price": "18400.00",
+                          "amount": "18400.00"
+                        },
+                        {
+                          "line_no": 2,
+                          "sku": "FRT-EXPEDITE",
+                          "description": "Expedite surcharge",
+                          "qty": "1",
+                          "unit_price": "3200.00",
+                          "amount": "3200.00"
+                        }
+                      ],
+                      "total": "21600.00",
+                      "bank_last4": "7731",
+                      "flags": []
+                    },
+                    "po": {
+                      "doc_id": "case_05-d2",
+                      "po_number": "PO-8840",
+                      "vendor_id": "V-AEROLANE",
+                      "po_date": "2026-09-28",
+                      "currency": "USD",
+                      "lines": [
+                        {
+                          "line_no": 1,
+                          "sku": "FRT-AIR-TPE-SJC",
+                          "description": "Air freight TPE->SJC, 14 pallets",
+                          "qty": "1",
+                          "unit_price": "18400.00"
+                        }
+                      ],
+                      "requester": "j.park@helix.example"
+                    },
+                    "receipts": [
+                      {
+                        "doc_id": "case_05-d3",
+                        "po_number": "PO-8840",
+                        "received_date": "2026-10-03",
+                        "lines": [
+                          {
+                            "sku": "FRT-AIR-TPE-SJC",
+                            "qty_received": "1"
+                          }
+                        ],
+                        "received_by": "warehouse.lead@helix.example"
+                      }
+                    ],
+                    "fingerprint": null,
+                    "discrepancies": [],
+                    "skill": null,
+                    "proposal": null,
+                    "approvals": [],
+                    "journal_entry": null,
+                    "decision": null,
+                    "created_at": "2026-10-21T09:00:00Z",
+                    "updated_at": null,
+                    "notes": []
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/queue": {
+      "get": {
+        "summary": "Queue",
+        "description": "Open cases by priority: due date, amount, supplier criticality.",
+        "operationId": "queue_dashboard_queue_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/QueueItem"
+                  },
+                  "type": "array",
+                  "title": "Response Queue Dashboard Queue Get"
+                },
+                "example": [
+                  {
+                    "case_id": "case_02",
+                    "vendor_id": "V-FORMOSA",
+                    "vendor_name": "Formosa Wafer Works Co., Ltd.",
+                    "status": "escalated",
+                    "decision": "escalate",
+                    "invoice_no": "INV-881",
+                    "total": "18600000.00",
+                    "currency": "TWD",
+                    "total_usd": "576600.00",
+                    "due_date": "2026-11-14",
+                    "days_to_due": 21,
+                    "at_risk": false,
+                    "critical_vendor": true,
+                    "priority": 50,
+                    "reasons": [
+                      "$576,600 USD",
+                      "critical supplier",
+                      "escalated to a human"
+                    ]
+                  },
+                  {
+                    "case_id": "case_04",
+                    "vendor_id": "V-PENANG",
+                    "vendor_name": "Penang Pack & Test Sdn Bhd",
+                    "status": "escalated",
+                    "decision": "escalate",
+                    "invoice_no": "PPT-6620",
+                    "total": "3300000.00",
+                    "currency": "USD",
+                    "total_usd": "3300000.00",
+                    "due_date": "2026-11-20",
+                    "days_to_due": 27,
+                    "at_risk": false,
+                    "critical_vendor": false,
+                    "priority": 40,
+                    "reasons": [
+                      "$3,300,000 USD",
+                      "escalated to a human"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/metrics": {
+      "get": {
+        "summary": "Metrics",
+        "operationId": "metrics_dashboard_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessMetrics"
+                },
+                "example": {
+                  "cases": 5,
+                  "exceptions": 2,
+                  "dollars_caught_usd": "3876600.00",
+                  "hours_saved_estimate": "3.8",
+                  "on_time_payment_rate": 1.0,
+                  "avg_hours_to_resolve": 195.1,
+                  "by_vendor": [
+                    {
+                      "vendor_id": "V-FORMOSA",
+                      "vendor_name": "Formosa Wafer Works Co., Ltd.",
+                      "cases": 1,
+                      "exceptions": 1
+                    },
+                    {
+                      "vendor_id": "V-PENANG",
+                      "vendor_name": "Penang Pack & Test Sdn Bhd",
+                      "cases": 1,
+                      "exceptions": 1
+                    },
+                    {
+                      "vendor_id": "V-AEROLANE",
+                      "vendor_name": "Aerolane Freight Ltd",
+                      "cases": 1,
+                      "exceptions": 0
+                    },
+                    {
+                      "vendor_id": "V-KESTREL",
+                      "vendor_name": "Kestrel Memory Inc.",
+                      "cases": 2,
+                      "exceptions": 0
+                    }
+                  ],
+                  "assumptions": [
+                    "FX is the simulated fixed table in config/policy.yaml",
+                    "Dollars caught = discrepancy deltas when known, else the full invoice held",
+                    "Hours saved is an ESTIMATE: 15 min per clean case, 90 min per exception, done manually",
+                    "On-time = journal entry dated on or before the invoice due date"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/stages": {
+      "get": {
+        "summary": "Stages",
+        "description": "Per-stage run counts, outcomes and mean duration (Agents screen).",
+        "operationId": "stages_dashboard_stages_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StageStat"
+                  },
+                  "type": "array",
+                  "title": "Response Stages Dashboard Stages Get"
+                },
+                "example": [
+                  {
+                    "stage": "reader",
+                    "runs": 5,
+                    "ok": 5,
+                    "skipped": 0,
+                    "flagged": 0,
+                    "avg_ms": 0.0
+                  },
+                  {
+                    "stage": "doc_dedup",
+                    "runs": 5,
+                    "ok": 5,
+                    "skipped": 0,
+                    "flagged": 0,
+                    "avg_ms": 0.0
+                  },
+                  {
+                    "stage": "registry",
+                    "runs": 5,
+                    "ok": 5,
+                    "skipped": 0,
+                    "flagged": 0,
+                    "avg_ms": 0.0
+                  },
+                  {
+                    "stage": "matcher",
+                    "runs": 5,
+                    "ok": 5,
+                    "skipped": 0,
+                    "flagged": 0,
+                    "avg_ms": 0.0
+                  },
+                  {
+                    "stage": "router",
+                    "runs": 5,
+                    "ok": 0,
+                    "skipped": 5,
+                    "flagged": 0,
+                    "avg_ms": 0.0
+                  },
+                  {
+                    "stage": "investigator",
+                    "runs": 5,
+                    "ok": 0,
+                    "skipped": 5,
+                    "flagged": 0,
+                    "avg_ms": 0.0
+                  },
+                  {
+                    "stage": "vendor_guard",
+                    "runs": 5,
+                    "ok": 5,
+                    "skipped": 0,
+                    "flagged": 0,
+                    "avg_ms": 0.0
+                  },
+                  {
+                    "stage": "validators",
+                    "runs": 5,
+                    "ok": 5,
+                    "skipped": 0,
+                    "flagged": 0,
+                    "avg_ms": 0.0
+                  },
+                  {
+                    "stage": "approver",
+                    "runs": 5,
+                    "ok": 5,
+                    "skipped": 0,
+                    "flagged": 0,
+                    "avg_ms": 0.0
+                  },
+                  {
+                    "stage": "poster",
+                    "runs": 5,
+                    "ok": 3,
+                    "skipped": 2,
+                    "flagged": 0,
+                    "avg_ms": 0.0
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/failures": {
+      "get": {
+        "summary": "List Failures",
+        "description": "Non-ok steps (failed / blocked / escalated / retried) and what ran next.",
+        "operationId": "list_failures_dashboard_failures_get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FailureItem"
+                  },
+                  "title": "Response List Failures Dashboard Failures Get"
+                },
+                "example": []
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/bills": {
+      "get": {
+        "summary": "Ap Bills",
+        "description": "Every invoice with its AP stage, risk signals, SLA, payment block and payment.",
+        "operationId": "ap_bills_ap_bills_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Bill"
+                  },
+                  "type": "array",
+                  "title": "Response Ap Bills Ap Bills Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/bills/{case_id}": {
+      "get": {
+        "summary": "Ap Bill",
+        "operationId": "ap_bill_ap_bills__case_id__get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/report": {
+      "get": {
+        "summary": "Ap Report",
+        "operationId": "ap_report_ap_report_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApReport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/settings": {
+      "get": {
+        "summary": "Ap Settings",
+        "operationId": "ap_settings_ap_settings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApSettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/payments": {
+      "get": {
+        "summary": "Ap Payments",
+        "operationId": "ap_payments_ap_payments_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentBatch"
+                  },
+                  "type": "array",
+                  "title": "Response Ap Payments Ap Payments Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Ap Create Run",
+        "description": "Schedule approved bills into a payment run (simulated). Payment guard and duplicate-run checks in code.",
+        "operationId": "ap_create_run_ap_payments_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentBatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentBatch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/payments/{batch_id}/release": {
+      "post": {
+        "summary": "Ap Release Run",
+        "description": "Release a run (simulated settlement). The person who prepared it can't release it (403).",
+        "operationId": "ap_release_run_ap_payments__batch_id__release_post",
+        "parameters": [
+          {
+            "name": "batch_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Batch Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReleaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentBatch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/discounts": {
+      "get": {
+        "summary": "Ap Discounts",
+        "description": "Early-payment discounts across bills, soonest deadline first (available / needs approval / blocked / missed / captured).",
+        "operationId": "ap_discounts_ap_discounts_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EarlyPayOffer"
+                  },
+                  "type": "array",
+                  "title": "Response Ap Discounts Ap Discounts Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/prepayments": {
+      "get": {
+        "summary": "Ap Prepayments",
+        "operationId": "ap_prepayments_ap_prepayments_get",
+        "parameters": [
+          {
+            "name": "vendor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Prepayment"
+                  },
+                  "title": "Response Ap Prepayments Ap Prepayments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Ap Request Prepayment",
+        "operationId": "ap_request_prepayment_ap_prepayments_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrepaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prepayment"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/prepayments/quote": {
+      "get": {
+        "summary": "Ap Prepay Quote",
+        "operationId": "ap_prepay_quote_ap_prepayments_quote_get",
+        "parameters": [
+          {
+            "name": "vendor_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vendor Id"
+            }
+          },
+          {
+            "name": "credit_amount",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "title": "Credit Amount"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrepaymentQuote"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/prepayments/{prepay_id}/decide": {
+      "post": {
+        "summary": "Ap Decide Prepayment",
+        "description": "Controller/CFO approval (not the requester). Approval settles it (simulated) and opens vendor credit.",
+        "operationId": "ap_decide_prepayment_ap_prepayments__prepay_id__decide_post",
+        "parameters": [
+          {
+            "name": "prepay_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Prepay Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignOff"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prepayment"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vendors/onboarding/samples": {
+      "get": {
+        "summary": "Onboarding Samples",
+        "description": "Sample onboarding requests (fictional businesses) for the demo form.",
+        "operationId": "onboarding_samples_vendors_onboarding_samples_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response Onboarding Samples Vendors Onboarding Samples Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vendors/onboarding/list": {
+      "get": {
+        "summary": "Onboarding List",
+        "operationId": "onboarding_list_vendors_onboarding_list_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OnboardingCase"
+                  },
+                  "type": "array",
+                  "title": "Response Onboarding List Vendors Onboarding List Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vendors/onboarding": {
+      "post": {
+        "summary": "Onboarding Submit",
+        "description": "Run every onboarding check (CRS + code) and open the request for a second person's approval.",
+        "operationId": "onboarding_submit_vendors_onboarding_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnboardingRequestIn-Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingCase"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vendors/onboarding/{case_id}/recheck": {
+      "post": {
+        "summary": "Onboarding Recheck",
+        "operationId": "onboarding_recheck_vendors_onboarding__case_id__recheck_post",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingCase"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vendors/onboarding/{case_id}/decide": {
+      "post": {
+        "summary": "Onboarding Decide",
+        "description": "Approve (creates the vendor, on probation) or reject. Requester can't approve; medium/high risk needs a controller.",
+        "operationId": "onboarding_decide_vendors_onboarding__case_id__decide_post",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignOff"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingCase"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "ActivityItem": {
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          },
+          "actor": {
+            "type": "string",
+            "title": "Actor"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "at",
+          "actor",
+          "text"
+        ],
+        "title": "ActivityItem"
+      },
+      "AgingBucket": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "amount_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Amount Usd",
+            "description": "Decimal amount as string"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "amount_usd",
+          "count"
+        ],
+        "title": "AgingBucket"
+      },
+      "ApReport": {
+        "properties": {
+          "open_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Open Usd",
+            "description": "Decimal amount as string"
+          },
+          "due_7d_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Due 7D Usd",
+            "description": "Decimal amount as string"
+          },
+          "overdue_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Overdue Usd",
+            "description": "Decimal amount as string"
+          },
+          "needs_review": {
+            "type": "integer",
+            "title": "Needs Review"
+          },
+          "blocked": {
+            "type": "integer",
+            "title": "Blocked"
+          },
+          "touchless_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Touchless Rate"
+          },
+          "caught_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Caught Usd",
+            "description": "USD of bills held, rejected or payment-blocked by checks"
+          },
+          "discounts_available_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Discounts Available Usd",
+            "description": "Decimal amount as string",
+            "default": "0"
+          },
+          "discounts_captured_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Discounts Captured Usd",
+            "description": "Decimal amount as string",
+            "default": "0"
+          },
+          "discounts_missed_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Discounts Missed Usd",
+            "description": "Decimal amount as string",
+            "default": "0"
+          },
+          "aging": {
+            "items": {
+              "$ref": "#/components/schemas/AgingBucket"
+            },
+            "type": "array",
+            "title": "Aging"
+          },
+          "forecast": {
+            "items": {
+              "$ref": "#/components/schemas/ForecastWeek"
+            },
+            "type": "array",
+            "title": "Forecast"
+          },
+          "by_vendor": {
+            "items": {
+              "$ref": "#/components/schemas/SpendRow"
+            },
+            "type": "array",
+            "title": "By Vendor"
+          },
+          "by_gl": {
+            "items": {
+              "$ref": "#/components/schemas/SpendRow"
+            },
+            "type": "array",
+            "title": "By Gl"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "open_usd",
+          "due_7d_usd",
+          "overdue_usd",
+          "needs_review",
+          "blocked",
+          "touchless_rate",
+          "caught_usd",
+          "discounts_available_usd",
+          "discounts_captured_usd",
+          "discounts_missed_usd",
+          "aging",
+          "forecast",
+          "by_vendor",
+          "by_gl"
+        ],
+        "title": "ApReport"
+      },
+      "ApSettings": {
+        "properties": {
+          "approval_limits": {
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "description": "Decimal amount as string"
+            },
+            "type": "object",
+            "title": "Approval Limits"
+          },
+          "sla_hours": {
+            "type": "integer",
+            "title": "Sla Hours"
+          },
+          "materiality_abs": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Materiality Abs",
+            "description": "Decimal amount as string"
+          },
+          "materiality_pct": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Materiality Pct",
+            "description": "Decimal amount as string"
+          },
+          "qty_tolerance_pct": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Qty Tolerance Pct",
+            "description": "Decimal amount as string"
+          },
+          "price_tolerance_pct": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Price Tolerance Pct",
+            "description": "Decimal amount as string"
+          },
+          "locked_periods": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Locked Periods"
+          },
+          "fx_rates": {
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "description": "Decimal amount as string"
+            },
+            "type": "object",
+            "title": "Fx Rates"
+          },
+          "accounts": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Accounts"
+          },
+          "integrations": {
+            "items": {
+              "$ref": "#/components/schemas/Integration"
+            },
+            "type": "array",
+            "title": "Integrations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "approval_limits",
+          "sla_hours",
+          "materiality_abs",
+          "materiality_pct",
+          "qty_tolerance_pct",
+          "price_tolerance_pct",
+          "locked_periods",
+          "fx_rates",
+          "accounts",
+          "integrations"
+        ],
+        "title": "ApSettings"
+      },
       "Approval-Input": {
         "properties": {
           "id": {
@@ -2308,6 +4450,505 @@
           "decision"
         ],
         "title": "ApprovalRequest"
+      },
+      "ApprovalStep": {
+        "properties": {
+          "step": {
+            "type": "integer",
+            "title": "Step"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "who": {
+            "type": "string",
+            "title": "Who"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "done | waiting | pending | rejected | on_hold"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "step",
+          "label",
+          "who",
+          "status",
+          "note"
+        ],
+        "title": "ApprovalStep"
+      },
+      "Bill": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "vendor_name": {
+            "type": "string",
+            "title": "Vendor Name"
+          },
+          "invoice_no": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice No"
+          },
+          "invoice_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice Date"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "days_to_due": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Days To Due"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "amount_usd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Usd"
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage",
+            "description": "processing | needs_review | on_hold | ready_to_pay | blocked | scheduled | paid | rejected"
+          },
+          "recommendation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Decision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approved_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved By"
+          },
+          "needs": {
+            "type": "string",
+            "title": "Needs",
+            "description": "role that must sign, or nobody"
+          },
+          "risk": {
+            "type": "string",
+            "title": "Risk",
+            "description": "high | medium | low"
+          },
+          "signals": {
+            "items": {
+              "$ref": "#/components/schemas/Signal"
+            },
+            "type": "array",
+            "title": "Signals",
+            "default": []
+          },
+          "waiting_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Waiting Hours",
+            "description": "time since it was handed to a human"
+          },
+          "sla_breached": {
+            "type": "boolean",
+            "title": "Sla Breached",
+            "default": false
+          },
+          "payment_block": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Block"
+          },
+          "payment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Payment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "overbilled": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overbilled",
+            "description": "amount at risk from the 3-way match, invoice currency"
+          },
+          "discount": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EarlyPayOffer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "credit_available": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credit Available",
+            "description": "advance-payment credit open for this vendor"
+          },
+          "warning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Warning",
+            "description": "one line shown under the bill in lists"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "vendor_id",
+          "vendor_name",
+          "invoice_no",
+          "invoice_date",
+          "due_date",
+          "days_to_due",
+          "amount",
+          "currency",
+          "amount_usd",
+          "stage",
+          "recommendation",
+          "approved_by",
+          "needs",
+          "risk",
+          "signals",
+          "waiting_hours",
+          "sla_breached",
+          "payment_block",
+          "payment",
+          "overbilled",
+          "discount",
+          "credit_available",
+          "warning"
+        ],
+        "title": "Bill",
+        "description": "One invoice as the AP team sees it."
+      },
+      "BillDetail": {
+        "properties": {
+          "bill": {
+            "$ref": "#/components/schemas/Bill"
+          },
+          "verdict": {
+            "type": "string",
+            "title": "Verdict",
+            "description": "ready | review | risk"
+          },
+          "verdict_text": {
+            "type": "string",
+            "title": "Verdict Text"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/CheckResult"
+            },
+            "type": "array",
+            "title": "Checks"
+          },
+          "match": {
+            "items": {
+              "$ref": "#/components/schemas/MatchRow"
+            },
+            "type": "array",
+            "title": "Match"
+          },
+          "gl": {
+            "items": {
+              "$ref": "#/components/schemas/GLLine"
+            },
+            "type": "array",
+            "title": "Gl"
+          },
+          "approval_steps": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalStep"
+            },
+            "type": "array",
+            "title": "Approval Steps"
+          },
+          "activity": {
+            "items": {
+              "$ref": "#/components/schemas/ActivityItem"
+            },
+            "type": "array",
+            "title": "Activity"
+          },
+          "last_paid": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LastPaid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "est_pay_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Est Pay Date"
+          },
+          "pay_methods": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Pay Methods",
+            "description": "methods allowed for this vendor"
+          },
+          "default_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Method"
+          },
+          "statement_descriptor": {
+            "type": "string",
+            "title": "Statement Descriptor"
+          },
+          "invoice_bank_last4": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice Bank Last4",
+            "description": "the account printed on the invoice (last 4)"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "bill",
+          "verdict",
+          "verdict_text",
+          "checks",
+          "match",
+          "gl",
+          "approval_steps",
+          "activity",
+          "last_paid",
+          "est_pay_date",
+          "pay_methods",
+          "default_method",
+          "statement_descriptor",
+          "invoice_bank_last4"
+        ],
+        "title": "BillDetail"
+      },
+      "BusinessMetrics": {
+        "properties": {
+          "cases": {
+            "type": "integer",
+            "title": "Cases"
+          },
+          "exceptions": {
+            "type": "integer",
+            "title": "Exceptions"
+          },
+          "dollars_caught_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Dollars Caught Usd",
+            "description": "Held/rejected/escalated exposure, USD at simulated FX"
+          },
+          "hours_saved_estimate": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Hours Saved Estimate",
+            "description": "ESTIMATE: per-case manual minutes x cases handled"
+          },
+          "on_time_payment_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "On Time Payment Rate",
+            "description": "Posted on or before due date; None if nothing posted"
+          },
+          "avg_hours_to_resolve": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Hours To Resolve"
+          },
+          "by_vendor": {
+            "items": {
+              "$ref": "#/components/schemas/VendorExceptions"
+            },
+            "type": "array",
+            "title": "By Vendor"
+          },
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assumptions",
+            "description": "Shown next to the numbers"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "cases",
+          "exceptions",
+          "dollars_caught_usd",
+          "hours_saved_estimate",
+          "on_time_payment_rate",
+          "avg_hours_to_resolve",
+          "by_vendor",
+          "assumptions"
+        ],
+        "title": "BusinessMetrics"
       },
       "Case-Input": {
         "properties": {
@@ -2699,6 +5340,103 @@
           "upload"
         ],
         "title": "Channel"
+      },
+      "ChatMessage": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "user | assistant"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "ChatMessage"
+      },
+      "ChatReply": {
+        "properties": {
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "claude | offline"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "source"
+        ],
+        "title": "ChatReply"
+      },
+      "ChatRequest": {
+        "properties": {
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/ChatMessage"
+            },
+            "type": "array",
+            "title": "Messages"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "messages"
+        ],
+        "title": "ChatRequest"
+      },
+      "CheckResult": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity",
+            "description": "high | medium | low (only meaningful when not passed)"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Refs",
+            "description": "e.g. 'Line 1', 'PO-5501', 'INV-2291'"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "passed",
+          "severity",
+          "detail",
+          "refs"
+        ],
+        "title": "CheckResult",
+        "description": "One pre-payment check and whether it passed, with references to the evidence."
       },
       "Citation-Input": {
         "properties": {
@@ -3098,6 +5836,104 @@
         ],
         "title": "Document"
       },
+      "EarlyPayOffer": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "vendor_name": {
+            "type": "string",
+            "title": "Vendor Name"
+          },
+          "invoice_no": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice No"
+          },
+          "terms": {
+            "type": "string",
+            "title": "Terms",
+            "description": "e.g. 2/15 net 30"
+          },
+          "discount_pct": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Discount Pct",
+            "description": "Decimal amount as string"
+          },
+          "discount_amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Discount Amount",
+            "description": "Decimal amount as string"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "discount_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Discount Usd",
+            "description": "Decimal amount as string"
+          },
+          "pay_by": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay By"
+          },
+          "days_left": {
+            "type": "integer",
+            "title": "Days Left"
+          },
+          "annualized_return_pct": {
+            "type": "number",
+            "title": "Annualized Return Pct",
+            "description": "what paying early 'earns', annualised"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "available | needs_approval | blocked | missed | captured"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "vendor_id",
+          "vendor_name",
+          "invoice_no",
+          "terms",
+          "discount_pct",
+          "discount_amount",
+          "currency",
+          "discount_usd",
+          "pay_by",
+          "days_left",
+          "annualized_return_pct",
+          "status",
+          "note"
+        ],
+        "title": "EarlyPayOffer",
+        "description": "An early-payment discount on one bill, computed in code from the vendor's terms."
+      },
       "EvalResult": {
         "properties": {
           "case_id": {
@@ -3212,6 +6048,185 @@
         ],
         "title": "ExpectedOutcome"
       },
+      "FailureItem": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "step_id": {
+            "type": "string",
+            "title": "Step Id"
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StepStatus"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "next_stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Stage"
+          },
+          "next_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StepStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "run_id",
+          "step_id",
+          "stage",
+          "status",
+          "error",
+          "next_stage",
+          "next_status",
+          "at"
+        ],
+        "title": "FailureItem",
+        "description": "A non-ok step and what the pipeline did next."
+      },
+      "Finding": {
+        "properties": {
+          "check": {
+            "type": "string",
+            "title": "Check",
+            "description": "e.g. '3-way match', 'Vendor & bank'"
+          },
+          "agent": {
+            "type": "string",
+            "title": "Agent",
+            "description": "pipeline stage that ran it"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "ok | flag | unchecked | blocked"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "check",
+          "agent",
+          "status",
+          "detail"
+        ],
+        "title": "Finding",
+        "description": "One check the agents ran, in plain language, for the reviewer."
+      },
+      "ForecastWeek": {
+        "properties": {
+          "week_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Week Start"
+          },
+          "approved_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Approved Usd",
+            "description": "Decimal amount as string"
+          },
+          "pending_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Pending Usd",
+            "description": "Decimal amount as string"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "week_start",
+          "approved_usd",
+          "pending_usd"
+        ],
+        "title": "ForecastWeek"
+      },
+      "GLLine": {
+        "properties": {
+          "line_no": {
+            "type": "integer",
+            "title": "Line No"
+          },
+          "sku": {
+            "type": "string",
+            "title": "Sku"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Amount",
+            "description": "Decimal amount as string"
+          },
+          "account": {
+            "type": "string",
+            "title": "Account"
+          },
+          "basis": {
+            "type": "string",
+            "title": "Basis",
+            "description": "why this account was suggested"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "line_no",
+          "sku",
+          "description",
+          "amount",
+          "account",
+          "basis"
+        ],
+        "title": "GLLine"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -3224,6 +6239,51 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "IntakeAccepted": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "run_id"
+        ],
+        "title": "IntakeAccepted",
+        "description": "Returned by POST /intake: the run continues in the background."
+      },
+      "Integration": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "connected | simulated | not_connected"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "status",
+          "note"
+        ],
+        "title": "Integration"
       },
       "Invoice-Input": {
         "properties": {
@@ -3534,6 +6594,38 @@
         ],
         "title": "JournalEntry"
       },
+      "LastPaid": {
+        "properties": {
+          "invoice_no": {
+            "type": "string",
+            "title": "Invoice No"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Amount",
+            "description": "Decimal amount as string"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "paid_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Paid On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "invoice_no",
+          "amount",
+          "currency",
+          "paid_on"
+        ],
+        "title": "LastPaid"
+      },
       "LineItem": {
         "properties": {
           "line_no": {
@@ -3578,6 +6670,104 @@
           "amount"
         ],
         "title": "LineItem"
+      },
+      "MatchRow": {
+        "properties": {
+          "sku": {
+            "type": "string",
+            "title": "Sku"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "ordered": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ordered"
+          },
+          "received": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Received",
+            "description": "Decimal amount as string"
+          },
+          "billed": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Billed",
+            "description": "Decimal amount as string"
+          },
+          "po_price": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Po Price"
+          },
+          "invoice_price": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Invoice Price",
+            "description": "Decimal amount as string"
+          },
+          "qty_variance": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Qty Variance",
+            "description": "billed - min(ordered, received)"
+          },
+          "price_variance": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Variance",
+            "description": "invoice_price - po_price"
+          },
+          "amount_at_risk": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Amount At Risk",
+            "description": "what would be overpaid, in invoice currency"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sku",
+          "description",
+          "ordered",
+          "received",
+          "billed",
+          "po_price",
+          "invoice_price",
+          "qty_variance",
+          "price_variance",
+          "amount_at_risk"
+        ],
+        "title": "MatchRow",
+        "description": "One SKU across purchase order, goods receipt and invoice. Variances computed in code."
       },
       "MemoryEntry": {
         "properties": {
@@ -3637,6 +6827,337 @@
           "patterns"
         ],
         "title": "MemoryFolder"
+      },
+      "OnboardingCase": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "request": {
+            "$ref": "#/components/schemas/OnboardingRequestIn-Output"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "needs_review | approved | rejected"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/OnboardingCheck"
+            },
+            "type": "array",
+            "title": "Checks",
+            "default": []
+          },
+          "risk_tier": {
+            "type": "string",
+            "title": "Risk Tier",
+            "description": "low | medium | high"
+          },
+          "needs": {
+            "type": "string",
+            "title": "Needs",
+            "description": "role that must approve: approver | controller"
+          },
+          "crs_mode": {
+            "type": "string",
+            "title": "Crs Mode",
+            "description": "live | simulated"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "decided_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided By"
+          },
+          "decided_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided At"
+          },
+          "decision_comment": {
+            "type": "string",
+            "title": "Decision Comment",
+            "default": ""
+          },
+          "vendor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "request",
+          "status",
+          "checks",
+          "risk_tier",
+          "needs",
+          "crs_mode",
+          "created_at",
+          "decided_by",
+          "decided_at",
+          "decision_comment",
+          "vendor_id"
+        ],
+        "title": "OnboardingCase"
+      },
+      "OnboardingCheck": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider",
+            "description": "CRS | code"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "pass | warn | fail | not_covered | incomplete"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "simulated": {
+            "type": "boolean",
+            "title": "Simulated",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "provider",
+          "status",
+          "detail",
+          "simulated"
+        ],
+        "title": "OnboardingCheck"
+      },
+      "OnboardingRequestIn-Input": {
+        "properties": {
+          "legal_name": {
+            "type": "string",
+            "title": "Legal Name"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "USD"
+          },
+          "tax_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Id"
+          },
+          "address": {
+            "type": "string",
+            "title": "Address",
+            "default": ""
+          },
+          "city": {
+            "type": "string",
+            "title": "City",
+            "default": ""
+          },
+          "state": {
+            "type": "string",
+            "title": "State",
+            "default": ""
+          },
+          "zip": {
+            "type": "string",
+            "title": "Zip",
+            "default": ""
+          },
+          "email_domain": {
+            "type": "string",
+            "title": "Email Domain"
+          },
+          "website": {
+            "type": "string",
+            "title": "Website",
+            "default": ""
+          },
+          "bank_last4": {
+            "type": "string",
+            "title": "Bank Last4"
+          },
+          "contact_name": {
+            "type": "string",
+            "title": "Contact Name",
+            "default": ""
+          },
+          "contact_phone": {
+            "type": "string",
+            "title": "Contact Phone",
+            "default": ""
+          },
+          "expected_annual_spend_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Expected Annual Spend Usd",
+            "description": "Decimal amount as string",
+            "default": "0"
+          },
+          "requested_by": {
+            "type": "string",
+            "title": "Requested By"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "legal_name",
+          "country",
+          "email_domain",
+          "bank_last4",
+          "requested_by"
+        ],
+        "title": "OnboardingRequestIn"
+      },
+      "OnboardingRequestIn-Output": {
+        "properties": {
+          "legal_name": {
+            "type": "string",
+            "title": "Legal Name"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "USD"
+          },
+          "tax_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Id"
+          },
+          "address": {
+            "type": "string",
+            "title": "Address",
+            "default": ""
+          },
+          "city": {
+            "type": "string",
+            "title": "City",
+            "default": ""
+          },
+          "state": {
+            "type": "string",
+            "title": "State",
+            "default": ""
+          },
+          "zip": {
+            "type": "string",
+            "title": "Zip",
+            "default": ""
+          },
+          "email_domain": {
+            "type": "string",
+            "title": "Email Domain"
+          },
+          "website": {
+            "type": "string",
+            "title": "Website",
+            "default": ""
+          },
+          "bank_last4": {
+            "type": "string",
+            "title": "Bank Last4"
+          },
+          "contact_name": {
+            "type": "string",
+            "title": "Contact Name",
+            "default": ""
+          },
+          "contact_phone": {
+            "type": "string",
+            "title": "Contact Phone",
+            "default": ""
+          },
+          "expected_annual_spend_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Expected Annual Spend Usd",
+            "description": "Decimal amount as string",
+            "default": "0"
+          },
+          "requested_by": {
+            "type": "string",
+            "title": "Requested By"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "legal_name",
+          "country",
+          "currency",
+          "tax_id",
+          "address",
+          "city",
+          "state",
+          "zip",
+          "email_domain",
+          "website",
+          "bank_last4",
+          "contact_name",
+          "contact_phone",
+          "expected_annual_spend_usd",
+          "requested_by"
+        ],
+        "title": "OnboardingRequestIn"
       },
       "PO": {
         "properties": {
@@ -3724,6 +7245,304 @@
         ],
         "title": "POLine"
       },
+      "Payment": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "batch_id": {
+            "type": "string",
+            "title": "Batch Id"
+          },
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Amount",
+            "description": "Decimal amount as string"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "amount_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Amount Usd",
+            "description": "Decimal amount as string"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method",
+            "description": "ach | wire | intl_wire | check"
+          },
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "pay_to_last4": {
+            "type": "string",
+            "title": "Pay To Last4",
+            "description": "Always the vendor master's account, never the invoice's"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "scheduled | paid"
+          },
+          "gross_amount": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Amount",
+            "description": "invoice total before discount and credits"
+          },
+          "discount_amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Discount Amount",
+            "description": "early-payment discount taken",
+            "default": "0"
+          },
+          "credit_applied": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Credit Applied",
+            "description": "advance-payment credit used",
+            "default": "0"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "batch_id",
+          "case_id",
+          "vendor_id",
+          "amount",
+          "currency",
+          "amount_usd",
+          "method",
+          "pay_date",
+          "pay_to_last4",
+          "status",
+          "gross_amount",
+          "discount_amount",
+          "credit_applied"
+        ],
+        "title": "Payment"
+      },
+      "PaymentBatch": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "scheduled | paid"
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "released_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Released By"
+          },
+          "released_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Released At"
+          },
+          "payments": {
+            "items": {
+              "$ref": "#/components/schemas/Payment"
+            },
+            "type": "array",
+            "title": "Payments",
+            "default": []
+          },
+          "total_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Total Usd",
+            "description": "Decimal amount as string"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "pay_date",
+          "status",
+          "created_by",
+          "created_at",
+          "released_by",
+          "released_at",
+          "payments",
+          "total_usd"
+        ],
+        "title": "PaymentBatch"
+      },
+      "PaymentBatchRequest": {
+        "properties": {
+          "case_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Case Ids"
+          },
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By"
+          },
+          "methods": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Methods",
+            "description": "case_id -> method; default by vendor country"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_ids",
+          "pay_date",
+          "created_by"
+        ],
+        "title": "PaymentBatchRequest"
+      },
+      "PaymentTerms": {
+        "properties": {
+          "net_days": {
+            "type": "integer",
+            "title": "Net Days",
+            "default": 30
+          },
+          "discount_pct": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discount Pct",
+            "description": "early-payment discount, e.g. 0.02"
+          },
+          "discount_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discount Days",
+            "description": "pay within N days of the invoice date to earn it"
+          },
+          "prepay_discount_pct": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prepay Discount Pct",
+            "description": "discount for paying in advance, e.g. 0.04"
+          },
+          "prepay_cap_usd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prepay Cap Usd",
+            "description": "max open prepaid balance for this vendor"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "where these terms come from",
+            "default": "vendor master"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "net_days",
+          "discount_pct",
+          "discount_days",
+          "prepay_discount_pct",
+          "prepay_cap_usd",
+          "source"
+        ],
+        "title": "PaymentTerms",
+        "description": "Commercial terms from the contract / vendor master (never from invoice text). e.g. 2/10 net 30."
+      },
       "Posting": {
         "properties": {
           "account": {
@@ -3749,6 +7568,272 @@
           "currency"
         ],
         "title": "Posting"
+      },
+      "PrepayApplication": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Amount",
+            "description": "Decimal amount as string"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "amount",
+          "at"
+        ],
+        "title": "PrepayApplication"
+      },
+      "Prepayment": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "vendor_name": {
+            "type": "string",
+            "title": "Vendor Name"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "credit_amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Credit Amount",
+            "description": "credit granted against future invoices"
+          },
+          "cash_amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Cash Amount",
+            "description": "what Helix pays now"
+          },
+          "discount_amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Discount Amount",
+            "description": "Decimal amount as string"
+          },
+          "discount_pct": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Discount Pct",
+            "description": "Decimal amount as string"
+          },
+          "cash_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Cash Usd",
+            "description": "Decimal amount as string"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "requested | paid | rejected"
+          },
+          "requested_by": {
+            "type": "string",
+            "title": "Requested By"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Requested At"
+          },
+          "approved_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved By"
+          },
+          "approved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved At"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "default": ""
+          },
+          "applied": {
+            "items": {
+              "$ref": "#/components/schemas/PrepayApplication"
+            },
+            "type": "array",
+            "title": "Applied",
+            "default": []
+          },
+          "remaining": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Remaining",
+            "description": "Decimal amount as string"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "vendor_id",
+          "vendor_name",
+          "currency",
+          "credit_amount",
+          "cash_amount",
+          "discount_amount",
+          "discount_pct",
+          "cash_usd",
+          "status",
+          "requested_by",
+          "requested_at",
+          "approved_by",
+          "approved_at",
+          "note",
+          "applied",
+          "remaining"
+        ],
+        "title": "Prepayment",
+        "description": "An advance payment that buys vendor credit at a discount. SIMULATED settlement."
+      },
+      "PrepaymentQuote": {
+        "properties": {
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "credit_amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Credit Amount",
+            "description": "Decimal amount as string"
+          },
+          "cash_amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Cash Amount",
+            "description": "Decimal amount as string"
+          },
+          "discount_amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Discount Amount",
+            "description": "Decimal amount as string"
+          },
+          "discount_pct": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Discount Pct",
+            "description": "Decimal amount as string"
+          },
+          "cash_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Cash Usd",
+            "description": "Decimal amount as string"
+          },
+          "cap_remaining_usd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cap Remaining Usd"
+          },
+          "allowed": {
+            "type": "boolean",
+            "title": "Allowed"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "vendor_id",
+          "currency",
+          "credit_amount",
+          "cash_amount",
+          "discount_amount",
+          "discount_pct",
+          "cash_usd",
+          "cap_remaining_usd",
+          "allowed",
+          "reason"
+        ],
+        "title": "PrepaymentQuote"
+      },
+      "PrepaymentRequest": {
+        "properties": {
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "credit_amount": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Credit Amount",
+            "description": "Decimal amount as string"
+          },
+          "requested_by": {
+            "type": "string",
+            "title": "Requested By"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "vendor_id",
+          "credit_amount",
+          "requested_by"
+        ],
+        "title": "PrepaymentRequest"
       },
       "Proposal-Input": {
         "properties": {
@@ -3919,6 +8004,152 @@
         ],
         "title": "Proposal"
       },
+      "QueueItem": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "vendor_name": {
+            "type": "string",
+            "title": "Vendor Name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CaseStatus"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Decision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "invoice_no": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice No"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "total_usd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Usd",
+            "description": "At the simulated policy FX rate"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "days_to_due": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Days To Due"
+          },
+          "at_risk": {
+            "type": "boolean",
+            "title": "At Risk",
+            "description": "Due within the at-risk window or overdue",
+            "default": false
+          },
+          "critical_vendor": {
+            "type": "boolean",
+            "title": "Critical Vendor",
+            "default": false
+          },
+          "priority": {
+            "type": "integer",
+            "title": "Priority",
+            "description": "Higher = work first"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons",
+            "description": "Why it ranks where it does"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "vendor_id",
+          "vendor_name",
+          "status",
+          "decision",
+          "invoice_no",
+          "total",
+          "currency",
+          "total_usd",
+          "due_date",
+          "days_to_due",
+          "at_risk",
+          "critical_vendor",
+          "priority",
+          "reasons"
+        ],
+        "title": "QueueItem",
+        "description": "One open case in the approval queue, sorted by priority (highest first)."
+      },
       "Receipt": {
         "properties": {
           "doc_id": {
@@ -3978,6 +8209,108 @@
         ],
         "title": "ReceiptLine"
       },
+      "ReleaseRequest": {
+        "properties": {
+          "released_by": {
+            "type": "string",
+            "title": "Released By"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "released_by"
+        ],
+        "title": "ReleaseRequest"
+      },
+      "ReviewPacket": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "ready": {
+            "type": "boolean",
+            "title": "Ready",
+            "description": "False while the pipeline is still running"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "recommendation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Decision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "needs": {
+            "type": "string",
+            "title": "Needs",
+            "description": "who must sign: approver | controller | nobody"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            },
+            "type": "array",
+            "title": "Findings",
+            "default": []
+          },
+          "trace": {
+            "items": {
+              "$ref": "#/components/schemas/Step"
+            },
+            "type": "array",
+            "title": "Trace",
+            "default": []
+          },
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/Document-Output"
+            },
+            "type": "array",
+            "title": "Files",
+            "default": []
+          },
+          "signals": {
+            "items": {
+              "$ref": "#/components/schemas/Signal"
+            },
+            "type": "array",
+            "title": "Signals",
+            "description": "pre-payment checks run by code"
+          },
+          "suggested": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Suggested",
+            "description": "questions the reviewer can tap"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "ready",
+          "summary",
+          "recommendation",
+          "needs",
+          "findings",
+          "trace",
+          "files",
+          "signals",
+          "suggested"
+        ],
+        "title": "ReviewPacket",
+        "description": "Everything the reviewer gets once the background run is done."
+      },
       "Role": {
         "type": "string",
         "enum": [
@@ -3986,6 +8319,7 @@
           "investigator",
           "approver",
           "controller",
+          "cfo",
           "requester"
         ],
         "title": "Role"
@@ -4042,6 +8376,142 @@
           "results"
         ],
         "title": "Scoreboard"
+      },
+      "SignOff": {
+        "properties": {
+          "approver": {
+            "type": "string",
+            "title": "Approver"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "decision": {
+            "type": "string",
+            "title": "Decision",
+            "description": "approved | rejected"
+          },
+          "comment": {
+            "type": "string",
+            "title": "Comment",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "approver",
+          "role",
+          "decision"
+        ],
+        "title": "SignOff",
+        "description": "A human decision on a prepayment or onboarding request."
+      },
+      "Signal": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "bank_mismatch | lookalike_domain | duplicate | qty_short | price_over | not_on_po | over_limit | embedded_instructions | probation"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity",
+            "description": "high | medium | low"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "severity",
+          "title",
+          "detail"
+        ],
+        "title": "Signal",
+        "description": "A pre-payment check run by code at review time."
+      },
+      "SpendRow": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "amount_usd": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Amount Usd",
+            "description": "Decimal amount as string"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "amount_usd",
+          "count"
+        ],
+        "title": "SpendRow"
+      },
+      "StageStat": {
+        "properties": {
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "runs": {
+            "type": "integer",
+            "title": "Runs"
+          },
+          "ok": {
+            "type": "integer",
+            "title": "Ok"
+          },
+          "skipped": {
+            "type": "integer",
+            "title": "Skipped"
+          },
+          "flagged": {
+            "type": "integer",
+            "title": "Flagged",
+            "description": "failed + blocked + escalated + retried"
+          },
+          "avg_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "stage",
+          "runs",
+          "ok",
+          "skipped",
+          "flagged",
+          "avg_ms"
+        ],
+        "title": "StageStat",
+        "description": "How one pipeline stage behaved across every case's latest run."
       },
       "Step": {
         "properties": {
@@ -4351,6 +8821,16 @@
             "type": "boolean",
             "title": "On Probation",
             "default": false
+          },
+          "terms": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentTerms"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -4366,9 +8846,39 @@
           "channels",
           "tax_id",
           "critical",
-          "on_probation"
+          "on_probation",
+          "terms"
         ],
         "title": "Vendor"
+      },
+      "VendorExceptions": {
+        "properties": {
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "vendor_name": {
+            "type": "string",
+            "title": "Vendor Name"
+          },
+          "cases": {
+            "type": "integer",
+            "title": "Cases"
+          },
+          "exceptions": {
+            "type": "integer",
+            "title": "Exceptions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "vendor_id",
+          "vendor_name",
+          "cases",
+          "exceptions"
+        ],
+        "title": "VendorExceptions"
       }
     }
   }

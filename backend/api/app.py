@@ -6,19 +6,39 @@ The OpenAPI spec exported from this app is what the Prism mock serves.
 from __future__ import annotations
 
 import asyncio
+import os
+import time
 from contextlib import asynccontextmanager
+from datetime import date
+from decimal import Decimal
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import BackgroundTasks, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.core.config import load_policy
 from backend.core.runner import make_ctx, run_case
 from backend.core.stage import utcnow
-from backend.evals.fixtures import seed
-from backend.store.sqlite import SQLiteStore
-from contracts import Approval, ApprovalRequest, Case, CaseDetail, Event, MemoryEntry, Scoreboard, Vendor
+from backend.ap import views as ap
+from backend.ap.payments import (PaymentError, PaymentStore, create_batch, decide_prepayment, quote as prepay_quote,
+                                 release as release_batch, request_prepayment)
+from backend.vendors import onboarding as onb
+from backend.vendors.crs import make_crs
+from backend.dashboard.views import approval_queue, business_metrics, failures, stage_stats
+from backend.evals.fixtures import case_ids, load_case, seed
+from backend.evals.harness import run_eval
+from backend.review import chat as review_chat
+from backend.review.packet import build as build_packet, memory_for, signoff_problem
+from backend.store.factory import make_store
+from backend.store.sqlite import DEFAULT_DB
+from contracts import (ApReport, ApSettings, EarlyPayOffer, OnboardingCase, OnboardingRequestIn, Prepayment, PrepaymentQuote,
+                       PrepaymentRequest, SignOff, Approval, ApprovalRequest, Bill, BillDetail, BusinessMetrics, PaymentBatch,
+                       PaymentBatchRequest, ReleaseRequest, Case, CaseDetail, CaseStatus, ChatReply, ChatRequest,
+                       Event, FailureItem, IntakeAccepted, MemoryEntry, QueueItem, ReviewPacket, Scoreboard, StageStat,
+                       Vendor)
 
-store = SQLiteStore()
+store = make_store()
+payments = PaymentStore(DEFAULT_DB)
 seed(store)
 _listeners: set[asyncio.Queue] = set()
 _loop: Optional[asyncio.AbstractEventLoop] = None
@@ -67,18 +87,82 @@ def add_case(case: Case) -> CaseDetail:
     return CaseDetail(case=case, steps=store.list_steps(case.id, ctx.run_id))
 
 
-@app.post("/approvals/{case_id}", response_model=Case)
-def approve(case_id: str, req: ApprovalRequest) -> Case:
-    """Record a human approval decision. STUB: records only; re-plan / post is B's + A's job."""
+# Demo pacing: stub stages finish in milliseconds; this keeps a background run visible. 0 disables.
+DEMO_PACE = float(os.environ.get("RECONAI_DEMO_PACE", "0.35"))
+
+
+def _run_in_background(case: Case) -> None:
+    ctx = make_ctx(store)
+    ctx.trace.subscribe(_broadcast)
+    if DEMO_PACE:
+        ctx.trace.subscribe(lambda e: time.sleep(DEMO_PACE) if e.type == "step.finished" else None)
+    try:
+        final = run_case(case, ctx)
+        _broadcast(Event(type="run.finished", case_id=final.id, status=final.status, at=utcnow()))
+    except Exception:  # the failed step is already in the trace
+        _broadcast(Event(type="run.failed", case_id=case.id, at=utcnow()))
+
+
+@app.post("/intake", response_model=IntakeAccepted, status_code=202)
+def intake(case: Case, background: BackgroundTasks) -> IntakeAccepted:
+    """The trigger: an invoice arrives. Returns at once; the pipeline runs in the background and streams on WS
+    /events (step.*, case.updated, then run.finished). The reviewer picks it up from GET /cases/{id}/review."""
+    case.status, case.decision, case.approvals, case.journal_entry = CaseStatus.new, None, [], None
+    case.created_at = utcnow()
+    store.save_case(case)
+    _broadcast(Event(type="run.started", case_id=case.id, status=case.status, at=utcnow()))
+    background.add_task(_run_in_background, case)
+    return IntakeAccepted(case_id=case.id, run_id="background")
+
+
+def _packet(case_id: str):
     case = store.get_case(case_id)
     if case is None:
         raise HTTPException(404, f"case {case_id} not found")
+    steps = store.list_steps(case_id)
+    vendor = store.get_vendor(case.vendor_id)
+    return case, steps, vendor, build_packet(case, steps, vendor, load_policy())
+
+
+@app.get("/cases/{case_id}/review", response_model=ReviewPacket)
+def review(case_id: str) -> ReviewPacket:
+    """Summary, findings, full agent trace and files audited, for the reviewer."""
+    return _packet(case_id)[3]
+
+
+@app.post("/cases/{case_id}/chat", response_model=ChatReply)
+def chat(case_id: str, req: ChatRequest) -> ChatReply:
+    """Ask about one case. Claude without tools, answering from the case record; deterministic fallback."""
+    case, steps, vendor, packet = _packet(case_id)
+    memory = memory_for(vendor, store.list_memory())
+    return review_chat.answer(case, steps, vendor, memory, packet, load_policy(), req.messages)
+
+
+@app.post("/approvals/{case_id}", response_model=Case)
+def approve(case_id: str, req: ApprovalRequest) -> Case:
+    """Record a human decision. Refuses requester == approver and approvals over the role's limit (403).
+    approved -> approved (payment scheduled, simulated); rejected -> rejected; ask -> stays awaiting approval."""
+    case = store.get_case(case_id)
+    if case is None:
+        raise HTTPException(404, f"case {case_id} not found")
+    problem = signoff_problem(case, req.approver, req.role.value, req.decision.value, load_policy())
+    if problem:
+        raise HTTPException(403, problem)
     case.approvals.append(Approval(id=f"apr_{case_id}_{len(case.approvals)}", case_id=case_id,
                                    approver=req.approver, role=req.role, decision=req.decision,
-                                   comment=req.comment, at=utcnow()))
+                                   comment=req.comment, limit=load_policy().approval_limits.get(req.role.value), at=utcnow()))
+    case.status = {"approved": CaseStatus.approved, "rejected": CaseStatus.rejected}.get(req.decision.value, CaseStatus.awaiting_approval)
+    if req.decision.value == "approved":
+        case.notes.append(f"Payment scheduled by {req.approver} (simulated).")
     case.updated_at = utcnow()
     store.save_case(case)
+    _broadcast(Event(type="case.updated", case_id=case.id, status=case.status, at=case.updated_at))
     return case
+
+
+@app.get("/vendors", response_model=list[Vendor])
+def list_vendors() -> list[Vendor]:
+    return store.list_vendors()
 
 
 @app.get("/vendors/{vendor_id}", response_model=Vendor)
@@ -100,6 +184,179 @@ def scoreboard() -> Scoreboard:
     if board is None:
         raise HTTPException(404, "no eval run yet; run `make eval`")
     return board
+
+
+@app.post("/evals/run", response_model=Scoreboard)
+def rerun_eval() -> Scoreboard:
+    """Run every fixture against the answer key now (dashboard 'Run eval' button)."""
+    return run_eval(store)
+
+
+@app.get("/fixtures", response_model=list[Case])
+def list_fixtures() -> list[Case]:
+    """The hand-made fixture cases, unprocessed. The dashboard POSTs one to /cases to replay it live."""
+    return [load_case(cid) for cid in case_ids()]
+
+
+@app.get("/dashboard/queue", response_model=list[QueueItem])
+def queue() -> list[QueueItem]:
+    """Open cases by priority: due date, amount, supplier criticality."""
+    return approval_queue(store, load_policy(), date.today())
+
+
+@app.get("/dashboard/metrics", response_model=BusinessMetrics)
+def metrics() -> BusinessMetrics:
+    return business_metrics(store, load_policy())
+
+
+@app.get("/dashboard/stages", response_model=list[StageStat])
+def stages() -> list[StageStat]:
+    """Per-stage run counts, outcomes and mean duration (Agents screen)."""
+    return stage_stats(store)
+
+
+@app.get("/dashboard/failures", response_model=list[FailureItem])
+def list_failures(case_id: Optional[str] = None) -> list[FailureItem]:
+    """Non-ok steps (failed / blocked / escalated / retried) and what ran next."""
+    return failures(store, case_id)
+
+
+@app.get("/ap/bills", response_model=list[Bill])
+def ap_bills() -> list[Bill]:
+    """Every invoice with its AP stage, risk signals, SLA, payment block and payment."""
+    return ap.bills(store, payments, load_policy(), ap.utcnow())
+
+
+@app.get("/ap/bills/{case_id}", response_model=BillDetail)
+def ap_bill(case_id: str) -> BillDetail:
+    case = store.get_case(case_id)
+    if case is None:
+        raise HTTPException(404, f"case {case_id} not found")
+    return ap.detail(store, payments, load_policy(), case, ap.utcnow())
+
+
+@app.get("/ap/report", response_model=ApReport)
+def ap_report() -> ApReport:
+    return ap.report(store, payments, load_policy(), ap.utcnow())
+
+
+@app.get("/ap/settings", response_model=ApSettings)
+def ap_settings() -> ApSettings:
+    return ap.settings(load_policy())
+
+
+@app.get("/ap/payments", response_model=list[PaymentBatch])
+def ap_payments() -> list[PaymentBatch]:
+    return payments.batches()
+
+
+@app.post("/ap/payments", response_model=PaymentBatch, status_code=201)
+def ap_create_run(req: PaymentBatchRequest) -> PaymentBatch:
+    """Schedule approved bills into a payment run (simulated). Payment guard and duplicate-run checks in code."""
+    try:
+        batch = create_batch(store, payments, load_policy(), req.case_ids, req.pay_date, req.created_by, ap.utcnow(),
+                             req.methods)
+    except PaymentError as e:
+        raise HTTPException(400, str(e))
+    for p in batch.payments:
+        _broadcast(Event(type="case.updated", case_id=p.case_id, at=utcnow()))
+    return batch
+
+
+@app.post("/ap/payments/{batch_id}/release", response_model=PaymentBatch)
+def ap_release_run(batch_id: str, req: ReleaseRequest) -> PaymentBatch:
+    """Release a run (simulated settlement). The person who prepared it can't release it (403)."""
+    try:
+        batch = release_batch(payments, batch_id, req.released_by, ap.utcnow())
+    except PaymentError as e:
+        raise HTTPException(403 if "cannot also release" in str(e) else 400, str(e))
+    for p in batch.payments:
+        _broadcast(Event(type="case.updated", case_id=p.case_id, at=utcnow()))
+    return batch
+
+
+@app.get("/ap/discounts", response_model=list[EarlyPayOffer])
+def ap_discounts() -> list[EarlyPayOffer]:
+    """Early-payment discounts across bills, soonest deadline first (available / needs approval / blocked / missed / captured)."""
+    offers = [b.discount for b in ap.bills(store, payments, load_policy(), ap.utcnow()) if b.discount]
+    return sorted(offers, key=lambda o: (o.status not in ("available", "needs_approval"), o.pay_by))
+
+
+@app.get("/ap/prepayments", response_model=list[Prepayment])
+def ap_prepayments(vendor_id: Optional[str] = None) -> list[Prepayment]:
+    return payments.prepayments(vendor_id)
+
+
+@app.get("/ap/prepayments/quote", response_model=PrepaymentQuote)
+def ap_prepay_quote(vendor_id: str, credit_amount: Decimal) -> PrepaymentQuote:
+    try:
+        return prepay_quote(store, payments, load_policy(), vendor_id, credit_amount)
+    except PaymentError as e:
+        raise HTTPException(404, str(e))
+
+
+@app.post("/ap/prepayments", response_model=Prepayment, status_code=201)
+def ap_request_prepayment(req: PrepaymentRequest) -> Prepayment:
+    try:
+        return request_prepayment(store, payments, load_policy(), req.vendor_id, req.credit_amount, req.requested_by, req.note, ap.utcnow())
+    except PaymentError as e:
+        raise HTTPException(400, str(e))
+
+
+@app.post("/ap/prepayments/{prepay_id}/decide", response_model=Prepayment)
+def ap_decide_prepayment(prepay_id: str, req: SignOff) -> Prepayment:
+    """Controller/CFO approval (not the requester). Approval settles it (simulated) and opens vendor credit."""
+    try:
+        return decide_prepayment(payments, prepay_id, req.approver, req.role.value, req.decision, ap.utcnow())
+    except PaymentError as e:
+        raise HTTPException(403 if "cannot approve" in str(e) or "need a" in str(e) else 400, str(e))
+
+
+@app.get("/vendors/onboarding/samples")
+def onboarding_samples() -> list[dict]:
+    """Sample onboarding requests (fictional businesses) for the demo form."""
+    return onb.samples()
+
+
+@app.get("/vendors/onboarding/list", response_model=list[OnboardingCase])
+def onboarding_list() -> list[OnboardingCase]:
+    return payments.onboarding()
+
+
+@app.post("/vendors/onboarding", response_model=OnboardingCase, status_code=201)
+def onboarding_submit(req: OnboardingRequestIn) -> OnboardingCase:
+    """Run every onboarding check (CRS + code) and open the request for a second person's approval."""
+    case = onb.submit(req, store, make_crs(), ap.utcnow())
+    payments.save_onboarding(case)
+    return case
+
+
+def _onb(case_id: str) -> OnboardingCase:
+    c = next((x for x in payments.onboarding() if x.id == case_id), None)
+    if c is None:
+        raise HTTPException(404, f"onboarding {case_id} not found")
+    return c
+
+
+@app.post("/vendors/onboarding/{case_id}/recheck", response_model=OnboardingCase)
+def onboarding_recheck(case_id: str) -> OnboardingCase:
+    try:
+        c = onb.recheck(_onb(case_id), store, make_crs())
+    except onb.OnboardingError as e:
+        raise HTTPException(400, str(e))
+    payments.save_onboarding(c)
+    return c
+
+
+@app.post("/vendors/onboarding/{case_id}/decide", response_model=OnboardingCase)
+def onboarding_decide(case_id: str, req: SignOff) -> OnboardingCase:
+    """Approve (creates the vendor, on probation) or reject. Requester can't approve; medium/high risk needs a controller."""
+    try:
+        c = onb.decide(_onb(case_id), req.approver, req.role.value, req.decision, req.comment, store, ap.utcnow())
+    except onb.OnboardingError as e:
+        raise HTTPException(403, str(e))
+    payments.save_onboarding(c)
+    return c
 
 
 @app.websocket("/events")

@@ -3,7 +3,7 @@ import argparse
 
 from backend.core.runner import make_ctx, run_case
 from backend.evals.fixtures import load_case, seed
-from backend.store.sqlite import SQLiteStore
+from backend.store.factory import make_store
 
 
 def main() -> None:
@@ -11,7 +11,7 @@ def main() -> None:
     p.add_argument("case_id")
     args = p.parse_args()
 
-    store = SQLiteStore()
+    store = make_store()
     seed(store)
     ctx = make_ctx(store)
     case = run_case(load_case(args.case_id), ctx)

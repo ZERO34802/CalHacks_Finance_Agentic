@@ -4,12 +4,17 @@
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "Role".
  */
-export type Role = "system" | "reader" | "investigator" | "approver" | "controller" | "requester";
+export type Role = "system" | "reader" | "investigator" | "approver" | "controller" | "cfo" | "requester";
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "ApprovalDecision".
  */
 export type ApprovalDecision = "approved" | "rejected" | "ask";
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "Decision".
+ */
+export type Decision = "approve" | "hold" | "reject" | "escalate";
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "CaseStatus".
@@ -50,11 +55,6 @@ export type DiscrepancyType =
   | "below_materiality";
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
- * via the `definition` "Decision".
- */
-export type Decision = "approve" | "hold" | "reject" | "escalate";
-/**
- * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "StepStatus".
  */
 export type StepStatus = "running" | "ok" | "retried" | "failed" | "blocked" | "escalated" | "skipped";
@@ -72,6 +72,147 @@ export type SkillStatus = "shadow" | "active" | "retired";
 
 export interface ReconAIContracts {
   [k: string]: unknown;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ActivityItem".
+ */
+export interface ActivityItem {
+  at: string;
+  actor: string;
+  text: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "AgingBucket".
+ */
+export interface AgingBucket {
+  label: string;
+  /**
+   * Decimal amount as string
+   */
+  amount_usd: string;
+  count: number;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ApReport".
+ */
+export interface ApReport {
+  /**
+   * Decimal amount as string
+   */
+  open_usd: string;
+  /**
+   * Decimal amount as string
+   */
+  due_7d_usd: string;
+  /**
+   * Decimal amount as string
+   */
+  overdue_usd: string;
+  needs_review: number;
+  blocked: number;
+  touchless_rate: number | null;
+  /**
+   * USD of bills held, rejected or payment-blocked by checks
+   */
+  caught_usd: string;
+  /**
+   * Decimal amount as string
+   */
+  discounts_available_usd: string;
+  /**
+   * Decimal amount as string
+   */
+  discounts_captured_usd: string;
+  /**
+   * Decimal amount as string
+   */
+  discounts_missed_usd: string;
+  aging: AgingBucket[];
+  forecast: ForecastWeek[];
+  by_vendor: SpendRow[];
+  by_gl: SpendRow[];
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ForecastWeek".
+ */
+export interface ForecastWeek {
+  week_start: string;
+  /**
+   * Decimal amount as string
+   */
+  approved_usd: string;
+  /**
+   * Decimal amount as string
+   */
+  pending_usd: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "SpendRow".
+ */
+export interface SpendRow {
+  label: string;
+  /**
+   * Decimal amount as string
+   */
+  amount_usd: string;
+  count: number;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ApSettings".
+ */
+export interface ApSettings {
+  approval_limits: {
+    /**
+     * Decimal amount as string
+     */
+    [k: string]: string;
+  };
+  sla_hours: number;
+  /**
+   * Decimal amount as string
+   */
+  materiality_abs: string;
+  /**
+   * Decimal amount as string
+   */
+  materiality_pct: string;
+  /**
+   * Decimal amount as string
+   */
+  qty_tolerance_pct: string;
+  /**
+   * Decimal amount as string
+   */
+  price_tolerance_pct: string;
+  locked_periods: string[];
+  fx_rates: {
+    /**
+     * Decimal amount as string
+     */
+    [k: string]: string;
+  };
+  accounts: {
+    [k: string]: string;
+  };
+  integrations: Integration[];
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "Integration".
+ */
+export interface Integration {
+  name: string;
+  /**
+   * connected | simulated | not_connected
+   */
+  status: string;
+  note: string;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -96,6 +237,326 @@ export interface ApprovalRequest {
   role: Role;
   decision: ApprovalDecision;
   comment: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ApprovalStep".
+ */
+export interface ApprovalStep {
+  step: number;
+  label: string;
+  who: string;
+  /**
+   * done | waiting | pending | rejected | on_hold
+   */
+  status: string;
+  note: string;
+}
+/**
+ * One invoice as the AP team sees it.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "Bill".
+ */
+export interface Bill {
+  case_id: string;
+  vendor_id: string;
+  vendor_name: string;
+  invoice_no: string | null;
+  invoice_date: string | null;
+  due_date: string | null;
+  days_to_due: number | null;
+  amount: string | null;
+  currency: string | null;
+  amount_usd: string | null;
+  /**
+   * processing | needs_review | on_hold | ready_to_pay | blocked | scheduled | paid | rejected
+   */
+  stage: string;
+  recommendation: Decision | null;
+  approved_by: string | null;
+  /**
+   * role that must sign, or nobody
+   */
+  needs: string;
+  /**
+   * high | medium | low
+   */
+  risk: string;
+  signals: Signal[];
+  /**
+   * time since it was handed to a human
+   */
+  waiting_hours: number | null;
+  sla_breached: boolean;
+  payment_block: string | null;
+  payment: Payment | null;
+  /**
+   * amount at risk from the 3-way match, invoice currency
+   */
+  overbilled: string | null;
+  discount: EarlyPayOffer | null;
+  /**
+   * advance-payment credit open for this vendor
+   */
+  credit_available: string | null;
+  /**
+   * one line shown under the bill in lists
+   */
+  warning: string | null;
+}
+/**
+ * A pre-payment check run by code at review time.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "Signal".
+ */
+export interface Signal {
+  /**
+   * bank_mismatch | lookalike_domain | duplicate | qty_short | price_over | not_on_po | over_limit | embedded_instructions | probation
+   */
+  code: string;
+  /**
+   * high | medium | low
+   */
+  severity: string;
+  title: string;
+  detail: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "Payment".
+ */
+export interface Payment {
+  id: string;
+  batch_id: string;
+  case_id: string;
+  vendor_id: string;
+  /**
+   * Decimal amount as string
+   */
+  amount: string;
+  currency: string;
+  /**
+   * Decimal amount as string
+   */
+  amount_usd: string;
+  /**
+   * ach | wire | intl_wire | check
+   */
+  method: string;
+  pay_date: string;
+  /**
+   * Always the vendor master's account, never the invoice's
+   */
+  pay_to_last4: string;
+  /**
+   * scheduled | paid
+   */
+  status: string;
+  /**
+   * invoice total before discount and credits
+   */
+  gross_amount: string | null;
+  /**
+   * early-payment discount taken
+   */
+  discount_amount: string;
+  /**
+   * advance-payment credit used
+   */
+  credit_applied: string;
+}
+/**
+ * An early-payment discount on one bill, computed in code from the vendor's terms.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "EarlyPayOffer".
+ */
+export interface EarlyPayOffer {
+  case_id: string;
+  vendor_id: string;
+  vendor_name: string;
+  invoice_no: string | null;
+  /**
+   * e.g. 2/15 net 30
+   */
+  terms: string;
+  /**
+   * Decimal amount as string
+   */
+  discount_pct: string;
+  /**
+   * Decimal amount as string
+   */
+  discount_amount: string;
+  currency: string;
+  /**
+   * Decimal amount as string
+   */
+  discount_usd: string;
+  pay_by: string;
+  days_left: number;
+  /**
+   * what paying early 'earns', annualised
+   */
+  annualized_return_pct: number;
+  /**
+   * available | needs_approval | blocked | missed | captured
+   */
+  status: string;
+  note: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "BillDetail".
+ */
+export interface BillDetail {
+  bill: Bill;
+  /**
+   * ready | review | risk
+   */
+  verdict: string;
+  verdict_text: string;
+  checks: CheckResult[];
+  match: MatchRow[];
+  gl: GLLine[];
+  approval_steps: ApprovalStep[];
+  activity: ActivityItem[];
+  last_paid: LastPaid | null;
+  est_pay_date: string | null;
+  /**
+   * methods allowed for this vendor
+   */
+  pay_methods: string[];
+  default_method: string | null;
+  statement_descriptor: string;
+  /**
+   * the account printed on the invoice (last 4)
+   */
+  invoice_bank_last4: string | null;
+}
+/**
+ * One pre-payment check and whether it passed, with references to the evidence.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "CheckResult".
+ */
+export interface CheckResult {
+  name: string;
+  passed: boolean;
+  /**
+   * high | medium | low (only meaningful when not passed)
+   */
+  severity: string;
+  detail: string;
+  /**
+   * e.g. 'Line 1', 'PO-5501', 'INV-2291'
+   */
+  refs: string[];
+}
+/**
+ * One SKU across purchase order, goods receipt and invoice. Variances computed in code.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "MatchRow".
+ */
+export interface MatchRow {
+  sku: string;
+  description: string;
+  ordered: string | null;
+  /**
+   * Decimal amount as string
+   */
+  received: string;
+  /**
+   * Decimal amount as string
+   */
+  billed: string;
+  po_price: string | null;
+  /**
+   * Decimal amount as string
+   */
+  invoice_price: string;
+  /**
+   * billed - min(ordered, received)
+   */
+  qty_variance: string;
+  /**
+   * invoice_price - po_price
+   */
+  price_variance: string | null;
+  /**
+   * what would be overpaid, in invoice currency
+   */
+  amount_at_risk: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "GLLine".
+ */
+export interface GLLine {
+  line_no: number;
+  sku: string;
+  description: string;
+  /**
+   * Decimal amount as string
+   */
+  amount: string;
+  account: string;
+  /**
+   * why this account was suggested
+   */
+  basis: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "LastPaid".
+ */
+export interface LastPaid {
+  invoice_no: string;
+  /**
+   * Decimal amount as string
+   */
+  amount: string;
+  currency: string;
+  paid_on: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "BusinessMetrics".
+ */
+export interface BusinessMetrics {
+  cases: number;
+  exceptions: number;
+  /**
+   * Held/rejected/escalated exposure, USD at simulated FX
+   */
+  dollars_caught_usd: string;
+  /**
+   * ESTIMATE: per-case manual minutes x cases handled
+   */
+  hours_saved_estimate: string;
+  /**
+   * Posted on or before due date; None if nothing posted
+   */
+  on_time_payment_rate: number | null;
+  avg_hours_to_resolve: number | null;
+  by_vendor: VendorExceptions[];
+  /**
+   * Shown next to the numbers
+   */
+  assumptions: string[];
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "VendorExceptions".
+ */
+export interface VendorExceptions {
+  vendor_id: string;
+  vendor_name: string;
+  cases: number;
+  exceptions: number;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -349,6 +810,35 @@ export interface Step {
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ChatMessage".
+ */
+export interface ChatMessage {
+  /**
+   * user | assistant
+   */
+  role: string;
+  content: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ChatReply".
+ */
+export interface ChatReply {
+  content: string;
+  /**
+   * claude | offline
+   */
+  source: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ChatRequest".
+ */
+export interface ChatRequest {
+  messages: ChatMessage[];
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "EvalResult".
  */
 export interface EvalResult {
@@ -394,6 +884,54 @@ export interface Event {
   at: string;
 }
 /**
+ * A non-ok step and what the pipeline did next.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "FailureItem".
+ */
+export interface FailureItem {
+  case_id: string;
+  run_id: string;
+  step_id: string;
+  stage: string;
+  status: StepStatus;
+  error: string | null;
+  next_stage: string | null;
+  next_status: StepStatus | null;
+  at: string;
+}
+/**
+ * One check the agents ran, in plain language, for the reviewer.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "Finding".
+ */
+export interface Finding {
+  /**
+   * e.g. '3-way match', 'Vendor & bank'
+   */
+  check: string;
+  /**
+   * pipeline stage that ran it
+   */
+  agent: string;
+  /**
+   * ok | flag | unchecked | blocked
+   */
+  status: string;
+  detail: string;
+}
+/**
+ * Returned by POST /intake: the run continues in the background.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "IntakeAccepted".
+ */
+export interface IntakeAccepted {
+  case_id: string;
+  run_id: string;
+}
+/**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "MemoryEntry".
  */
@@ -414,6 +952,316 @@ export interface MemoryEntry {
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "OnboardingCase".
+ */
+export interface OnboardingCase {
+  id: string;
+  request: OnboardingRequestIn;
+  /**
+   * needs_review | approved | rejected
+   */
+  status: string;
+  checks: OnboardingCheck[];
+  /**
+   * low | medium | high
+   */
+  risk_tier: string;
+  /**
+   * role that must approve: approver | controller
+   */
+  needs: string;
+  /**
+   * live | simulated
+   */
+  crs_mode: string;
+  created_at: string;
+  decided_by: string | null;
+  decided_at: string | null;
+  decision_comment: string;
+  vendor_id: string | null;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "OnboardingRequestIn".
+ */
+export interface OnboardingRequestIn {
+  legal_name: string;
+  country: string;
+  currency: string;
+  tax_id: string | null;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  email_domain: string;
+  website: string;
+  bank_last4: string;
+  contact_name: string;
+  contact_phone: string;
+  /**
+   * Decimal amount as string
+   */
+  expected_annual_spend_usd: string;
+  requested_by: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "OnboardingCheck".
+ */
+export interface OnboardingCheck {
+  name: string;
+  /**
+   * CRS | code
+   */
+  provider: string;
+  /**
+   * pass | warn | fail | not_covered | incomplete
+   */
+  status: string;
+  detail: string;
+  simulated: boolean;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "PaymentBatch".
+ */
+export interface PaymentBatch {
+  id: string;
+  pay_date: string;
+  /**
+   * scheduled | paid
+   */
+  status: string;
+  created_by: string;
+  created_at: string;
+  released_by: string | null;
+  released_at: string | null;
+  payments: Payment[];
+  /**
+   * Decimal amount as string
+   */
+  total_usd: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "PaymentBatchRequest".
+ */
+export interface PaymentBatchRequest {
+  case_ids: string[];
+  pay_date: string;
+  created_by: string;
+  /**
+   * case_id -> method; default by vendor country
+   */
+  methods: {
+    [k: string]: string;
+  };
+}
+/**
+ * Commercial terms from the contract / vendor master (never from invoice text). e.g. 2/10 net 30.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "PaymentTerms".
+ */
+export interface PaymentTerms {
+  net_days: number;
+  /**
+   * early-payment discount, e.g. 0.02
+   */
+  discount_pct: string | null;
+  /**
+   * pay within N days of the invoice date to earn it
+   */
+  discount_days: number | null;
+  /**
+   * discount for paying in advance, e.g. 0.04
+   */
+  prepay_discount_pct: string | null;
+  /**
+   * max open prepaid balance for this vendor
+   */
+  prepay_cap_usd: string | null;
+  /**
+   * where these terms come from
+   */
+  source: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "PrepayApplication".
+ */
+export interface PrepayApplication {
+  case_id: string;
+  /**
+   * Decimal amount as string
+   */
+  amount: string;
+  at: string;
+}
+/**
+ * An advance payment that buys vendor credit at a discount. SIMULATED settlement.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "Prepayment".
+ */
+export interface Prepayment {
+  id: string;
+  vendor_id: string;
+  vendor_name: string;
+  currency: string;
+  /**
+   * credit granted against future invoices
+   */
+  credit_amount: string;
+  /**
+   * what Helix pays now
+   */
+  cash_amount: string;
+  /**
+   * Decimal amount as string
+   */
+  discount_amount: string;
+  /**
+   * Decimal amount as string
+   */
+  discount_pct: string;
+  /**
+   * Decimal amount as string
+   */
+  cash_usd: string;
+  /**
+   * requested | paid | rejected
+   */
+  status: string;
+  requested_by: string;
+  requested_at: string;
+  approved_by: string | null;
+  approved_at: string | null;
+  note: string;
+  applied: PrepayApplication[];
+  /**
+   * Decimal amount as string
+   */
+  remaining: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "PrepaymentQuote".
+ */
+export interface PrepaymentQuote {
+  vendor_id: string;
+  currency: string;
+  /**
+   * Decimal amount as string
+   */
+  credit_amount: string;
+  /**
+   * Decimal amount as string
+   */
+  cash_amount: string;
+  /**
+   * Decimal amount as string
+   */
+  discount_amount: string;
+  /**
+   * Decimal amount as string
+   */
+  discount_pct: string;
+  /**
+   * Decimal amount as string
+   */
+  cash_usd: string;
+  cap_remaining_usd: string | null;
+  allowed: boolean;
+  reason: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "PrepaymentRequest".
+ */
+export interface PrepaymentRequest {
+  vendor_id: string;
+  /**
+   * Decimal amount as string
+   */
+  credit_amount: string;
+  requested_by: string;
+  note: string;
+}
+/**
+ * One open case in the approval queue, sorted by priority (highest first).
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "QueueItem".
+ */
+export interface QueueItem {
+  case_id: string;
+  vendor_id: string;
+  vendor_name: string;
+  status: CaseStatus;
+  decision: Decision | null;
+  invoice_no: string | null;
+  total: string | null;
+  currency: string | null;
+  /**
+   * At the simulated policy FX rate
+   */
+  total_usd: string | null;
+  due_date: string | null;
+  days_to_due: number | null;
+  /**
+   * Due within the at-risk window or overdue
+   */
+  at_risk: boolean;
+  critical_vendor: boolean;
+  /**
+   * Higher = work first
+   */
+  priority: number;
+  /**
+   * Why it ranks where it does
+   */
+  reasons: string[];
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ReleaseRequest".
+ */
+export interface ReleaseRequest {
+  released_by: string;
+}
+/**
+ * Everything the reviewer gets once the background run is done.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ReviewPacket".
+ */
+export interface ReviewPacket {
+  case_id: string;
+  /**
+   * False while the pipeline is still running
+   */
+  ready: boolean;
+  summary: string;
+  recommendation: Decision | null;
+  /**
+   * who must sign: approver | controller | nobody
+   */
+  needs: string;
+  findings: Finding[];
+  trace: Step[];
+  files: Document[];
+  /**
+   * pre-payment checks run by code
+   */
+  signals: Signal[];
+  /**
+   * questions the reviewer can tap
+   */
+  suggested: string[];
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "Scoreboard".
  */
 export interface Scoreboard {
@@ -427,6 +1275,21 @@ export interface Scoreboard {
   results: EvalResult[];
 }
 /**
+ * A human decision on a prepayment or onboarding request.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "SignOff".
+ */
+export interface SignOff {
+  approver: string;
+  role: Role;
+  /**
+   * approved | rejected
+   */
+  decision: string;
+  comment: string;
+}
+/**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "SkillVersion".
  */
@@ -437,6 +1300,23 @@ export interface SkillVersion {
   created_at: string;
   approved_by: string | null;
   git_sha: string | null;
+}
+/**
+ * How one pipeline stage behaved across every case's latest run.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "StageStat".
+ */
+export interface StageStat {
+  stage: string;
+  runs: number;
+  ok: number;
+  skipped: number;
+  /**
+   * failed + blocked + escalated + retried
+   */
+  flagged: number;
+  avg_ms: number | null;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -457,4 +1337,5 @@ export interface Vendor {
   tax_id: string | null;
   critical: boolean;
   on_probation: boolean;
+  terms: PaymentTerms | null;
 }

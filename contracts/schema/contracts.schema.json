@@ -1,5 +1,228 @@
 {
   "$defs": {
+    "ActivityItem": {
+      "additionalProperties": false,
+      "properties": {
+        "at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "at",
+        "actor",
+        "text"
+      ],
+      "title": "ActivityItem",
+      "type": "object"
+    },
+    "AgingBucket": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "amount_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "count": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "label",
+        "amount_usd",
+        "count"
+      ],
+      "title": "AgingBucket",
+      "type": "object"
+    },
+    "ApReport": {
+      "additionalProperties": false,
+      "properties": {
+        "open_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "due_7d_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "overdue_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "needs_review": {
+          "type": "integer"
+        },
+        "blocked": {
+          "type": "integer"
+        },
+        "touchless_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "caught_usd": {
+          "description": "USD of bills held, rejected or payment-blocked by checks",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "discounts_available_usd": {
+          "default": "0",
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "discounts_captured_usd": {
+          "default": "0",
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "discounts_missed_usd": {
+          "default": "0",
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "aging": {
+          "items": {
+            "$ref": "#/$defs/AgingBucket"
+          },
+          "type": "array"
+        },
+        "forecast": {
+          "items": {
+            "$ref": "#/$defs/ForecastWeek"
+          },
+          "type": "array"
+        },
+        "by_vendor": {
+          "items": {
+            "$ref": "#/$defs/SpendRow"
+          },
+          "type": "array"
+        },
+        "by_gl": {
+          "items": {
+            "$ref": "#/$defs/SpendRow"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "open_usd",
+        "due_7d_usd",
+        "overdue_usd",
+        "needs_review",
+        "blocked",
+        "touchless_rate",
+        "caught_usd",
+        "discounts_available_usd",
+        "discounts_captured_usd",
+        "discounts_missed_usd",
+        "aging",
+        "forecast",
+        "by_vendor",
+        "by_gl"
+      ],
+      "title": "ApReport",
+      "type": "object"
+    },
+    "ApSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "approval_limits": {
+          "additionalProperties": {
+            "description": "Decimal amount as string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "sla_hours": {
+          "type": "integer"
+        },
+        "materiality_abs": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "materiality_pct": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "qty_tolerance_pct": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "price_tolerance_pct": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "locked_periods": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "fx_rates": {
+          "additionalProperties": {
+            "description": "Decimal amount as string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "accounts": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "integrations": {
+          "items": {
+            "$ref": "#/$defs/Integration"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "approval_limits",
+        "sla_hours",
+        "materiality_abs",
+        "materiality_pct",
+        "qty_tolerance_pct",
+        "price_tolerance_pct",
+        "locked_periods",
+        "fx_rates",
+        "accounts",
+        "integrations"
+      ],
+      "title": "ApSettings",
+      "type": "object"
+    },
     "Approval": {
       "additionalProperties": false,
       "properties": {
@@ -86,6 +309,481 @@
         "comment"
       ],
       "title": "ApprovalRequest",
+      "type": "object"
+    },
+    "ApprovalStep": {
+      "additionalProperties": false,
+      "properties": {
+        "step": {
+          "type": "integer"
+        },
+        "label": {
+          "type": "string"
+        },
+        "who": {
+          "type": "string"
+        },
+        "status": {
+          "description": "done | waiting | pending | rejected | on_hold",
+          "type": "string"
+        },
+        "note": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "step",
+        "label",
+        "who",
+        "status",
+        "note"
+      ],
+      "title": "ApprovalStep",
+      "type": "object"
+    },
+    "Bill": {
+      "additionalProperties": false,
+      "description": "One invoice as the AP team sees it.",
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "vendor_id": {
+          "type": "string"
+        },
+        "vendor_name": {
+          "type": "string"
+        },
+        "invoice_no": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "invoice_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "due_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "days_to_due": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "amount": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "amount_usd": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "stage": {
+          "description": "processing | needs_review | on_hold | ready_to_pay | blocked | scheduled | paid | rejected",
+          "type": "string"
+        },
+        "recommendation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Decision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "approved_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "needs": {
+          "description": "role that must sign, or nobody",
+          "type": "string"
+        },
+        "risk": {
+          "description": "high | medium | low",
+          "type": "string"
+        },
+        "signals": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Signal"
+          },
+          "type": "array"
+        },
+        "waiting_hours": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "time since it was handed to a human"
+        },
+        "sla_breached": {
+          "default": false,
+          "type": "boolean"
+        },
+        "payment_block": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "payment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Payment"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "overbilled": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "amount at risk from the 3-way match, invoice currency"
+        },
+        "discount": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EarlyPayOffer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "credit_available": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "advance-payment credit open for this vendor"
+        },
+        "warning": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "one line shown under the bill in lists"
+        }
+      },
+      "required": [
+        "case_id",
+        "vendor_id",
+        "vendor_name",
+        "invoice_no",
+        "invoice_date",
+        "due_date",
+        "days_to_due",
+        "amount",
+        "currency",
+        "amount_usd",
+        "stage",
+        "recommendation",
+        "approved_by",
+        "needs",
+        "risk",
+        "signals",
+        "waiting_hours",
+        "sla_breached",
+        "payment_block",
+        "payment",
+        "overbilled",
+        "discount",
+        "credit_available",
+        "warning"
+      ],
+      "title": "Bill",
+      "type": "object"
+    },
+    "BillDetail": {
+      "additionalProperties": false,
+      "properties": {
+        "bill": {
+          "$ref": "#/$defs/Bill"
+        },
+        "verdict": {
+          "description": "ready | review | risk",
+          "type": "string"
+        },
+        "verdict_text": {
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/CheckResult"
+          },
+          "type": "array"
+        },
+        "match": {
+          "items": {
+            "$ref": "#/$defs/MatchRow"
+          },
+          "type": "array"
+        },
+        "gl": {
+          "items": {
+            "$ref": "#/$defs/GLLine"
+          },
+          "type": "array"
+        },
+        "approval_steps": {
+          "items": {
+            "$ref": "#/$defs/ApprovalStep"
+          },
+          "type": "array"
+        },
+        "activity": {
+          "items": {
+            "$ref": "#/$defs/ActivityItem"
+          },
+          "type": "array"
+        },
+        "last_paid": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LastPaid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "est_pay_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "pay_methods": {
+          "description": "methods allowed for this vendor",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "default_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "statement_descriptor": {
+          "type": "string"
+        },
+        "invoice_bank_last4": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "the account printed on the invoice (last 4)"
+        }
+      },
+      "required": [
+        "bill",
+        "verdict",
+        "verdict_text",
+        "checks",
+        "match",
+        "gl",
+        "approval_steps",
+        "activity",
+        "last_paid",
+        "est_pay_date",
+        "pay_methods",
+        "default_method",
+        "statement_descriptor",
+        "invoice_bank_last4"
+      ],
+      "title": "BillDetail",
+      "type": "object"
+    },
+    "BusinessMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "cases": {
+          "type": "integer"
+        },
+        "exceptions": {
+          "type": "integer"
+        },
+        "dollars_caught_usd": {
+          "description": "Held/rejected/escalated exposure, USD at simulated FX",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "hours_saved_estimate": {
+          "description": "ESTIMATE: per-case manual minutes x cases handled",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "on_time_payment_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Posted on or before due date; None if nothing posted"
+        },
+        "avg_hours_to_resolve": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "by_vendor": {
+          "items": {
+            "$ref": "#/$defs/VendorExceptions"
+          },
+          "type": "array"
+        },
+        "assumptions": {
+          "description": "Shown next to the numbers",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "cases",
+        "exceptions",
+        "dollars_caught_usd",
+        "hours_saved_estimate",
+        "on_time_payment_rate",
+        "avg_hours_to_resolve",
+        "by_vendor",
+        "assumptions"
+      ],
+      "title": "BusinessMetrics",
       "type": "object"
     },
     "Case": {
@@ -310,6 +1008,93 @@
       "title": "Channel",
       "type": "string"
     },
+    "ChatMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "description": "user | assistant",
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "content"
+      ],
+      "title": "ChatMessage",
+      "type": "object"
+    },
+    "ChatReply": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "source": {
+          "description": "claude | offline",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content",
+        "source"
+      ],
+      "title": "ChatReply",
+      "type": "object"
+    },
+    "ChatRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "messages": {
+          "items": {
+            "$ref": "#/$defs/ChatMessage"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "messages"
+      ],
+      "title": "ChatRequest",
+      "type": "object"
+    },
+    "CheckResult": {
+      "additionalProperties": false,
+      "description": "One pre-payment check and whether it passed, with references to the evidence.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "severity": {
+          "description": "high | medium | low (only meaningful when not passed)",
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "refs": {
+          "description": "e.g. 'Line 1', 'PO-5501', 'INV-2291'",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "passed",
+        "severity",
+        "detail",
+        "refs"
+      ],
+      "title": "CheckResult",
+      "type": "object"
+    },
     "Citation": {
       "additionalProperties": false,
       "properties": {
@@ -525,6 +1310,91 @@
       "title": "Document",
       "type": "object"
     },
+    "EarlyPayOffer": {
+      "additionalProperties": false,
+      "description": "An early-payment discount on one bill, computed in code from the vendor's terms.",
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "vendor_id": {
+          "type": "string"
+        },
+        "vendor_name": {
+          "type": "string"
+        },
+        "invoice_no": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "terms": {
+          "description": "e.g. 2/15 net 30",
+          "type": "string"
+        },
+        "discount_pct": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "discount_amount": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "discount_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "pay_by": {
+          "format": "date",
+          "type": "string"
+        },
+        "days_left": {
+          "type": "integer"
+        },
+        "annualized_return_pct": {
+          "description": "what paying early 'earns', annualised",
+          "type": "number"
+        },
+        "status": {
+          "description": "available | needs_approval | blocked | missed | captured",
+          "type": "string"
+        },
+        "note": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "vendor_id",
+        "vendor_name",
+        "invoice_no",
+        "terms",
+        "discount_pct",
+        "discount_amount",
+        "currency",
+        "discount_usd",
+        "pay_by",
+        "days_left",
+        "annualized_return_pct",
+        "status",
+        "note"
+      ],
+      "title": "EarlyPayOffer",
+      "type": "object"
+    },
     "EvalResult": {
       "additionalProperties": false,
       "properties": {
@@ -680,6 +1550,208 @@
       "title": "ExpectedOutcome",
       "type": "object"
     },
+    "FailureItem": {
+      "additionalProperties": false,
+      "description": "A non-ok step and what the pipeline did next.",
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "step_id": {
+          "type": "string"
+        },
+        "stage": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/StepStatus"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "next_stage": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "next_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StepStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "at": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "run_id",
+        "step_id",
+        "stage",
+        "status",
+        "error",
+        "next_stage",
+        "next_status",
+        "at"
+      ],
+      "title": "FailureItem",
+      "type": "object"
+    },
+    "Finding": {
+      "additionalProperties": false,
+      "description": "One check the agents ran, in plain language, for the reviewer.",
+      "properties": {
+        "check": {
+          "description": "e.g. '3-way match', 'Vendor & bank'",
+          "type": "string"
+        },
+        "agent": {
+          "description": "pipeline stage that ran it",
+          "type": "string"
+        },
+        "status": {
+          "description": "ok | flag | unchecked | blocked",
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "check",
+        "agent",
+        "status",
+        "detail"
+      ],
+      "title": "Finding",
+      "type": "object"
+    },
+    "ForecastWeek": {
+      "additionalProperties": false,
+      "properties": {
+        "week_start": {
+          "format": "date",
+          "type": "string"
+        },
+        "approved_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "pending_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "week_start",
+        "approved_usd",
+        "pending_usd"
+      ],
+      "title": "ForecastWeek",
+      "type": "object"
+    },
+    "GLLine": {
+      "additionalProperties": false,
+      "properties": {
+        "line_no": {
+          "type": "integer"
+        },
+        "sku": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "amount": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "account": {
+          "type": "string"
+        },
+        "basis": {
+          "description": "why this account was suggested",
+          "type": "string"
+        }
+      },
+      "required": [
+        "line_no",
+        "sku",
+        "description",
+        "amount",
+        "account",
+        "basis"
+      ],
+      "title": "GLLine",
+      "type": "object"
+    },
+    "IntakeAccepted": {
+      "additionalProperties": false,
+      "description": "Returned by POST /intake: the run continues in the background.",
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "run_id"
+      ],
+      "title": "IntakeAccepted",
+      "type": "object"
+    },
+    "Integration": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "description": "connected | simulated | not_connected",
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "note"
+      ],
+      "title": "Integration",
+      "type": "object"
+    },
     "Invoice": {
       "additionalProperties": false,
       "properties": {
@@ -822,6 +1894,34 @@
       "title": "JournalEntry",
       "type": "object"
     },
+    "LastPaid": {
+      "additionalProperties": false,
+      "properties": {
+        "invoice_no": {
+          "type": "string"
+        },
+        "amount": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "paid_on": {
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "invoice_no",
+        "amount",
+        "currency",
+        "paid_on"
+      ],
+      "title": "LastPaid",
+      "type": "object"
+    },
     "LineItem": {
       "additionalProperties": false,
       "properties": {
@@ -859,6 +1959,97 @@
         "amount"
       ],
       "title": "LineItem",
+      "type": "object"
+    },
+    "MatchRow": {
+      "additionalProperties": false,
+      "description": "One SKU across purchase order, goods receipt and invoice. Variances computed in code.",
+      "properties": {
+        "sku": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "ordered": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "received": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "billed": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "po_price": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "invoice_price": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "qty_variance": {
+          "description": "billed - min(ordered, received)",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "price_variance": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "invoice_price - po_price"
+        },
+        "amount_at_risk": {
+          "description": "what would be overpaid, in invoice currency",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sku",
+        "description",
+        "ordered",
+        "received",
+        "billed",
+        "po_price",
+        "invoice_price",
+        "qty_variance",
+        "price_variance",
+        "amount_at_risk"
+      ],
+      "title": "MatchRow",
       "type": "object"
     },
     "MemoryEntry": {
@@ -913,6 +2104,218 @@
       ],
       "title": "MemoryFolder",
       "type": "string"
+    },
+    "OnboardingCase": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "request": {
+          "$ref": "#/$defs/OnboardingRequestIn"
+        },
+        "status": {
+          "description": "needs_review | approved | rejected",
+          "type": "string"
+        },
+        "checks": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/OnboardingCheck"
+          },
+          "type": "array"
+        },
+        "risk_tier": {
+          "description": "low | medium | high",
+          "type": "string"
+        },
+        "needs": {
+          "description": "role that must approve: approver | controller",
+          "type": "string"
+        },
+        "crs_mode": {
+          "description": "live | simulated",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "decided_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "decided_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "decision_comment": {
+          "default": "",
+          "type": "string"
+        },
+        "vendor_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "request",
+        "status",
+        "checks",
+        "risk_tier",
+        "needs",
+        "crs_mode",
+        "created_at",
+        "decided_by",
+        "decided_at",
+        "decision_comment",
+        "vendor_id"
+      ],
+      "title": "OnboardingCase",
+      "type": "object"
+    },
+    "OnboardingCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "provider": {
+          "description": "CRS | code",
+          "type": "string"
+        },
+        "status": {
+          "description": "pass | warn | fail | not_covered | incomplete",
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "simulated": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "provider",
+        "status",
+        "detail",
+        "simulated"
+      ],
+      "title": "OnboardingCheck",
+      "type": "object"
+    },
+    "OnboardingRequestIn": {
+      "additionalProperties": false,
+      "properties": {
+        "legal_name": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "currency": {
+          "default": "USD",
+          "type": "string"
+        },
+        "tax_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "address": {
+          "default": "",
+          "type": "string"
+        },
+        "city": {
+          "default": "",
+          "type": "string"
+        },
+        "state": {
+          "default": "",
+          "type": "string"
+        },
+        "zip": {
+          "default": "",
+          "type": "string"
+        },
+        "email_domain": {
+          "type": "string"
+        },
+        "website": {
+          "default": "",
+          "type": "string"
+        },
+        "bank_last4": {
+          "type": "string"
+        },
+        "contact_name": {
+          "default": "",
+          "type": "string"
+        },
+        "contact_phone": {
+          "default": "",
+          "type": "string"
+        },
+        "expected_annual_spend_usd": {
+          "default": "0",
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "requested_by": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "legal_name",
+        "country",
+        "currency",
+        "tax_id",
+        "address",
+        "city",
+        "state",
+        "zip",
+        "email_domain",
+        "website",
+        "bank_last4",
+        "contact_name",
+        "contact_phone",
+        "expected_annual_spend_usd",
+        "requested_by"
+      ],
+      "title": "OnboardingRequestIn",
+      "type": "object"
     },
     "PO": {
       "additionalProperties": false,
@@ -988,6 +2391,279 @@
       "title": "POLine",
       "type": "object"
     },
+    "Payment": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "batch_id": {
+          "type": "string"
+        },
+        "case_id": {
+          "type": "string"
+        },
+        "vendor_id": {
+          "type": "string"
+        },
+        "amount": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "amount_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "method": {
+          "description": "ach | wire | intl_wire | check",
+          "type": "string"
+        },
+        "pay_date": {
+          "format": "date",
+          "type": "string"
+        },
+        "pay_to_last4": {
+          "description": "Always the vendor master's account, never the invoice's",
+          "type": "string"
+        },
+        "status": {
+          "description": "scheduled | paid",
+          "type": "string"
+        },
+        "gross_amount": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "invoice total before discount and credits"
+        },
+        "discount_amount": {
+          "default": "0",
+          "description": "early-payment discount taken",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "credit_applied": {
+          "default": "0",
+          "description": "advance-payment credit used",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "batch_id",
+        "case_id",
+        "vendor_id",
+        "amount",
+        "currency",
+        "amount_usd",
+        "method",
+        "pay_date",
+        "pay_to_last4",
+        "status",
+        "gross_amount",
+        "discount_amount",
+        "credit_applied"
+      ],
+      "title": "Payment",
+      "type": "object"
+    },
+    "PaymentBatch": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "pay_date": {
+          "format": "date",
+          "type": "string"
+        },
+        "status": {
+          "description": "scheduled | paid",
+          "type": "string"
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "released_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "released_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "payments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Payment"
+          },
+          "type": "array"
+        },
+        "total_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "pay_date",
+        "status",
+        "created_by",
+        "created_at",
+        "released_by",
+        "released_at",
+        "payments",
+        "total_usd"
+      ],
+      "title": "PaymentBatch",
+      "type": "object"
+    },
+    "PaymentBatchRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "case_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "pay_date": {
+          "format": "date",
+          "type": "string"
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "methods": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "case_id -> method; default by vendor country",
+          "type": "object"
+        }
+      },
+      "required": [
+        "case_ids",
+        "pay_date",
+        "created_by",
+        "methods"
+      ],
+      "title": "PaymentBatchRequest",
+      "type": "object"
+    },
+    "PaymentTerms": {
+      "additionalProperties": false,
+      "description": "Commercial terms from the contract / vendor master (never from invoice text). e.g. 2/10 net 30.",
+      "properties": {
+        "net_days": {
+          "default": 30,
+          "type": "integer"
+        },
+        "discount_pct": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "early-payment discount, e.g. 0.02"
+        },
+        "discount_days": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "pay within N days of the invoice date to earn it"
+        },
+        "prepay_discount_pct": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "discount for paying in advance, e.g. 0.04"
+        },
+        "prepay_cap_usd": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "max open prepaid balance for this vendor"
+        },
+        "source": {
+          "default": "vendor master",
+          "description": "where these terms come from",
+          "type": "string"
+        }
+      },
+      "required": [
+        "net_days",
+        "discount_pct",
+        "discount_days",
+        "prepay_discount_pct",
+        "prepay_cap_usd",
+        "source"
+      ],
+      "title": "PaymentTerms",
+      "type": "object"
+    },
     "Posting": {
       "additionalProperties": false,
       "properties": {
@@ -1009,6 +2685,242 @@
         "currency"
       ],
       "title": "Posting",
+      "type": "object"
+    },
+    "PrepayApplication": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "amount": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "at": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "amount",
+        "at"
+      ],
+      "title": "PrepayApplication",
+      "type": "object"
+    },
+    "Prepayment": {
+      "additionalProperties": false,
+      "description": "An advance payment that buys vendor credit at a discount. SIMULATED settlement.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "vendor_id": {
+          "type": "string"
+        },
+        "vendor_name": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "credit_amount": {
+          "description": "credit granted against future invoices",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "cash_amount": {
+          "description": "what Helix pays now",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "discount_amount": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "discount_pct": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "cash_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "status": {
+          "description": "requested | paid | rejected",
+          "type": "string"
+        },
+        "requested_by": {
+          "type": "string"
+        },
+        "requested_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "approved_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "approved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "note": {
+          "default": "",
+          "type": "string"
+        },
+        "applied": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PrepayApplication"
+          },
+          "type": "array"
+        },
+        "remaining": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "vendor_id",
+        "vendor_name",
+        "currency",
+        "credit_amount",
+        "cash_amount",
+        "discount_amount",
+        "discount_pct",
+        "cash_usd",
+        "status",
+        "requested_by",
+        "requested_at",
+        "approved_by",
+        "approved_at",
+        "note",
+        "applied",
+        "remaining"
+      ],
+      "title": "Prepayment",
+      "type": "object"
+    },
+    "PrepaymentQuote": {
+      "additionalProperties": false,
+      "properties": {
+        "vendor_id": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "credit_amount": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "cash_amount": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "discount_amount": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "discount_pct": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "cash_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "cap_remaining_usd": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "allowed": {
+          "type": "boolean"
+        },
+        "reason": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendor_id",
+        "currency",
+        "credit_amount",
+        "cash_amount",
+        "discount_amount",
+        "discount_pct",
+        "cash_usd",
+        "cap_remaining_usd",
+        "allowed",
+        "reason"
+      ],
+      "title": "PrepaymentQuote",
+      "type": "object"
+    },
+    "PrepaymentRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "vendor_id": {
+          "type": "string"
+        },
+        "credit_amount": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "requested_by": {
+          "type": "string"
+        },
+        "note": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vendor_id",
+        "credit_amount",
+        "requested_by",
+        "note"
+      ],
+      "title": "PrepaymentRequest",
       "type": "object"
     },
     "Proposal": {
@@ -1095,6 +3007,146 @@
       "title": "Proposal",
       "type": "object"
     },
+    "QueueItem": {
+      "additionalProperties": false,
+      "description": "One open case in the approval queue, sorted by priority (highest first).",
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "vendor_id": {
+          "type": "string"
+        },
+        "vendor_name": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/CaseStatus"
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Decision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "invoice_no": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "total": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "total_usd": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "At the simulated policy FX rate"
+        },
+        "due_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "days_to_due": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "at_risk": {
+          "default": false,
+          "description": "Due within the at-risk window or overdue",
+          "type": "boolean"
+        },
+        "critical_vendor": {
+          "default": false,
+          "type": "boolean"
+        },
+        "priority": {
+          "description": "Higher = work first",
+          "type": "integer"
+        },
+        "reasons": {
+          "description": "Why it ranks where it does",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "case_id",
+        "vendor_id",
+        "vendor_name",
+        "status",
+        "decision",
+        "invoice_no",
+        "total",
+        "currency",
+        "total_usd",
+        "due_date",
+        "days_to_due",
+        "at_risk",
+        "critical_vendor",
+        "priority",
+        "reasons"
+      ],
+      "title": "QueueItem",
+      "type": "object"
+    },
     "Receipt": {
       "additionalProperties": false,
       "properties": {
@@ -1147,6 +3199,99 @@
       "title": "ReceiptLine",
       "type": "object"
     },
+    "ReleaseRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "released_by": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "released_by"
+      ],
+      "title": "ReleaseRequest",
+      "type": "object"
+    },
+    "ReviewPacket": {
+      "additionalProperties": false,
+      "description": "Everything the reviewer gets once the background run is done.",
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "ready": {
+          "description": "False while the pipeline is still running",
+          "type": "boolean"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "recommendation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Decision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "needs": {
+          "description": "who must sign: approver | controller | nobody",
+          "type": "string"
+        },
+        "findings": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "type": "array"
+        },
+        "trace": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Step"
+          },
+          "type": "array"
+        },
+        "files": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Document"
+          },
+          "type": "array"
+        },
+        "signals": {
+          "description": "pre-payment checks run by code",
+          "items": {
+            "$ref": "#/$defs/Signal"
+          },
+          "type": "array"
+        },
+        "suggested": {
+          "description": "questions the reviewer can tap",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "case_id",
+        "ready",
+        "summary",
+        "recommendation",
+        "needs",
+        "findings",
+        "trace",
+        "files",
+        "signals",
+        "suggested"
+      ],
+      "title": "ReviewPacket",
+      "type": "object"
+    },
     "Role": {
       "enum": [
         "system",
@@ -1154,6 +3299,7 @@
         "investigator",
         "approver",
         "controller",
+        "cfo",
         "requester"
       ],
       "title": "Role",
@@ -1202,6 +3348,62 @@
         "results"
       ],
       "title": "Scoreboard",
+      "type": "object"
+    },
+    "SignOff": {
+      "additionalProperties": false,
+      "description": "A human decision on a prepayment or onboarding request.",
+      "properties": {
+        "approver": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        },
+        "decision": {
+          "description": "approved | rejected",
+          "type": "string"
+        },
+        "comment": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "approver",
+        "role",
+        "decision",
+        "comment"
+      ],
+      "title": "SignOff",
+      "type": "object"
+    },
+    "Signal": {
+      "additionalProperties": false,
+      "description": "A pre-payment check run by code at review time.",
+      "properties": {
+        "code": {
+          "description": "bank_mismatch | lookalike_domain | duplicate | qty_short | price_over | not_on_po | over_limit | embedded_instructions | probation",
+          "type": "string"
+        },
+        "severity": {
+          "description": "high | medium | low",
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "severity",
+        "title",
+        "detail"
+      ],
+      "title": "Signal",
       "type": "object"
     },
     "SkillStatus": {
@@ -1261,6 +3463,72 @@
         "git_sha"
       ],
       "title": "SkillVersion",
+      "type": "object"
+    },
+    "SpendRow": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "amount_usd": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "count": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "label",
+        "amount_usd",
+        "count"
+      ],
+      "title": "SpendRow",
+      "type": "object"
+    },
+    "StageStat": {
+      "additionalProperties": false,
+      "description": "How one pipeline stage behaved across every case's latest run.",
+      "properties": {
+        "stage": {
+          "type": "string"
+        },
+        "runs": {
+          "type": "integer"
+        },
+        "ok": {
+          "type": "integer"
+        },
+        "skipped": {
+          "type": "integer"
+        },
+        "flagged": {
+          "description": "failed + blocked + escalated + retried",
+          "type": "integer"
+        },
+        "avg_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "stage",
+        "runs",
+        "ok",
+        "skipped",
+        "flagged",
+        "avg_ms"
+      ],
+      "title": "StageStat",
       "type": "object"
     },
     "Step": {
@@ -1510,6 +3778,17 @@
         "on_probation": {
           "default": false,
           "type": "boolean"
+        },
+        "terms": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PaymentTerms"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -1523,9 +3802,35 @@
         "channels",
         "tax_id",
         "critical",
-        "on_probation"
+        "on_probation",
+        "terms"
       ],
       "title": "Vendor",
+      "type": "object"
+    },
+    "VendorExceptions": {
+      "additionalProperties": false,
+      "properties": {
+        "vendor_id": {
+          "type": "string"
+        },
+        "vendor_name": {
+          "type": "string"
+        },
+        "cases": {
+          "type": "integer"
+        },
+        "exceptions": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "vendor_id",
+        "vendor_name",
+        "cases",
+        "exceptions"
+      ],
+      "title": "VendorExceptions",
       "type": "object"
     }
   },
