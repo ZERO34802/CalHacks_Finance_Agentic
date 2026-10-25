@@ -1,30 +1,176 @@
-# ReconAI
+<p align="center">
+  <img src="docs/assets/banner.png" alt="RECON-AI" width="100%" />
+</p>
 
-**ReconAI fills two seats at Helix Silicon, a fabless chip company: the AP specialist and the vendor-master clerk.** It matches every wafer and memory bill, explains every gap with citations, remembers every supplier, and never pays or changes bank details without a second approver.
+<h3 align="center">Accounts payable that starts at the first quote, not the invoice.</h3>
 
-> Demo script and Q&A answers: [docs/DEMO.md](docs/DEMO.md). Full plan: [CLAUDE.md](CLAUDE.md).
+<p align="center">
+  ReconAI is the AP specialist and vendor-master clerk for a fabless chip company. It negotiates alongside you in Slack,
+  turns the deal into a PO, confirms the receipt, reconciles the invoice the moment it lands, and pays only after a
+  person says yes.
+</p>
+
+<p align="center">
+  <a href="https://youtu.be/SWFZMj2PKfo"><img src="https://img.shields.io/badge/▶_Watch_the_demo-66_seconds-0e6e76?style=for-the-badge" alt="Watch the demo" /></a>
+  <img src="https://img.shields.io/badge/Cal_Hacks-13.0-0a1f21?style=for-the-badge" alt="Cal Hacks 13.0" />
+  <img src="https://img.shields.io/badge/eval-48%2F48-16a34a?style=for-the-badge" alt="48/48 cases" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Claude-Opus_5.5-d97757?logo=anthropic&logoColor=white" alt="Claude" />
+  <img src="https://img.shields.io/badge/Factory-Droid-111?logoColor=white" alt="Factory Droid" />
+  <img src="https://img.shields.io/badge/SpacetimeDB-live_state-6a4cf5" alt="SpacetimeDB" />
+  <img src="https://img.shields.io/badge/Slack-Bolt-4A154B?logo=slack&logoColor=white" alt="Slack" />
+  <img src="https://img.shields.io/badge/Odoo-17_ERP-714B67?logo=odoo&logoColor=white" alt="Odoo" />
+  <img src="https://img.shields.io/badge/Python-3.12_·_FastAPI-3776AB?logo=python&logoColor=white" alt="Python FastAPI" />
+  <img src="https://img.shields.io/badge/React-18_·_Mantine-61DAFB?logo=react&logoColor=black" alt="React" />
+</p>
+
+---
+
+## ▶ Demo
+
+<p align="center">
+  <a href="https://youtu.be/SWFZMj2PKfo"><img src="docs/assets/lifecycle.jpg" alt="Watch the ReconAI demo on YouTube" width="88%" /></a>
+  <br />
+  <sub><b><a href="https://youtu.be/SWFZMj2PKfo">Watch the 66-second demo on YouTube</a></b>: one invoice, from first quote to paid, in one vendor chat.</sub>
+</p>
+
+---
+
+## The pain point
+
+<img src="docs/assets/problem.jpg" alt="17.4 days to process a single invoice" align="right" width="42%" />
+
+**Most AP teams take 17.4 days to process a single invoice. The best take 3.1.**
+<sub>(Ardent Partners, *The State of ePayables 2024*)</sub>
+
+The reason isn't typing speed. **AP meets every bill cold.** By the time an invoice arrives, everything needed to
+check it is scattered across six places:
+
+- the email thread where the price was agreed ("Re: Re: Re: pricing");
+- the contract PDF;
+- the PO in the ERP;
+- the receiving spreadsheet;
+- the approval portal;
+- the chat where the vendor said what shipped.
+
+So someone rebuilds the context by hand for every bill. Meanwhile the expensive mistakes slip through:
+
+- **Bank-change fraud:** a look-alike domain asks to pay a "new" account the day before a $3.3M payment.
+- **Duplicates:** a paid invoice comes back as INV-2291-A.
+- **Overbilling:** the vendor bills the quoted price, not the one you agreed.
+- **Short deliveries:** the invoice is billed in full anyway.
+- **Missed discounts:** early-pay discounts expire while the bill waits in a queue.
+
+<br clear="right" />
+
+## What ReconAI does
+
+ReconAI is there **before** the bill exists, so when it lands it already knows what Helix owes. The whole lifecycle runs
+in **one Slack channel with the vendor**. ReconAI creates the **three documents** a 3-way match needs on the way:
+
+| # | Step | What happens | Who acts |
+| --- | --- | --- | --- |
+| 1 | **Negotiate** | The vendor quotes in the shared channel. ReconAI privately shows *your side only* the counter, aim and walk-away price (market p25 / median / p75 vs. your PO history), the money at stake, and cash-flow terms to ask for (2/15 net 30, net 45). | You + coach |
+| 2 | **Contract** | `/reconai contract` drafts the supply agreement from the agreed price and terms. | ReconAI |
+| 3 | **Onboard** | The vendor clicks **Accept & start onboarding**. Sanctions, bank, domain, tax form and CRS identity checks run. A low-risk vendor is approved by policy and starts on 90-day probation. | Vendor → automated |
+| 4 | 📄 **Document 1: Purchase order** | The contract becomes a PO in the ERP (Odoo). Contract prices become what the Matcher checks bills against. | Automated |
+| 5 | **Shipped** | The vendor runs `/reconai shipped PO-7001 SKU=50`. That's logged as a *claim*, never a receipt. | Vendor |
+| 6 | 📦 **Document 2: Goods receipt** | ReconAI DMs the buyer: *"All 50 received?"* One click records the goods receipt in the ERP. | You |
+| 7 | 🧾 **Document 3: Invoice** | The vendor drops the invoice in the chat (PDF, CSV, XLSX or a photo). ReconAI reads it with **no tools** and runs the 3-way match at once: quantity, price, bank account vs vendor master, duplicates. | Automated |
+| 8 | **Mismatch** | A difference is flagged in the same channel and the details go to the vendor's contact on file. A corrected invoice is linked to the original and re-matched. | Automated |
+| 9 | **Pay** | When all three documents agree, ReconAI DMs the approver *"Ready to approve"* with every check listed. One click releases payment, early-pay discount included, and the channel is updated. | You |
+
+Money never moves without a person. ReconAI can't approve its own work, can't edit bank details and can't release a
+payment. In our live Slack run, the invoice went to a release-ready prompt in about **7 minutes**.
+
+When something is wrong, it says so and cites the source: the Penang bill below asks for payment to account ••9902 from a
+look-alike domain, and the vendor master says ••4418. **Held. Callback required. Nothing paid.**
+
+<p align="center"><img src="video/public/ui/penang-bill.png" alt="ReconAI bill review: higher risk of fraud" width="88%" /></p>
 
 ## Results
 
-Scored on 48 hand-built cases, using real Claude and Factory Droid responses:
+Scored on **48 hand-built cases** (with an answer key), using real Claude and Factory Droid responses:
 
 | Passed | Catch rate | False alarms | Control invariants | Onboarding |
 | --- | --- | --- | --- | --- |
 | **48/48** | **100%** | **0%** | **100%** (9 checks) | 6/6 |
 
-- **48/48** is the replay of the final live run's recorded responses, after the last fix (`RECONAI_LLM=replay make eval`; $0).
-- The final live run itself scored 46/48. The 2 misses were clean invoices, correctly approved but tagged with a skill after a reviewer re-plan. That is fixed.
-- Live reviewer wording can vary between samples, so a fresh live run may differ slightly. Decisions have been stable.
-- Dollars caught before payment: USD 857k. Hours saved: 23 (an estimate). A live run costs about $2 with the cache warm.
+- **USD 857k** caught before payment, and an estimated **23 hours saved**. A live run costs about **$2** with the cache warm.
+- **48/48** is a replay of the final live run's recorded responses, after the last fix (`RECONAI_LLM=replay make eval`, $0).
+  - The live run itself scored 46/48. The 2 misses were clean invoices, correctly approved but tagged with a skill after a reviewer re-plan. That is fixed.
+- **The score is deterministic:** decisions, discrepancy types, routing, duplicate links, extraction, variance to the cent, paid amount, and control invariants.
+- **Misses are printed, not hidden.** LLM-judged quality is reported separately (`make eval-llm`). The judge is Claude Sonnet 5.5, a different model from the agent, calibrated against hand labels.
 
-- The score is **deterministic**: decisions, discrepancy types, routing, duplicate links, extraction (invoice no / total / currency), variance to the cent, paid amount, and control invariants.
-- **Misses are shown, not hidden:** `make eval` prints every failed check.
-- **LLM-judged quality is reported separately** (`make eval-llm`): explanation, supplier email, escalation, and defending a decision against a skeptical auditor. The judge is Claude Sonnet 5.5, a different model from the Opus 5.5 agent, and it is calibrated against hand labels.
+## Why you could hire it
 
-## How a bill flows
+- **All math in code** (Decimal). The LLM never computes a total; validators recompute every number it cites.
+- **The Reader has no tools.** A poisoned PDF with hidden instructions can't trigger anything; it gets flagged (case_31).
+- **Agent proposes, a different role approves, code posts.** The requester can never approve. Approval limits are by amount. AP leads approve; a controller, CFO or CTO releases.
+- **Bank details are never taken from an invoice or email.** A changed account means hold, then a callback to the number on file.
+- **A policy floor computed in code:** the agent can make an outcome stricter, never softer.
+- **Every decision is traced** to a document line, a rule, a skill version, a memory version and an approver.
+- **Self-improving, with sign-off:** controller rejections lead to a Droid-proposed skill diff, then a replay gate, then human approval. Tightening is free; loosening needs two signers.
+- **Memory with provenance:** one file per supplier, written only from trusted signals, never from documents or emails.
+- **Finance controls:**
+  - materiality thresholds;
+  - locked periods;
+  - AP subledger = GL tie-out after every post;
+  - pay only the undisputed part;
+  - SLA escalation to a backup approver;
+  - kill switch.
+
+## Tech stack
+
+| Layer | Technology | What it does here |
+| --- | --- | --- |
+| **AI agents** | **Claude Opus 5.5** (Anthropic SDK) | Reads PDFs and scans with no tools; approver and controller role-play; supplier emails; Slack coach phrasing; reviewer chat |
+| | **Claude Sonnet 5.5** | Independent LLM judge for the evals |
+| | **Factory Droid** (`droid-sdk`) | Investigator in a read-only, per-case sandbox; skill evolution on a *copy* of the skills repo |
+| **Backend** | Python 3.12, **FastAPI** + uvicorn, Pydantic v2 | The pipeline stages, API, contracts as one source of truth, Decimal math |
+| **Ledger** | **Beancount 3** | Double-entry posting with segregation-of-duties checks and the AP tie-out |
+| **Live state** | **SpacetimeDB** (TypeScript module) / SQLite | Cases, traces, approvals and memory; live dashboard events |
+| **ERP** | **Odoo 17** Community (Docker, XML-RPC) | Purchase orders from contracts, goods receipts; built-in simulated ERP as a fallback |
+| **Collaboration** | **Slack** Bolt (Socket Mode) | Negotiation coach, contracts, onboarding, shipment notices, receipt DMs, approval DMs |
+| **Identity & risk** | **CRS** sandbox | TransUnion TruValidate, AtData, PitchPoint liens/bankruptcies, AccurateAppend, Experian prequal |
+| **Payments** | Payment runs + **Coinbase CDP** | Scheduled releases with discounts; USDC payouts on Base Sepolia testnet; bank settlement simulated |
+| **Documents** | pypdf, openpyxl, reportlab, Pillow | PDF, XLSX and CSV intake; contract and invoice PDFs |
+| **Email** | Resend | Supplier emails to the contact on file, idempotent |
+| **Frontend** | React 18 + TypeScript, Vite, **Mantine 7**, Recharts, React Flow, Framer Motion | The AP workspace: home, bills, three-pane bill review, vendors, purchasing, insights, policy |
+| **Video** | Remotion 4 | The demo video, built in code (`video/`) |
+
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph Slack["Slack · one channel per vendor"]
+    Q[Quote] --> CO[Contract] --> ON[Onboarding]
+    SH[Shipped claim]
+    INV[Invoice file]
+  end
+  ON --> PO[("PO · Odoo ERP")]
+  SH --> DM1{{"DM: confirm count"}} --> GRN[(Goods receipt)]
+  INV --> R[Reader · Claude, no tools]
+  R --> D[Dedup + case registry] --> M[3-way match · code]
+  PO --> M
+  GRN --> M
+  M -->|exception| I[Investigator · Factory Droid sandbox]
+  I --> VG[Vendor Guard + validators]
+  M -->|clean| VG
+  VG --> A{{"Approver · separate identity"}}
+  A -->|reject| I
+  A -->|approve| P[Poster · Beancount]
+  P --> PAY{{"DM: release payment"}} --> PR[Payment run]
+  M -. trace .-> T[("SpacetimeDB · traces")]
+```
+
+<details>
+<summary><b>The pipeline, stage by stage</b></summary>
 
 ```
- email / API / SFTP / S3 / ERP
+email / API / SFTP / S3 / ERP
    -> intake       file type by content, size, macros, manifests, sender bound to vendor channel  -> else QUARANTINE
    -> reader       CSV/XLSX/API: fixed adapters | PDF/scan/email: Claude with NO tools; code recomputes every amount;
                    hidden instructions flagged
@@ -44,25 +190,10 @@ Scored on 48 hand-built cases, using real Claude and Factory Droid responses:
 
 Then a person reviews the bill in the AP workspace and approves within their limit. A controller, CFO or CTO releases the payment run (AP leads approve but never release; an AP-lead approval goes up one level). Bank settlement is simulated; Coinbase sends USDC.
 
-## Controls that make it hireable
+</details>
 
-- **All math in code** (Decimal). The LLM never computes totals; validators recompute every number it cites.
-- **The Reader has no tools**, so a poisoned PDF can't trigger anything (case_31). Untrusted text never reaches a prompt that has tools: the Droid sandbox gets extracted JSON only.
-- **Agent proposes, a different role approves, code posts.** The requester can never approve. The agent can never pay or edit bank details.
-- **A policy floor computed in code:** the agent can make an outcome stricter, never softer.
-- **Every decision cites** a document and line, rule, skill version, memory version and approver.
-- **Failed fetches are never guessed.** They show as "evidence missing" and the case escalates.
-- **Controls enforced by code:**
-  - materiality thresholds;
-  - approval limits ($100k AP lead / $1M controller / CFO above);
-  - locked periods;
-  - AP subledger = GL tie-out after every post;
-  - idempotent posting;
-  - pay only the undisputed part;
-  - kill switch (global or per vendor);
-  - human handoff and release.
-
-## Where Claude and Factory Droid run
+<details>
+<summary><b>Where Claude and Factory Droid run</b></summary>
 
 | Job | Model / runtime | Can touch |
 | --- | --- | --- |
@@ -81,7 +212,10 @@ Fallbacks: Droid → Claude → a fixed template, labelled "deterministic fallba
 - **Enforced:** read-only mounts, no raw document text, the permission handler, code validation of the output, and per-run sandbox settings that deny reads of `.env`, the code, data, the DB and the caches.
 - **Not enforced:** there is no container, and Droid's own file reads are limited only by that deny list.
 
-## Skills, memory, dedup, evals
+</details>
+
+<details>
+<summary><b>Skills, memory, dedup, evals</b></summary>
 
 - **Skills** (`backend/skills/`): `ap-3way-match` and `vendor-bank-change`, each with a `SKILL.md`, `policy.yaml` and `tools.yaml` allowlist. Code routes to them.
   - Self-evolving: two similar controller rejections lead to a Droid diff, then a replay gate, then controller approval, then a new version (case_43→45). There is a ratchet: tightening is free, loosening needs two signers.
@@ -92,20 +226,13 @@ Fallbacks: Droid → Claude → a fixed template, labelled "deterministic fallba
 - **Dedup:** documents (file hash, normalized number, line hash, fuzzy, paid) and cases (fingerprint per discrepancy, corrections, patterns, sub-cases).
 - **Evals** (`backend/evals/`): a deterministic harness with per-format and per-channel breakdown, tick fixtures for time-based controls, separately scored onboarding, the LLM judge, and consistency across repeated samples.
 
+</details>
+
 ## Real vs simulated
 
 | Real | Simulated (labelled in the UI) |
 | --- | --- |
 | Claude reading PDFs/scans, Droid investigations, role-play reviewers, ledger (Beancount), matching, dedup, controls, evals, SpacetimeDB store | FX rates, supplier emails to the fictional fixture vendors (delivered via Resend to a demo inbox, never to their domains), Coinbase amounts (real testnet USDC transfers, scaled down from the bill's USD), approvers' identities, vendor API senders, SFTP/S3/ERP (folders + mock payloads), malware scan hook, employee records, callbacks, CRS (unless credentials are set), payment settlement, sanctions list |
-
-## Known limitations
-
-- The 48 cases are hand-built. Judges' own scenarios escalate when no skill fits, which is by design.
-- **Live reviewer wording can vary:** a re-plan count can flip between samples, but decisions are stable.
-- Format evolution (adapting to a vendor's new API/CSV shape), the auditor evidence pack and Cartesia are not built (P2). Coinbase is testnet only.
-- Slack market numbers: Helix PO/contract history is the system of record, but the market reference table (`backend/slack/market_reference.json`) is simulated; live web notes are optional and labelled.
-- **Two onboarding paths:** the UI flow (`backend/vendors/`, with CRS) reuses the scored flow's checks (`backend/onboarding/`). The approval rules are duplicated.
-- The UI's payment-run clock is the wall clock, not a fixture's `as_of`.
 
 ## Run it
 
@@ -134,7 +261,10 @@ Env flags:
 | `RECONAI_DEMO_PACE` | seconds | delay per step, so the live pipeline is visible |
 | `RECONAI_STORE` | `sqlite` \| `spacetime` | which store to use |
 
-## The AP workspace (UI)
+## Deep dives
+
+<details>
+<summary><b>The AP workspace (UI)</b></summary>
 
 `make api` + `make ui` (with `ui/.env` → `VITE_API_URL=http://localhost:8000`), then open http://localhost:5173.
 
@@ -169,7 +299,10 @@ Chat: Claude (`claude-opus-5-5`, no tools) from the case record when `ANTHROPIC_
 
 Other pages: `/prototype.html` (visual concept), `/legacy.html` (earlier dashboard).
 
-## Slack negotiation coach, Coinbase payments, supplier emails, memory timeline
+</details>
+
+<details>
+<summary><b>Slack negotiation coach, payments, supplier emails, memory timeline</b></summary>
 
 **Slack bot** (`backend/slack/`, Socket Mode, starts inside `make api` when `SLACK_BOT_TOKEN` + `SLACK_APP_TOKEN` are set; app manifest in `config/slack-manifest.yaml`):
 1. `/reconai negotiate <vendor>` in a channel with the supplier: the person who runs it is the Helix owner; the channel is told ReconAI is assisting Helix.
@@ -186,7 +319,10 @@ Trust: chat text is untrusted and only reaches Claude calls with no tools; live 
 
 Endpoints: `GET /emails`, `POST /emails/{case_id}/send`, `GET /ap/coinbase`, `POST /ap/coinbase/faucet`, `POST /ap/coinbase/vendor-wallets`, `POST /ap/payments/{id}/release` (`rail: bank | coinbase`), `GET /contracts`, `GET /contracts/{id}/pdf`, `GET /memory/vendors/{id}/timeline`.
 
-## Helix ERP: Odoo 17 (purchase orders and goods receipts)
+</details>
+
+<details>
+<summary><b>Helix ERP: Odoo 17 (purchase orders and goods receipts)</b></summary>
 
 The buyer side runs a **real ERP**: Odoo 17 Community (free) in Docker. `make erp` starts Postgres + Odoo on http://localhost:8069; `make erp-setup` creates the `helix` database (login `admin` / `admin`), names the company Helix Silicon, Inc. (USD), installs Purchase + Inventory, activates TWD/KRW/MYR at the simulated policy rates and adds `ODOO_*` to `.env`. With `ODOO_URL` unset or Odoo down, the built-in ERP is used and labelled **Simulated ERP** (retried every 30 s).
 
@@ -196,7 +332,22 @@ The buyer side runs a **real ERP**: Odoo 17 Community (free) in Docker. `make er
 - UI: **Purchasing** (ordered vs received per line, Odoo deep links, linked bills, "Record goods receipt"). API: `GET /erp/status`, `GET /erp/pos`, `POST /erp/pos/{po}/receive`.
 - Tests never write into a live ERP: under pytest Odoo is used only with `RECONAI_ERP=odoo` (`tests/test_erp.py` then also runs an end-to-end check). `RECONAI_ERP=off` forces the built-in ERP.
 
-## For contributors
+</details>
+
+<details>
+<summary><b>Known limitations</b></summary>
+
+- The 48 cases are hand-built. Judges' own scenarios escalate when no skill fits, which is by design.
+- **Live reviewer wording can vary:** a re-plan count can flip between samples, but decisions are stable.
+- Format evolution (adapting to a vendor's new API/CSV shape), the auditor evidence pack and Cartesia are not built (P2). Coinbase is testnet only.
+- Slack market numbers: Helix PO/contract history is the system of record, but the market reference table (`backend/slack/market_reference.json`) is simulated; live web notes are optional and labelled.
+- **Two onboarding paths:** the UI flow (`backend/vendors/`, with CRS) reuses the scored flow's checks (`backend/onboarding/`). The approval rules are duplicated.
+- The UI's payment-run clock is the wall clock, not a fixture's `as_of`.
+
+</details>
+
+<details>
+<summary><b>For contributors</b></summary>
 
 | Path | Owner | What |
 | --- | --- | --- |
@@ -210,7 +361,7 @@ The buyer side runs a **real ERP**: Odoo 17 Community (free) in Docker. `make er
 | `config/policy.yaml` | shared | materiality, limits, locked periods, FX (simulated), SLA, probation, queue, metrics |
 | `data/FORMATS.md` | shared | inbound formats, decision table, P1 conventions |
 
-## Writing a stage
+### Writing a stage
 
 ```python
 class Matcher:
@@ -224,3 +375,14 @@ class Matcher:
 The runner wraps every stage in a trace step and saves the case after it. Timing, failures, and WS events are automatic. Raise to fail the step. Use `annotate(status=...)` for skipped, blocked, or escalated.
 
 Rules: merge small and often, stay in your own folders, keep `make eval` invariants at 100% before merging, and commit no secrets.
+
+</details>
+
+---
+
+<p align="center">
+  Built at <b>Cal Hacks 13.0</b>.
+  Demo script and Q&A: <a href="docs/DEMO.md">docs/DEMO.md</a> · Full plan: <a href="CLAUDE.md">CLAUDE.md</a> · Video source: <a href="video/">video/</a>
+  <br />
+  <sub>Helix Silicon and its suppliers are fictional. Demo music: "Product Video" by SoundSurfer (Pixabay).</sub>
+</p>

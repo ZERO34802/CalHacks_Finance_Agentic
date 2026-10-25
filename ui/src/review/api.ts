@@ -3,7 +3,7 @@ import { API_URL } from "../api";
 import type {
   ApReport, ApSettings, ApprovalRequest, Bill, BillDetail, Case, ChatMessage, ChatReply, IntakeAccepted, MemoryEntry,
   EarlyPayOffer, OnboardingCase, OnboardingRequestIn, OutboundEmail, PaymentBatch, Prepayment, PrepaymentQuote, ReviewPacket, Scoreboard,
-  SignOff, TreasuryStatus, Vendor, VendorContract, VendorMemoryTimeline, PurchaseOrderView, Receipt, ErpStatus, SlackRoleHolder, Role,
+  SignOff, TreasuryStatus, Vendor, VendorContract, PurchaseOrderView, Receipt, ErpStatus, SlackRoleHolder, Role,
 } from "../types/contracts";
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
@@ -39,7 +39,6 @@ export const ap = {
   sendCaseEmails: (case_id: string) => post<OutboundEmail[]>(`/emails/${case_id}/send`, {}),
   contracts: () => call<VendorContract[]>("/contracts"),
   contractPdfUrl: (id: string) => `${API_URL}/contracts/${id}/pdf`,
-  memoryTimeline: (vendor_id: string) => call<VendorMemoryTimeline>(`/memory/vendors/${vendor_id}/timeline`),
   fixtures: () => call<Case[]>("/fixtures"),
   vendors: () => call<Vendor[]>("/vendors"),
   memory: () => call<MemoryEntry[]>("/memory"),

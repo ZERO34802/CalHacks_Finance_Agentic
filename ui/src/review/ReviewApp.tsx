@@ -1,9 +1,9 @@
-// AP workspace shell (layout modelled on bill-pay tools): ⌘K search, sidebar, Bill Pay > Bills as the core.
+// AP workspace shell (layout modelled on bill-pay tools): ⌘K search, sidebar, Bills as the core.
 // Flow: invoice arrives -> agents run in the background -> For approval -> For payment -> History.
 import { ActionIcon, AppShell, Badge, Button, Group, Menu, NavLink, ScrollArea, Stack, Text, UnstyledButton } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Spotlight, spotlight, type SpotlightActionData } from "@mantine/spotlight";
-import { IconBrain, IconBuildingStore, IconChartBar, IconFileInvoice, IconHome, IconPackage, IconPlus, IconSearch, IconShieldCheck, IconSparkles } from "@tabler/icons-react";
+import { IconBuildingStore, IconChartBar, IconFileInvoice, IconHome, IconPackage, IconPlus, IconSearch, IconShieldCheck, IconSparkles } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import type { Case } from "../types/contracts";
 import { ap } from "./api";
@@ -15,7 +15,6 @@ import Bills from "./pages/Bills";
 import Home from "./pages/Home";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
-import Memory from "./pages/Memory";
 import Purchasing from "./pages/Purchasing";
 import Vendors from "./pages/Vendors";
 
@@ -28,6 +27,8 @@ function Shell() {
   const [fixtures, setFixtures] = useState<Case[]>([]);
   useEffect(() => { ap.fixtures().then(setFixtures).catch(() => {}); }, []);
   const [page] = route;
+  // the Memory page was removed: old #/memory links land on Home, #/memory/<vendor> on that vendor
+  useEffect(() => { if (page === "memory") go(route[1] ? `vendors/${route[1]}` : "home"); }, [page]);
   const open = bills.filter((b) => !["paid", "rejected"].includes(b.stage)).length;
   const mine = bills.filter((b) => ["needs_review", "on_hold"].includes(b.stage) && b.needs === seat).length;
   const who = PEOPLE[seat];
@@ -43,14 +44,15 @@ function Shell() {
 
   const actions: SpotlightActionData[] = [
     ...[["home", "Home"], ["bills", "Bills"], ["bills/approval", "Bills · For approval"], ["bills/payment", "Bills · For payment"],
-      ["vendors", "Vendors"], ["purchasing", "Purchasing · POs & receipts"], ["memory", "Vendor memory"], ["reports", "Insights · Reports"], ["settings", "Policy"]].map(([p, l]) => ({ id: `p-${p}`, label: l, description: "Go to page", onClick: () => go(p) })),
+      ["vendors", "Vendors"], ["purchasing", "Purchasing · POs & receipts"], ["reports", "Insights · Reports"], ["settings", "Policy"]].map(([p, l]) => ({ id: `p-${p}`, label: l, description: "Go to page", onClick: () => go(p) })),
     ...bills.map((b) => ({ id: b.case_id, label: `${shortName(b.vendor_name)} ${b.invoice_no ? `INV# ${b.invoice_no}` : b.case_id}`, description: `${amount(b.amount, b.currency)} · ${b.stage.replace("_", " ")}`, onClick: () => go(`bill/${b.case_id}`) })),
     ...Object.values(vendors).map((v) => ({ id: v.id, label: v.name, description: `Vendor · ${v.country} · ${v.email_domain}`, onClick: () => go(`vendors/${v.id}`) })),
   ];
 
   const nav = (p: string) => page === p || (p === "bills" && page === "bill");
+  // the bill page swaps the sidebar for its own bill list in one frame: no slide animation squeezing the 3 panes mid-transition
   return (
-    <AppShell header={{ height: 60 }} navbar={{ width: 240, breakpoint: "sm", collapsed: { desktop: page === "bill", mobile: true } }} padding={page === "bill" ? 0 : "xl"}>
+    <AppShell header={{ height: 60 }} navbar={{ width: 240, breakpoint: "sm", collapsed: { desktop: page === "bill", mobile: true } }} padding={page === "bill" ? 0 : "xl"} transitionDuration={0}>
       <AppShell.Header px="md">
         <Group h="100%" justify="space-between" wrap="nowrap">
           <Group gap="lg" wrap="nowrap" w={240}>
@@ -99,12 +101,10 @@ function Shell() {
           <NavLink label="Home" leftSection={<IconHome size={17} />} active={nav("home")} onClick={() => go("home")}
             rightSection={mine ? <Badge size="sm" color="violet">{mine}</Badge> : null} />
           <NavLink label="Insights" leftSection={<IconChartBar size={17} />} active={nav("reports")} onClick={() => go("reports")} />
-          <NavLink label="Bill Pay" leftSection={<IconFileInvoice size={17} />} defaultOpened childrenOffset={28} active={nav("bills")}>
-            <NavLink label="Bills" active={nav("bills")} onClick={() => go("bills")} rightSection={<Badge size="sm" variant="light">{open}</Badge>} />
-          </NavLink>
+          <NavLink label="Bills" leftSection={<IconFileInvoice size={17} />} active={nav("bills")} onClick={() => go("bills")}
+            rightSection={<Badge size="sm" variant="light">{open}</Badge>} />
           <NavLink label="Vendors" leftSection={<IconBuildingStore size={17} />} active={nav("vendors")} onClick={() => go("vendors")} />
           <NavLink label="Purchasing" leftSection={<IconPackage size={17} />} active={nav("purchasing")} onClick={() => go("purchasing")} />
-          <NavLink label="Memory" leftSection={<IconBrain size={17} />} active={nav("memory")} onClick={() => go("memory")} />
           <NavLink label="Policy" leftSection={<IconShieldCheck size={17} />} active={nav("settings")} onClick={() => go("settings")} />
         </Stack>
         <Button variant="subtle" justify="flex-start" leftSection={<IconSparkles size={17} />} color="dark"
@@ -115,7 +115,6 @@ function Shell() {
         {page === "bill" && route[1] ? <BillPage key={route[1]} id={route[1]} tab={route[2]} />
           : page === "bills" ? <Bills tab={route[1]} />
             : page === "vendors" ? <Vendors openId={route[1]} />
-              : page === "memory" ? <Memory vendorId={route[1]} />
               : page === "purchasing" ? <Purchasing openPo={route[1]} />
               : page === "reports" ? <Reports />
                 : page === "settings" ? <Settings />

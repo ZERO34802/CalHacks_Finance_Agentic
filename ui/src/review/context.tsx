@@ -1,6 +1,6 @@
 // App-wide state: who's signed in, the bills (refreshed from the live feed), vendors, routing.
 import { notifications } from "@mantine/notifications";
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 import { subscribe } from "../api";
 import type { Bill, Event, Vendor } from "../types/contracts";
 import { ap } from "./api";
@@ -32,10 +32,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     refresh();
-    const on = () => { setRoute(readRoute()); window.scrollTo({ top: 0 }); };
+    const on = () => setRoute(readRoute());
     window.addEventListener("hashchange", on);
     return () => window.removeEventListener("hashchange", on);
   }, [refresh]);
+
+  // back to the top once the new page has rendered (before paint), not before: no frame of the old page jumping up
+  const path = route.join("/");
+  useLayoutEffect(() => { window.scrollTo({ top: 0 }); }, [path]);
 
   useEffect(() => subscribe((e) => {
     setLastEvent(e);

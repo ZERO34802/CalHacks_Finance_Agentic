@@ -2,8 +2,14 @@
 import type { Role } from "../types/contracts";
 export { shortName } from "../story";
 
-export const amount = (v: string | null | undefined, currency?: string | null) =>
-  v == null ? "—" : `${currency ? `${currency} ` : ""}${Number(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+// Explicit symbols: Intl's narrowSymbol renders TWD as a bare "$", which reads as USD. Unknown codes keep "CODE ".
+const SYMBOL: Record<string, string> = { USD: "$", TWD: "NT$", MYR: "RM", KRW: "₩", EUR: "€", GBP: "£", JPY: "¥", CNY: "CN¥" };
+export const currencySymbol = (currency?: string | null) => (currency ? SYMBOL[currency] ?? `${currency} ` : "");
+export const amount = (v: string | null | undefined, currency?: string | null) => {
+  if (v == null) return "—";
+  const n = Number(v);   // display only
+  return `${n < 0 ? "-" : ""}${currencySymbol(currency)}${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
 export const usd = (v: string | null | undefined) =>
   v == null ? "—" : Number(v).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 export const usdShort = (v: string | number | null | undefined) =>

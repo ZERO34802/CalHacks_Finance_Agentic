@@ -1,8 +1,8 @@
 // Coinbase rail (testnet): treasury card + on-chain payment bits. Real USDC transfers on Base Sepolia from a CDP
 // server wallet; amounts are scaled down from the bill's USD amount. Money math is BigInt micro-USDC, never floats.
-import { ActionIcon, Alert, Anchor, Badge, Button, Card, CopyButton, Group, Loader, Text, Tooltip } from "@mantine/core";
+import { Anchor, Badge, Button, CopyButton, Group, Loader, Text, Tooltip } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconCheck, IconCopy, IconExternalLink } from "@tabler/icons-react";
+import { IconExternalLink } from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
 import type { Payment, TreasuryStatus, Vendor } from "../types/contracts";
 import { ap } from "./api";
@@ -75,7 +75,8 @@ export function OnchainLine({ p, vendor }: { p: Payment; vendor?: string }) {
   );
 }
 
-export function TreasuryCard({ tr, onWallets }: { tr: ReturnType<typeof useTreasury>; onWallets?: (v: Vendor[]) => void }) {
+/** Coinbase treasury in one line (for the payment panel header): network, balance, wallet, faucet and vendor payout wallets. */
+export function TreasuryBar({ tr, onWallets }: { tr: ReturnType<typeof useTreasury>; onWallets?: (v: Vendor[]) => void }) {
   const { refresh } = useApp();
   const { t, err, loading, reload, live, sandbox } = tr;
   const [busy, setBusy] = useState<"fund" | "wallets" | null>(null);
@@ -101,38 +102,27 @@ export function TreasuryCard({ tr, onWallets }: { tr: ReturnType<typeof useTreas
     finally { setBusy(null); }
   };
   const scale = t?.usd_scale ?? "0.000001";
-
-  if (t && !live) return (
-    <Alert variant="light" color="gray" title="Coinbase payments not configured">
-      <Text fz="xs">Set <Text span ff="monospace" fz="xs">CDP_API_KEY_ID</Text>, <Text span ff="monospace" fz="xs">CDP_API_KEY_SECRET</Text> and <Text span ff="monospace" fz="xs">CDP_WALLET_SECRET</Text> in .env to release runs as USDC on {netLabel(t.network)}. Bank release (simulated) still works.</Text>
-    </Alert>
-  );
+  const about = !t ? "Checking the Coinbase treasury…"
+    : !live ? "Coinbase isn't configured: set CDP_API_KEY_ID, CDP_API_KEY_SECRET and CDP_WALLET_SECRET in .env. Bank release (simulated) still works."
+      : `${sandbox ? "Sandbox: no Coinbase keys, transfers are recorded locally, nothing goes on-chain. Same controls as live. " : "Real USDC transfers on testnet, play money. "}Scale ×${scale}: a $72,500 bill sends ${fmtUsdc(microUsdc("72500", scale))}.`;
   return (
-    <Card withBorder padding="sm">
-      <Group justify="space-between" mb={6}>
-        <Group gap={6}><Text fw={600}>Coinbase treasury</Text><Badge size="xs" variant="light" color={sandbox ? "yellow" : "blue"}>{netLabel(t?.network)}</Badge></Group>
-        {loading && <Loader size="xs" />}
-      </Group>
-      {err && <Text fz="xs" c="red.8" mb={6}>{err}</Text>}
-      {sandbox && <Text fz="xs" c="yellow.9" mb={6}>Sandbox: no Coinbase keys set, so transfers are recorded locally and nothing goes on-chain. Same controls as live.</Text>}
-      {t?.address && (
-        <Group gap={4} mb={6}>
-          <Text fz="xs" c="dimmed">Wallet</Text>
-          <Anchor href={t.explorer_url ?? undefined} target="_blank" rel="noreferrer" fz="xs" ff="monospace">{short(t.address)}</Anchor>
-          <CopyButton value={t.address}>{({ copied, copy }) => (
-            <Tooltip label={copied ? "Copied" : "Copy address"}><ActionIcon size="xs" variant="subtle" color={copied ? "green" : "gray"} onClick={copy}>{copied ? <IconCheck size={12} /> : <IconCopy size={12} />}</ActionIcon></Tooltip>
+    <Group justify="space-between" wrap="nowrap" gap="xs">
+      <Group gap={6} wrap="nowrap" style={{ minWidth: 0 }}>
+        <Text fz="xs" fw={600}>Coinbase</Text>
+        <Tooltip label={about} multiline w={300}><Badge size="xs" variant="light" color={!live ? "gray" : sandbox ? "yellow" : "blue"} style={{ cursor: "help" }}>{t ? (!live ? "Not configured" : sandbox ? "Sandbox" : netLabel(t.network)) : "…"}</Badge></Tooltip>
+        {live && (
+          <CopyButton value={t?.address ?? ""}>{({ copied, copy }) => (
+            <Tooltip label={copied ? "Copied" : `Treasury wallet ${t?.address ?? ""} · click to copy`}>
+              <Anchor fz="xs" ff="monospace" c="dark" onClick={copy} style={{ whiteSpace: "nowrap" }}>{usdcText(t?.balances.USDC ?? "0")}</Anchor></Tooltip>
           )}</CopyButton>
-        </Group>
-      )}
-      <Group gap="lg" mb={6}>
-        <div><Text fz="xs" c="dimmed">USDC</Text><Text fz={20} fw={600} ff="monospace">{t ? usdcText(t.balances.USDC ?? "0", "") : "—"}</Text></div>
-        <div><Text fz="xs" c="dimmed">ETH (gas)</Text><Text fz={20} fw={600} ff="monospace">{t ? Number(t.balances.ETH ?? 0).toLocaleString("en-US", { maximumFractionDigits: 6 }) : "—"}</Text></div>
+        )}
+        {loading && <Loader size={10} />}
+        {err && <Tooltip label={err}><Text fz="xs" c="red.8">error</Text></Tooltip>}
       </Group>
-      <Text fz="xs" c="dimmed" mb="sm">Testnet scale ×{scale}: a USD 72,500 bill sends {fmtUsdc(microUsdc("72500", scale))}. {sandbox ? "Simulated ledger." : "Real on-chain transfers, play money."}</Text>
-      <Group gap="xs">
-        <Button size="xs" variant="light" loading={busy === "fund"} disabled={!live} onClick={fund}>{sandbox ? "Add sandbox funds" : "Fund from faucet"}</Button>
-        <Button size="xs" variant="default" loading={busy === "wallets"} disabled={!live} onClick={wallets}>Create vendor payout wallets</Button>
-      </Group>
-    </Card>
+      {live && <Group gap={4} wrap="nowrap">
+        <Button size="compact-xs" variant="light" loading={busy === "fund"} onClick={fund}>{sandbox ? "Add funds" : "Faucet"}</Button>
+        <Tooltip label="Create a testnet payout wallet for each vendor in the vendor master"><Button size="compact-xs" variant="default" loading={busy === "wallets"} onClick={wallets}>Wallets</Button></Tooltip>
+      </Group>}
+    </Group>
   );
 }
