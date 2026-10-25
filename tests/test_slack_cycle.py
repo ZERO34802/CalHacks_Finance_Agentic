@@ -574,3 +574,106 @@ def test_vendor_is_tagged_until_the_bill_is_right_then_the_cto_approves_their_ow
 
 def test_next_corrected_invoice_number():
     assert [billing.next_invoice_no(n) for n in ("INV-7", "INV-7-R", "INV-7-R2")] == ["INV-7-R", "INV-7-R2", "INV-7-R3"]
+
+
+def _talk(bot, channel, lines):
+    for i, (who, text) in enumerate(lines):
+        bot.on_message({"channel": channel, "user": "U_HELIX" if who == "H" else "U_VENDOR", "text": text,
+                        "ts": f"{channel}-{i}"})
+
+
+def test_existing_supplier_new_deal_needs_no_second_onboarding(monkeypatch):
+    """Path 1: the supplier's registered Slack contact negotiates a second deal in a new channel. The contract says
+    it's an existing supplier, [Accept contract] opens no form, no second vendor record, and a new PO opens at once."""
+    store = fresh_store()
+    client(monkeypatch, store)
+    import backend.api.app as app_module
+    bot, fake, contract, onb = _onboarded(monkeypatch, store)
+    vendor = store.get_vendor(onb.vendor_id)
+    n_vendors, n_views = len(store.list_vendors()), len(fake.views)
+
+    bot.handle("negotiate", "Bayline Precision", "U_HELIX", "C2")
+    _talk(bot, "C2", [("V", "For the next batch: 20 cards at $1,150 per card, net 30."),
+                      ("H", "Agreed: $1,150 per card, net 30."), ("V", "Deal, agreed.")])
+    bot.handle("contract", "", "U_HELIX", "C2")
+    c2 = store.get_record(VendorContract, ct.KIND, bot.session("C2").contract_id)
+    assert bot.session("C2").vendor_id == vendor.id and c2.vendor_name == vendor.name
+    [btn] = [e for p in fake.posts if p["channel"] == "C2" for b in p.get("blocks", []) if b["type"] == "actions"
+             for e in b["elements"]]
+    assert btn["text"]["text"] == "Accept contract" and btn["value"] == c2.id
+
+    bot.accept("U_HELIX", "C2", c2.id, "trig")                         # Helix never accepts for the supplier
+    assert "The supplier accepts the contract" in fake.ephemeral[-1]["text"]
+    bot.accept("U_VENDOR", "C2", c2.id, "trig")
+    assert len(fake.views) == n_views and len(app_module.payments.onboarding()) == 1   # no form, no onboarding
+    assert len(store.list_vendors()) == n_vendors                                       # no second vendor record
+    po = erp.get_po(store, "PO-9002")
+    assert po.vendor_id == vendor.id and po.contract_id == c2.id and po.lines[0].qty == Decimal("20")
+    deal = store.get_record(Deal, DEAL_KIND, "PO-9002")
+    assert (deal.channel, deal.vendor_user, deal.requester_user) == ("C2", "U_VENDOR", "U_HELIX")
+    texts = [p["text"] for p in fake.posts if p["channel"] == "C2"]
+    assert any("an existing Helix supplier: no onboarding needed" in t for t in texts)
+    assert any("PO-9002* created in Helix ERP" in t for t in texts)
+    assert store.get_vendor(vendor.id).terms.net_days == 30 and store.get_vendor(vendor.id).bank_last4 == "4021"
+    bot.accept("U_VENDOR", "C2", c2.id, "trig")                        # idempotent
+    assert "Already done" in fake.ephemeral[-1]["text"] and erp.get_po(store, "PO-9003") is None
+
+
+def test_amendment_changes_price_and_terms_from_its_date(monkeypatch):
+    """Path 3: new price + terms agreed in the deal channel -> /reconai amend -> the supplier accepts -> the new price
+    is the contract term from the effective date; an invoice dated before it is still checked at the old price."""
+    monkeypatch.setenv("RECONAI_HUMAN_SIGNOFF", "on")
+    store = fresh_store()
+    client(monkeypatch, store)
+    bot, fake, contract, onb = _onboarded(monkeypatch, store)
+    vendor = store.get_vendor(onb.vendor_id)
+    po = erp.get_po(store, "PO-9001")
+    bot.handle("receive", "PO-9001 10", "U_HELIX", "C1")
+    from datetime import timedelta
+    eff = date.today() + timedelta(days=7)
+
+    bot.handle("amend", "PO-9001", "U_VENDOR", "C1")                   # only the deal owner amends
+    assert "Only the Helix person" in fake.ephemeral[-1]["text"]
+    _talk(bot, "C1", [("V", "From next week we can do 10 cards at $1,150 per card, net 30."),
+                      ("H", "Agreed: $1,150 per card, net 30.")])
+    bot.handle("amend", f"PO-9001 from {eff.isoformat()}", "U_HELIX", "C1")
+    aid = f"{contract.id}-A1"
+    btn = [e for p in fake.posts for b in p.get("blocks", []) if b["type"] == "actions" for e in b["elements"]
+           if e["action_id"] == "accept_amendment"]
+    assert btn and btn[-1]["value"] == aid
+    assert f"1200.00 → *1150.00 USD* per unit" in fake.uploads[-1]["initial_comment"]
+
+    bot.accept_amend("U_HELIX", "C1", aid)                             # Helix can't accept for the supplier
+    assert "registered Slack contact" in fake.ephemeral[-1]["text"]
+    bot.accept_amend("U_VENDOR", "C1", aid)
+    done = [p["text"] for p in fake.posts if p["channel"] == "C1" and f"Amendment *{aid}* accepted" in p["text"]]
+    assert done and f"at 1150.00 USD (was 1200.00)" in done[0] and eff.isoformat() in done[0]
+    assert any(f"accepted amendment {aid}" in p["text"] for p in fake.to("U_HELIX"))
+    terms = [t for t in store.list_contract_terms(vendor.id) if t.sku == po.lines[0].sku]
+    assert {(t.unit_price, t.effective_from) for t in terms} >= {(Decimal("1150.00"), eff)}
+    assert store.get_vendor(vendor.id).terms.net_days == 30 and erp.get_po(store, "PO-9001").lines[0].unit_price == Decimal("1200.00")
+    bot.accept_amend("U_VENDOR", "C1", aid)
+    assert "Already done" in fake.ephemeral[-1]["text"]
+
+    # an invoice at the old price, dated before the amendment: clean; dated after it: 1200 is over the new 1150
+    before = store.get_case(_invoice(bot, fake, po, no="INV-2001").id)
+    assert not [d for d in before.discrepancies if d.material]
+    bot.handle("invoice", "PO-9001", "U_VENDOR", "C1", "trig-inv")
+    view = fake.views[-1]["view"]
+    vals = {"invoice_no": {"v": {"value": "INV-2002"}}, "invoice_date": {"v": {"selected_date": eff.isoformat()}},
+            "qty_0": {"v": {"value": "10"}}, "price_0": {"v": {"value": "1200.00"}}, "notes": {"v": {"value": ""}}}
+    res = bot.submit_invoice("U_VENDOR", vals, json.loads(view["private_metadata"]))
+    after = store.get_case(bot.process_invoice("U_VENDOR", res["invoice"], json.loads(view["private_metadata"])).id)
+    [over] = [d for d in after.discrepancies if d.type.value == "price_over"]
+    assert (over.expected, over.actual) == ("1150.00", "1200.00")
+
+
+def test_new_contract_from_an_unknown_contact_still_onboards(monkeypatch):
+    """No registered supplier contact in the negotiation: the contract still starts onboarding (unchanged)."""
+    store = fresh_store()
+    client(monkeypatch, store)
+    bot, fake, contract, onb = _onboarded(monkeypatch, store)
+    assert bot.session("C1").vendor_id is None
+    accept = [e for p in fake.posts if p["channel"] == "C1" for b in p.get("blocks", []) if b["type"] == "actions"
+              for e in b["elements"] if e["action_id"] == "accept_contract"]
+    assert accept[0]["text"]["text"] == "Accept & start onboarding"

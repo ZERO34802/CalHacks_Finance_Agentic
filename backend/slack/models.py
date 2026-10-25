@@ -1,7 +1,7 @@
 """Slack negotiation state (internal to the bot; the UI sees VendorContract / OnboardingCase from contracts)."""
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 from enum import Enum
 from typing import Optional
@@ -77,6 +77,8 @@ class Session(BaseModel):
     last_signature: str = ""
     suggestions: int = 0
     contract_id: Optional[str] = None
+    vendor_id: Optional[str] = Field(None, description="Existing supplier negotiating here (its registered contact "
+                                                       "spoke): the contract needs no onboarding")
     active: bool = True
     qa: list[dict] = Field(default_factory=list, description="Private /recon questions and answers (owner only)")
 
@@ -104,6 +106,7 @@ VENDOR_USER_KIND = "slack_vendor"   # Slack user id -> VendorUser (the vendor's 
 APPLICANT_KIND = "slack_applicant"  # contract id -> VendorUser (who submitted onboarding; vendor_id once approved)
 DEAL_KIND = "slack_deal"            # PO number -> Deal
 SHIPMENT_KIND = "slack_shipment"    # shipment notice id -> Shipment
+AMENDMENT_KIND = "slack_amendment"  # amendment contract id -> Amendment
 
 
 class VendorUser(BaseModel):
@@ -126,6 +129,18 @@ class Deal(BaseModel):
     vendor_user: Optional[str] = None
     requester_user: Optional[str] = None
     requester_email: str = ""
+
+
+class Amendment(BaseModel):
+    """A change to an accepted contract (new unit prices / payment terms from a date). The amended terms are a
+    VendorContract (id <contract>-A<n>) under the contract kind; this links it to what it amends."""
+    id: str
+    contract_id: str = Field(description="The contract it amends")
+    po_number: str
+    vendor_id: str
+    effective_from: date
+    status: str = "draft"  # draft | accepted
+    accepted_by: Optional[str] = None
 
 
 class Shipment(BaseModel):

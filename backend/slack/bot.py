@@ -6,6 +6,10 @@
   /reconai contract             owner only: draft the supply agreement (PDF) from what was agreed
   [Accept & start onboarding]   supplier only: opens the onboarding form; on submit every onboarding check runs and
                                 a low-risk vendor is onboarded by policy + confirmation email (else a controller)
+  [Accept contract]             an existing supplier's registered contact: no second onboarding; PO opened at once
+  /reconai amend [PO] [from D]  owner only: new unit prices / payment terms agreed here, effective from date D
+  [Accept amendment]            supplier's registered contact: prices become contract terms from D (earlier
+                                invoices are still checked at the earlier price)
   /reconai status | onboard | stop | help
   billing cycle (backend/slack/cycle.py): role / roles, shipped, receive, invoice, PDF invoices, approve + release DMs
 @ReconAI <same verbs> works too (onboarding then posts the button, since a modal needs a click).
@@ -23,7 +27,7 @@ import logging
 import os
 import re
 import threading
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -32,9 +36,10 @@ from backend.core.config import ROOT, load_policy
 from backend.slack import contract as ct
 from backend.slack import negotiation as neg
 from backend.slack.cycle import BillingCycle
-from backend.slack.models import (APPLICANT_KIND, NEGOTIATION_LOG_KIND, Message, NegotiationLog, Session,
-                                  VendorUser)
-from backend.slack.onboard import po_for_contract, start as start_onboarding
+from backend.slack.models import (AMENDMENT_KIND, APPLICANT_KIND, NEGOTIATION_LOG_KIND, Amendment, Message,
+                                  NegotiationLog, Session, VendorUser)
+from backend.slack.onboard import (accept_amendment, accept_returning, po_for_contract, prices_in_force,
+                                   start as start_onboarding)
 from backend.vendors.crs import persona_options
 from contracts import OnboardingCase, OnboardingRequestIn, VendorContract
 
@@ -142,6 +147,8 @@ class ReconBot(BillingCycle):
             self.coach(s, force=True, to=user)
         elif verb in ("ask", "q"):
             self.cmd_ask(arg, user, channel)
+        elif verb in ("amend", "amendment"):
+            self.cmd_amend(arg, user, channel)
         elif verb == "role":
             self.cmd_role(arg, user, channel)
         elif verb == "roles":
@@ -276,6 +283,7 @@ class ReconBot(BillingCycle):
                 "• `/reconai shipped PO-9001 <qty>`: tell Helix a shipment is on its way (Helix counts it on arrival)",
                 "• `/reconai invoice PO-9001`: send an invoice with a short form (or share the invoice here as a PDF, photo, CSV or XLSX)",
                 "• *Accept & start onboarding* button on a contract: complete vendor onboarding",
+                "• *Accept contract* / *Accept amendment*: accept a new deal or changed terms (no new onboarding)",
                 "_Quote the PO number and item codes on every invoice. Bank details change only by a verified "
                 "phone callback, never in Slack._"])
         h = R.holder(self.store, user)
@@ -288,6 +296,8 @@ class ReconBot(BillingCycle):
             lines += ["• `/recon <question>`: ask ReconAI anything about this deal, privately (the vendor never sees it)",
                       "• `/reconai status`: your latest negotiation notes",
                       "• `/reconai contract`: draft the supply agreement from what was agreed",
+                      "• `/reconai amend [PO-9001] [from 2026-11-01]`: new prices or payment terms agreed here, "
+                      "from a date",
                       "• `/reconai stop`: stop assisting in this channel"]
         lines += ["*Receiving*", "• `/reconai receive PO-9001 <qty>`: record the goods receipt in the ERP (what actually arrived)"]
         if h is None:
@@ -378,9 +388,12 @@ class ReconBot(BillingCycle):
         if missing:
             return self.tell(s.channel, user, f"Can't draft yet: {missing}")
         c = ct.build(s, st, _now())
-        path = ct.render_pdf(c)
+        vu = self.returning_vendor(s)
+        if vu:  # the agreement is with the supplier on file, under its legal name
+            c.vendor_name = self.store.get_vendor(vu.vendor_id).name
+        path = ct.render_pdf(c, vu.vendor_id if vu else None)
         self.store.put_record(ct.KIND, c.id, c)
-        s.contract_id, s.state = c.id, st
+        s.contract_id, s.state, s.vendor_id = c.id, st, vu.vendor_id if vu else None
         self.save(s)
         self.store.put_record(NEGOTIATION_LOG_KIND, c.id, NegotiationLog(
             contract_id=c.id, channel=s.channel, owner=s.owner, owner_name=s.owner_name, vendor_name=s.vendor_name,
@@ -392,16 +405,27 @@ class ReconBot(BillingCycle):
         except Exception as e:  # files:write missing: the summary + button still work
             log.warning("upload failed: %s", e)
             self.client.chat_postMessage(channel=s.channel, text=ct.summary(c))
-        self.post_accept(c, s.channel)
+        self.post_accept(c, s.channel, vu.vendor_id if vu else None)
 
-    def post_accept(self, c: VendorContract, channel: str) -> None:
-        self.client.chat_postMessage(channel=channel, text=f"Supply Agreement {c.id} is ready for the supplier.", blocks=[
-            {"type": "section", "text": {"type": "mrkdwn", "text":
+    def returning_vendor(self, s: Session) -> Optional[VendorUser]:
+        """The registered Slack contact of an existing supplier who negotiated here (latest speaker wins)."""
+        for m in reversed(s.transcript):
+            vu = None if m.internal else self.vendor_user(m.user)
+            if vu and self.store.get_vendor(vu.vendor_id):
+                return vu
+        return None
+
+    def post_accept(self, c: VendorContract, channel: str, existing: Optional[str] = None) -> None:
+        text = (f"*Supply Agreement {c.id}* is ready. {c.vendor_name} is an existing Helix supplier (`{existing}`): "
+                "review the PDF above, then accept. No onboarding needed; your details on file stay as they are."
+                if existing else
                 f"*Supply Agreement {c.id}* is ready. {c.vendor_name}: review the PDF above, then accept to start "
-                "vendor onboarding (company, tax and payment details)."}},
+                "vendor onboarding (company, tax and payment details).")
+        label = "Accept contract" if existing else "Accept & start onboarding"
+        self.client.chat_postMessage(channel=channel, text=f"Supply Agreement {c.id} is ready for the supplier.", blocks=[
+            {"type": "section", "text": {"type": "mrkdwn", "text": text}},
             {"type": "actions", "elements": [{"type": "button", "action_id": "accept_contract", "style": "primary",
-                                              "text": {"type": "plain_text", "text": "Accept & start onboarding"},
-                                              "value": c.id}]}])
+                                              "text": {"type": "plain_text", "text": label}, "value": c.id}]}])
 
     def open_form(self, trigger_id: str, c: VendorContract, channel: str, thread: Optional[str]) -> None:
         def field(bid, label, hint="", optional=False, initial=""):
@@ -456,8 +480,110 @@ class ReconBot(BillingCycle):
         if (s and user == s.owner) or user in self.internal:
             return self.tell(channel, user, "The supplier accepts the contract, not Helix: ask them to click it.")
         c = self.store.get_record(VendorContract, ct.KIND, contract_id)
-        if c:
-            self.open_form(trigger_id, c, channel, thread)
+        if c is None:
+            return
+        vu = self.vendor_user(user)
+        if vu is None:  # a new supplier (or a new colleague of one): the onboarding checks decide
+            return self.open_form(trigger_id, c, channel, thread)
+        if s and s.contract_id == c.id and s.vendor_id and s.vendor_id != vu.vendor_id:
+            return self.tell(channel, user, "This agreement is with another supplier.")
+        if c.status in ("accepted", "onboarded"):
+            return self.tell(channel, user, f"Already done: {c.id} was accepted.")
+        po, problem = accept_returning(c, vu, self.store)
+        if problem:
+            self.say(channel, f"Thanks, {vu.name or 'and noted'}. Agreement {c.id} is with Helix finance for review.")
+            if s:
+                self.tell(channel, s.owner, f"*{c.id}* is on hold: {problem}")
+            return
+        v = self.store.get_vendor(vu.vendor_id)
+        self.say(channel, f":white_check_mark: *{c.id}* accepted by {vu.name or 'the supplier'} for *{v.name}* "
+                          f"(`{v.id}`), an existing Helix supplier: no onboarding needed, details on file unchanged.")
+        if po:
+            self.announce_po(po, c.id, channel)
+
+    # --- amendments: new prices / payment terms on an accepted deal, from an effective date ------------------------
+    def cmd_amend(self, arg: str, user: str, channel: str) -> None:
+        from backend import erp
+        from backend.slack.cycle import PO_RE, po_no
+        s = self.session(channel)
+        m = PO_RE.search(arg or "")
+        here = [d for d in self.deals() if d.channel == channel]
+        d = self.deal(po_no(m)) if m else max(here, key=lambda x: x.po_number, default=None)
+        if d is None:
+            return self.tell(channel, user, "No purchase order to amend here. Usage: `/reconai amend PO-9001 [from 2026-11-01]`.")
+        if (s is None or user != s.owner) and user not in self.internal and user != d.requester_user:
+            return self.tell(channel, user, "Only the Helix person who owns this deal can amend it.")
+        if s is None:
+            return self.tell(channel, user, "Agree the new terms here first: `/reconai negotiate <vendor>`, then amend.")
+        fm = re.search(r"\b(?:from|effective)\s+(\S+)", arg or "", re.I)
+        try:
+            effective = date.fromisoformat(fm.group(1)) if fm else date.today()
+        except ValueError:
+            return self.tell(channel, user, "Give the effective date as `from 2026-11-01`.")
+        po = erp.get_po(self.store, d.po_number)
+        orig = self.store.get_record(VendorContract, ct.KIND, d.contract_id)
+        if po is None or orig is None:
+            return self.tell(channel, user, f"{d.po_number} or its contract is no longer on file.")
+        if effective < po.po_date:
+            return self.tell(channel, user, f"The effective date can't be before {po.po_number} ({po.po_date}).")
+        st, _ = neg.extract(list(s.transcript))
+        n = 1 + sum(1 for a in self.store.list_records(Amendment, AMENDMENT_KIND) if a.contract_id == orig.id)
+        try:
+            c, notes = ct.amend(orig, po, st, s.owner_email, channel, effective, n, _now())
+        except ValueError as e:
+            return self.tell(channel, user, str(e))
+        self.store.put_record(ct.KIND, c.id, c)
+        self.store.put_record(AMENDMENT_KIND, c.id, Amendment(id=c.id, contract_id=orig.id, po_number=po.po_number,
+                                                               vendor_id=d.vendor_id, effective_from=effective))
+        was = prices_in_force(self.store, d.vendor_id, po, effective)
+        summary = "\n".join([f"*Amendment {c.id}* to {orig.id} ({po.po_number}), effective {effective.isoformat()}"]
+                            + [f"• `{i['sku']}`: {was.get(i['sku'], '?')} → *{i['unit_price']} {c.currency}* per unit"
+                               for i in c.items]
+                            + [f"• Payment: {ct.terms_text(c.terms)}",
+                               f"• Invoices dated before {effective.isoformat()} stay at the earlier prices."])
+        path = ct.render_amendment_pdf(c, orig, po.po_number, effective, was)
+        try:
+            self.client.files_upload_v2(channel=channel, file=str(path), filename=path.name, title=f"Amendment {c.id}",
+                                        initial_comment=summary)
+        except Exception as e:
+            log.warning("upload failed: %s", e)
+            self.client.chat_postMessage(channel=channel, text=summary)
+        self.client.chat_postMessage(channel=channel, text=f"Amendment {c.id} is ready for the supplier.", blocks=[
+            {"type": "section", "text": {"type": "mrkdwn", "text":
+                f"*Amendment {c.id}* is ready. {c.vendor_name}: review it, then accept."}},
+            {"type": "actions", "elements": [{"type": "button", "action_id": "accept_amendment", "style": "primary",
+                                              "text": {"type": "plain_text", "text": "Accept amendment"},
+                                              "value": c.id}]}])
+        for note in notes:
+            self.tell(channel, user, note)
+
+    def accept_amend(self, user: str, channel: str, amendment_id: str) -> None:
+        a = self.store.get_record(Amendment, AMENDMENT_KIND, amendment_id)
+        c = self.store.get_record(VendorContract, ct.KIND, amendment_id)
+        if a is None or c is None:
+            return self.tell(channel, user, "That amendment no longer exists.")
+        vu = self.vendor_user(user)
+        if vu is None or vu.vendor_id != a.vendor_id:
+            return self.tell(channel, user, f"Only {c.vendor_name}'s registered Slack contact can accept this amendment.")
+        if a.status == "accepted":
+            return self.tell(channel, user, f"Already done: {a.id} was accepted.")
+        problem = accept_amendment(a, c, vu, self.store)
+        d = self.deal(a.po_number)
+        if problem:
+            self.say(channel, f"Thanks. Amendment {a.id} is with Helix finance for review.")
+            if d and d.requester_user:
+                self.dm(d.requester_user, f"Amendment {a.id} is on hold: {problem}")
+            return
+        from backend import erp
+        po = erp.get_po(self.store, a.po_number)
+        was = prices_in_force(self.store, a.vendor_id, po, a.effective_from, exclude_doc=f"erp-{a.id}") if po else {}
+        prices = "; ".join(f"`{i['sku']}` at {i['unit_price']} {c.currency} (was {was.get(i['sku'], '?')})" for i in c.items)
+        on = a.effective_from.isoformat()
+        self.say(channel, f":white_check_mark: Amendment *{a.id}* accepted by {vu.name or 'the supplier'}. From {on}, "
+                          f"{a.po_number}: {prices}; payment {ct.terms_text(c.terms).lower()}. Invoices dated before "
+                          f"{on} are checked at the earlier price.")
+        if d and d.requester_user:
+            self.dm(d.requester_user, f"{c.vendor_name} accepted amendment {a.id} on {a.po_number} (effective {on}).")
 
     def submit_form(self, user: str, values: dict, meta: dict) -> dict:
         v = {k: (b["v"].get("value") or (b["v"].get("selected_option") or {}).get("value")
@@ -601,6 +727,12 @@ class ReconBot(BillingCycle):
             user, channel = body["user"]["id"], body["channel"]["id"]
             self._safe(self.accept, user, channel, body["actions"][0]["value"], body["trigger_id"],
                        body.get("message", {}).get("ts"), channel=channel, user=user)
+
+        @app.action("accept_amendment")
+        def _accept_amend(ack, body):
+            ack()
+            user, channel = body["user"]["id"], body["channel"]["id"]
+            self._safe(self.accept_amend, user, channel, body["actions"][0]["value"], channel=channel, user=user)
 
         @app.view("onboard_vendor")
         def _submit(ack, body, view):

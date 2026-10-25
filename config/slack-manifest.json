@@ -17,7 +17,7 @@
     "slash_commands": [
       {
         "command": "/reconai",
-        "description": "negotiate | contract | onboard | role | roles | shipped | receive | invoice | status | stop",
+        "description": "negotiate | contract | amend | onboard | role | roles | shipped | receive | invoice | status | stop",
         "usage_hint": "negotiate Acme Probe Cards  |  role controller  |  shipped PO-9001 30  |  invoice PO-9001",
         "should_escape": false
       },

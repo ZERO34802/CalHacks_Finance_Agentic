@@ -427,6 +427,7 @@ class BillingCycle:
         if not pdfs:
             return
         mine = sorted((d for d in self.deals() if d.vendor_id == vu.vendor_id), key=lambda d: d.po_number)
+        mine = [d for d in mine if d.channel == channel] or mine  # a supplier with several deals: this channel's
         po_number = mine[-1].po_number if mine else None
         for f in pdfs[:3]:
             if int(f.get("size") or 0) > MAX_FILE:

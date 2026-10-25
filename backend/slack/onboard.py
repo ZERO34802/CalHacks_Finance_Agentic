@@ -12,18 +12,19 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
+from decimal import Decimal
 from typing import Optional
 
 from backend.ap.payments import PaymentStore
 from backend.core.config import load_policy
 from backend.notify import email as mail
 from backend.slack.contract import KIND as CONTRACT_KIND, terms_text
-from backend.slack.models import (APPLICANT_KIND, DEAL_KIND, SESSION_KIND, VENDOR_USER_KIND, Deal, Session,
-                                  VendorUser)
+from backend.slack.models import (AMENDMENT_KIND, APPLICANT_KIND, DEAL_KIND, SESSION_KIND, VENDOR_USER_KIND,
+                                  Amendment, Deal, Session, VendorUser)
 from backend.store.base import Store
 from backend.vendors import onboarding as onb
 from backend.vendors.crs import make_crs
-from contracts import PO, Channel, OnboardingCase, OnboardingRequestIn, VendorContract
+from contracts import PO, Channel, ContractTerm, OnboardingCase, OnboardingRequestIn, VendorContract
 
 log = logging.getLogger("reconai.slack")
 POLICY_APPROVER = "reconai-policy@helix.example"
@@ -61,7 +62,6 @@ def po_for_contract(store: Store, contract_id: str) -> Optional[PO]:
 
 def _activate(contract: VendorContract, vendor, store: Store) -> Optional[PO]:
     """Slack channel bound to the applicant, then the PO from the contract (ERP trouble never undoes onboarding)."""
-    from backend import erp
     applicant = store.get_record(VendorUser, APPLICANT_KIND, contract.id)
     if applicant and Channel.slack not in vendor.channels:
         vendor.channels.append(Channel.slack)
@@ -70,6 +70,12 @@ def _activate(contract: VendorContract, vendor, store: Store) -> Optional[PO]:
         applicant.vendor_id = vendor.id
         store.put_record(APPLICANT_KIND, contract.id, applicant)
         store.put_record(VENDOR_USER_KIND, applicant.slack_user, applicant)
+    return _open_deal(contract, vendor, applicant.slack_user if applicant else None, store)
+
+
+def _open_deal(contract: VendorContract, vendor, vendor_user: Optional[str], store: Store) -> Optional[PO]:
+    """The PO from the contract in the ERP + the deal record (channel, vendor contact, requester)."""
+    from backend import erp
     try:
         po = erp.po_from_contract(contract, vendor, store)
     except Exception as e:
@@ -78,9 +84,84 @@ def _activate(contract: VendorContract, vendor, store: Store) -> Optional[PO]:
     sess = store.get_record(Session, SESSION_KIND, contract.channel) if contract.channel else None
     store.put_record(DEAL_KIND, po.po_number, Deal(
         po_number=po.po_number, contract_id=contract.id, vendor_id=vendor.id, channel=contract.channel,
-        vendor_user=applicant.slack_user if applicant else None, requester_user=sess.owner if sess else None,
-        requester_email=po.requester))
+        vendor_user=vendor_user, requester_user=sess.owner if sess else None, requester_email=po.requester))
     return po
+
+
+# --- an existing supplier: a new deal or an amendment, no second onboarding --------------------------------------
+def recheck(vendor) -> Optional[str]:
+    """What onboarding checks again before an existing supplier's new agreement: still on the vendor master with
+    a bank account on file, and not on the (SIMULATED) sanctions list. None = fine."""
+    from backend.onboarding import checks
+    if vendor is None:
+        return "The supplier is no longer on the vendor master."
+    if not vendor.bank_last4:
+        return f"{vendor.name} has no bank account on file; it needs a verified callback first."
+    tax = checks._norm(vendor.tax_id)
+    hits = [s for s in checks._json("sanctions_simulated.json", [])
+            if (tax and checks._norm(s.get("tax_id")) == tax) or checks._name(s.get("name", "")) == checks._name(vendor.name)]
+    if hits:
+        return f"{vendor.name} is on {hits[0].get('list', 'the SIMULATED sanctions list')}: escalate to a controller."
+    return None
+
+
+def accept_returning(contract: VendorContract, vu: VendorUser, store: Store) -> tuple[Optional[PO], Optional[str]]:
+    """The supplier's registered Slack contact accepts a new agreement: no onboarding form, no second vendor record.
+    The vendor master keeps its identity and bank details; it takes the agreed payment terms. Returns (PO, problem)."""
+    vendor = store.get_vendor(vu.vendor_id)
+    problem = recheck(vendor)
+    if problem:
+        contract.status = "held"
+        store.put_record(CONTRACT_KIND, contract.id, contract)
+        return None, problem
+    vendor.terms = contract.terms
+    store.save_vendor(vendor)
+    contract.status, contract.accepted_by = "accepted", f"{vu.name or vu.slack_user} (Slack {vu.slack_user})"
+    store.put_record(CONTRACT_KIND, contract.id, contract)
+    store.put_record(APPLICANT_KIND, contract.id, vu)
+    po = _open_deal(contract, vendor, vu.slack_user, store)
+    if po and vendor.contact_email:
+        mail.send(store, kind="onboarding_confirmation", to=vendor.contact_email, vendor_id=vendor.id,
+                  subject=f"Helix Silicon: agreement {contract.id} accepted, {po.po_number} opened",
+                  body="\n".join([f"Hello {vendor.name},", "",
+                                  f"Agreement {contract.id} is accepted and purchase order {po.po_number} is open.",
+                                  f"Quote {po.po_number} and the item codes ({', '.join(ln.sku for ln in po.lines)}) "
+                                  "on every invoice.", f"Payment terms: {terms_text(contract.terms)}.",
+                                  "Your bank account on file is unchanged.", "", "Helix Silicon Accounts Payable"]),
+                  key=f"contract_accepted:{contract.id}")
+    return po, None
+
+
+def prices_in_force(store: Store, vendor_id: str, po: PO, on, exclude_doc: Optional[str] = None) -> dict[str, Decimal]:
+    """Unit price per PO line on date `on`: the latest contract term effective by then, else the PO price."""
+    out = {ln.sku: ln.unit_price for ln in po.lines}
+    for t in sorted((t for t in store.list_contract_terms(vendor_id) if t.effective_from <= on
+                     and t.currency == po.currency and t.doc_id != exclude_doc), key=lambda t: t.effective_from):
+        if t.sku in out:
+            out[t.sku] = t.unit_price
+    return out
+
+
+def accept_amendment(a: Amendment, c: VendorContract, vu: VendorUser, store: Store) -> Optional[str]:
+    """The supplier accepts an amendment: its unit prices become contract terms effective from its date (the
+    Matcher checks invoices dated earlier at the earlier price) and the vendor master takes its payment terms.
+    Quantities, the PO and bank details are unchanged. Returns a problem, or None."""
+    vendor = store.get_vendor(a.vendor_id)
+    problem = recheck(vendor)
+    if problem:
+        return problem
+    for i in c.items:
+        store.save_contract_term(ContractTerm(doc_id=f"erp-{c.id}", vendor_id=vendor.id, sku=i["sku"],
+                                              unit_price=Decimal(i["unit_price"]), currency=c.currency,
+                                              effective_from=a.effective_from))
+    vendor.terms = c.terms
+    store.save_vendor(vendor)
+    who = f"{vu.name or vu.slack_user} (Slack {vu.slack_user})"
+    a.status, a.accepted_by = "accepted", who
+    store.put_record(AMENDMENT_KIND, a.id, a)
+    c.status, c.accepted_by = "accepted", who
+    store.put_record(CONTRACT_KIND, c.id, c)
+    return None
 
 
 def finish(case: OnboardingCase, store: Store, now: datetime) -> Optional[PO]:
