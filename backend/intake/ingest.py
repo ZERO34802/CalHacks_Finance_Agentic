@@ -161,7 +161,8 @@ def bind_email(sender: str, vendors: list[Vendor]) -> Binding:
                    notes=[f"intake: sender {addr or sender!r} matches no vendor domain; vendor unknown"])
 
 
-def bind(item: InboundItem, sender: Optional[str], vendors: list[Vendor]) -> Binding:
+def bind(item: InboundItem, sender: Optional[str], vendors: list[Vendor],
+         slack_users: Optional[dict[str, str]] = None) -> Binding:
     by_id = {v.id: v for v in vendors}
     if item.channel == Channel.email:
         b = bind_email(sender or "", vendors)
@@ -184,6 +185,11 @@ def bind(item: InboundItem, sender: Optional[str], vendors: list[Vendor]) -> Bin
         b = Binding(owner, f"s3 prefix {item.sender} (SIMULATED)")
     elif item.channel == Channel.erp:  # SIMULATED internal ERP export; vendor bound from the payload
         return Binding(None, "erp export (internal, SIMULATED)")
+    elif item.channel == Channel.slack:  # the vendor's registered Slack user (set at Slack onboarding)
+        owner = (slack_users or {}).get(item.sender or "")
+        if owner is None:
+            return Binding(None, "slack", problems=[f"Slack user {item.sender!r} is not a vendor's registered contact"])
+        b = Binding(owner, f"slack user {item.sender}")
     elif item.channel == Channel.upload:
         return Binding(None, f"internal upload by {item.sender}",
                        notes=[f"intake: internal upload by {item.sender}; vendor bound from document"])
@@ -220,7 +226,8 @@ def ingest(fx: CaseFixture, folder: Path, ctx: Ctx) -> Case:
         docs.append(d)
         return d
 
-    def check_file(where: str, filename: str, data: bytes, structured_ok: bool = True) -> Sniff:
+    def check_file(where: str, filename: str, data: bytes, structured_ok: bool = True, lenient: bool = False) -> Sniff:
+        """lenient (Slack uploads): a CSV/XLSX in a layout no adapter knows goes to the Reader instead of quarantine."""
         s = sniff(data)
         for reason in (s.reject, check_extension(filename, s), malware_scan(data)):
             if reason:
@@ -232,9 +239,17 @@ def ingest(fx: CaseFixture, folder: Path, ctx: Ctx) -> Case:
                     if f.startswith("formula_injection"):
                         notes.append(f"intake: {where}: {f} (cell neutralized)")
             except IngestError as e:
-                problems.append(f"{where}: {e}")
+                if lenient:
+                    notes.append(f"intake: {where}: {s.kind} layout not recognised ({e}); the Reader will extract it")
+                else:
+                    problems.append(f"{where}: {e}")
         return s
 
+    slack_users: dict[str, str] = {}
+    if any(i.channel == Channel.slack for i in fx.inbound):
+        from backend.slack.models import VENDOR_USER_KIND, VendorUser
+        slack_users = {u.slack_user: u.vendor_id for u in ctx.store.list_records(VendorUser, VENDOR_USER_KIND)
+                       if u.vendor_id}
     man_problems, manifest_paths = check_manifest(fx, folder)
     problems.extend(man_problems)
     for item in fx.inbound:
@@ -288,20 +303,23 @@ def ingest(fx: CaseFixture, folder: Path, ctx: Ctx) -> Case:
             if b.vendor_id:
                 (invoice_vendors if has_invoice else other_vendors).append(b.vendor_id)
         else:
-            b = bind(item, sender, vendors)
+            b = bind(item, sender, vendors, slack_users)
             if item.channel == Channel.erp:
                 vid = erp_vendor_id(data)
                 if vid is None or vid not in {v.id for v in vendors}:
                     b.problems.append(f"ERP export names unknown vendor {vid!r}")
                 else:
                     b.vendor_id = vid
-            s = check_file(item.path, Path(item.path).name, data)
+            s = check_file(item.path, Path(item.path).name, data, lenient=item.channel == Channel.slack)
             if item.channel in (Channel.api, Channel.erp) and s.kind != "json":
                 problems.append(f"{item.path}: {item.channel.value} payload is not JSON ({s.kind})")
             if s.kind == "eml":
                 problems.append(f"{item.path}: email message on non-email channel {item.channel.value}")
             kind = DocKind.invoice if s.kind in INVOICE_KINDS else DocKind.statement
             text = data.decode("utf-8-sig", "replace") if s.kind in {"csv", "json", "text"} else None
+            if s.kind == "xlsx" and item.channel == Channel.slack:  # text rendering for the Reader fallback
+                from backend.intake.adapters import xlsx_text
+                text = xlsx_text(data)
             add_doc(item, Path(item.path).name, data, s, kind, text, sender)
             if b.vendor_id:
                 invoice_vendors.append(b.vendor_id)

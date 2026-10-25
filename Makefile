@@ -1,7 +1,7 @@
 PY := PYTHONPATH=. .venv/bin/python
 CASE ?= case_01
 
-.PHONY: eval-llm tick setup run eval seed api mock ui types test clean data stdb-start stdb-publish
+.PHONY: eval-llm tick setup run eval seed api mock ui types test clean data stdb-start stdb-publish erp erp-setup
 
 setup:            ## venv + python deps + ui deps
 	python3.12 -m venv .venv
@@ -49,6 +49,12 @@ stdb-start:       ## local SpacetimeDB on :3000 (foreground); then RECONAI_STORE
 
 stdb-publish:     ## publish the module (add ARGS=--yes=delete-data to reset)
 	$(STDB) publish reconai -s local --module-path spacetime/spacetimedb --yes=skip-login $(ARGS)
+
+erp:              ## Helix ERP: Odoo 17 Community + Postgres in Docker on http://localhost:8069
+	docker compose -f config/odoo/docker-compose.yml up -d
+
+erp-setup:        ## create the helix database (admin/admin), company, Purchase + Inventory; adds ODOO_* to .env. ARGS=--reset for a clean DB
+	$(PY) scripts/erp_setup.py $(ARGS)
 
 clean:            ## wipe the dev DB (keeps the LLM response cache)
 	rm -f .data/reconai.db .data/ledger.beancount

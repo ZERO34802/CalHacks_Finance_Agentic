@@ -1,167 +1,215 @@
-"""CRS Credit API client for vendor onboarding. Owner: D (Vendor Guard integration point for A).
+"""CRS Credit API (Cal Hacks sandbox) for vendor onboarding: verify the PERSON behind a new supplier. Owner: D.
 
-Two implementations behind one interface:
-- LiveCRS: talks to CRS over HTTPS. Endpoints from the CRS developer portal (crscreditapi.redoc.ly):
-    POST /users/login            {username, password} -> {token, expires, refreshToken}
-    POST /ccc/exp/search         Experian business search {name, street, city, state, zip, phone, taxId}
-    POST /ccc/exp/score          Experian Intelliscore+ {bin}
-  The portal does not publish the base URL or the auth header, so both are configuration
-  (CRS_BASE_URL, CRS_AUTH_HEADER, CRS_AUTH_SCHEME). Response field mapping is best-effort and must be
-  confirmed against a sandbox response before production use.
-- SimulatedCRS: a deterministic sandbox with fictional test businesses, used when CRS_BASE_URL is unset.
-  Everything it returns is labelled simulated in the UI.
+Know-your-business practice verifies the supplier's owner / authorized signer. The CRS sandbox
+(https://api-sandbox.stitchcredit.com/api) offers, per person:
+  TransUnion TruValidate identity   POST /transunion/identity-manager-verification/basic
+  AtData Fraud Finder               POST /fraud-finder/fraud-finder           (email / phone / address risk)
+  PitchPoint bankruptcies/liens/judgments  POST /pp/fcrablj/data
+  AccurateAppend reverse lookup     POST /accurate-append/reverse             (independent phone -> who it belongs to)
+  Experian prequal credit (soft)    POST /experian/credit-report/standard/exp-prequal-vantage4   (only with consent)
+The sandbox answers with canned results for 20 fake personas (backend/vendors/crs_personas.json, from CRS's
+CalHacks MCP package) and forwards anything else to the real vendor, so ReconAI only ever sends a persona's exact
+request bodies: the onboarding form picks the owner as a sandbox persona. No real person is ever looked up.
 
-Coverage: CRS business credit is built on US bureaus. Non-US vendors come back "not covered" and need
-manual documents (registry extract, bank letter) instead.
+Two modes behind one interface:
+- SandboxCRS (live): CRS_USERNAME + CRS_PASSWORD set. Logs in ONCE per process and reuses the token (repeated failed
+  logins lock the account, so a failed login is never retried); a 401 re-logs once.
+- RecordedCRS (offline / tests): replays real sandbox responses recorded by scripts/crs_record.py into
+  backend/vendors/crs_recorded.json. Same parsing as live. RECONAI_CRS=off forces it.
+Only minimised fields are kept (identity messages, fraud score, court-record counts, lookup name, credit score):
+never raw credit files.
 """
 from __future__ import annotations
 
+import json
 import os
+import threading
 from dataclasses import dataclass, field
+from functools import lru_cache
+from pathlib import Path
 from typing import Optional, Protocol
 
 import httpx
+from dotenv import load_dotenv
+
+from backend.core.config import ROOT
+
+load_dotenv(ROOT / ".env")
+
+HERE = Path(__file__).resolve().parent
+BASE = os.environ.get("CRS_BASE_URL") or "https://api-sandbox.stitchcredit.com/api"
+PRODUCTS = ("tu_identity_verification", "fraud_finder", "pitchpoint_blj", "accurate_append", "credit_report")
+LABEL = {"sandbox": "CRS sandbox", "recorded": "CRS sandbox (recorded responses)"}
 
 
 class CRSUnavailable(Exception):
-    """Timeout / outage. Onboarding fails closed: the vendor stays unverified."""
+    """Timeout / outage / auth. Onboarding fails closed: the check is 'incomplete' and the vendor stays on hold."""
+
+
+@lru_cache
+def personas() -> dict[str, dict]:
+    data = json.loads((HERE / "crs_personas.json").read_text())
+    return {p["id"]: p for p in data["personas"]}
+
+
+def persona_options() -> list[dict]:
+    """For the onboarding forms: id, name, profile (what each test persona is designed to show)."""
+    return [{"id": p["id"], "name": p["name"].title(), "profile": p["profile"], "decision": p.get("decision", "")}
+            for p in personas().values()]
+
+
+def request_for(persona_id: str, product: str) -> Optional[dict]:
+    p = personas().get(persona_id)
+    if p is None:
+        return None
+    for rq in p["requests"]:
+        if rq["product"] != product:
+            continue
+        if product == "credit_report" and rq.get("variant") != "Experian":
+            continue
+        return rq
+    return None
+
+
+def minimize(product: str, body: dict) -> dict:
+    """Keep only what the checks read (responsible data handling: no SSNs, no tradelines)."""
+    if product == "tu_identity_verification":
+        msgs = ((body.get("addOnProducts") or [{}])[0].get("idManagerVerification") or {}).get("messages") or []
+        return {"messages": [{"code": str(m.get("code")), "text": str(m.get("text", ""))[:160]} for m in msgs]}
+    if product == "fraud_finder":
+        r = body.get("risk") or {}
+        phone, postal = r.get("phone") or {}, r.get("postal") or {}
+        owner = phone.get("owner") or {}
+        return {"score": r.get("score"), "domain_risk": (r.get("domain") or {}).get("domain_risk_score"),
+                "phone": {"line_type": phone.get("line_type"), "status": phone.get("status"),
+                          "prepaid": phone.get("prepaid"), "owner_name_match": owner.get("last_name_match")},
+                "postal": {"deliverability": postal.get("deliverability"),
+                           "ip_distance": postal.get("ip_postal_distance")}}
+    if product == "pitchpoint_blj":
+        rep = body.get("DetailedBLJReport") or {}
+        res = rep.get("Results") or {}
+
+        def total(kind: str, key: str) -> Optional[str]:
+            rec = (res.get(kind) or {}).get(kind[:-1] + "Record") if isinstance(res.get(kind), dict) else None
+            recs = rec if isinstance(rec, list) else [rec] if rec else []
+            vals = [r.get(key) for r in recs if isinstance(r, dict) and r.get(key) is not None]
+            return str(sum(float(v) for v in vals)) if vals else None
+        return {"bankruptcies": int(rep.get("BankruptciesFound") or 0), "liens": int(rep.get("LiensFound") or 0),
+                "judgments": int(rep.get("JudgmentsFound") or 0),
+                "lien_amount": total("Liens", "TotalLienAmount"), "judgment_amount": total("Judgments", "TotalJudgmentAmount")}
+    if product == "accurate_append":
+        recs = ((body.get("data") or {}).get("records")) or []
+        return {"records": [{"name": f"{r.get('firstName', '')} {r.get('lastName', '')}".strip(),
+                             "city": r.get("city"), "state": r.get("state")} for r in recs[:3]]}
+    if product == "credit_report":
+        errs = [str(e.get("creditErrorMessageText", ""))[:160] for e in (body.get("errorMessages") or [])]
+        scores = [s.get("scoreValue") for s in (body.get("scores") or []) if s.get("scoreValue")]
+        return {"errors": errs, "score": scores[0] if scores else None}
+    return {}
 
 
 @dataclass
-class BusinessResult:
-    found: bool
-    bin: Optional[str] = None
-    legal_name: Optional[str] = None
-    years_in_business: Optional[int] = None
-    ofac_hit: bool = False
-    ofac_detail: str = ""
-    liens: int = 0
-    judgments: int = 0
-    bankruptcies: int = 0
-    raw: dict = field(default_factory=dict)
-
-
-@dataclass
-class ScoreResult:
-    score: Optional[int]          # Intelliscore+ 1-100, higher = lower risk
-    risk_class: str = ""
+class PrincipalReport:
+    persona_id: str
+    name: str
+    results: dict[str, dict] = field(default_factory=dict)      # product -> minimised response
+    request_ids: dict[str, str] = field(default_factory=dict)   # product -> CRS RequestID (audit / debug)
 
 
 class CRS(Protocol):
     mode: str
-    def business_search(self, name: str, street: str, city: str, state: str, zip: str, phone: str, tax_id: Optional[str]) -> BusinessResult: ...
-    def business_score(self, bin: str) -> ScoreResult: ...
+    def check_principal(self, persona_id: str, products: tuple[str, ...]) -> PrincipalReport: ...
 
 
-class LiveCRS:
-    mode = "live"
+class SandboxCRS:
+    mode = "sandbox"
 
     def __init__(self) -> None:
-        self.base = os.environ["CRS_BASE_URL"].rstrip("/")
-        self.user = os.environ.get("CRS_USERNAME", "")
-        self.password = os.environ.get("CRS_PASSWORD", "")
-        self.header = os.environ.get("CRS_AUTH_HEADER", "Authorization")
-        self.scheme = os.environ.get("CRS_AUTH_SCHEME", "Bearer")
+        self.user, self.password = os.environ["CRS_USERNAME"], os.environ["CRS_PASSWORD"]
+        self._http = httpx.Client(timeout=float(os.environ.get("CRS_TIMEOUT", "25")))
         self._token: Optional[str] = None
-        self._http = httpx.Client(timeout=float(os.environ.get("CRS_TIMEOUT", "15")))
+        self._login_failed: Optional[str] = None
+        self._lock = threading.Lock()
 
-    def _auth(self) -> dict:
-        if self._token is None:
-            r = self._post("/users/login", {"username": self.user, "password": self.password}, auth=False)
-            self._token = r.get("token")
-            if not self._token:
-                raise CRSUnavailable("CRS login returned no token")
-        return {self.header: f"{self.scheme} {self._token}".strip()}
+    def _login(self) -> str:
+        with self._lock:
+            if self._login_failed:  # never retry a failed login: repeated failures lock the account
+                raise CRSUnavailable(f"CRS login failed earlier ({self._login_failed}); fix credentials and restart")
+            if self._token is None:
+                try:
+                    r = self._http.post(BASE + "/users/login", json={"username": self.user, "password": self.password})
+                except httpx.HTTPError as e:
+                    raise CRSUnavailable(f"login: {type(e).__name__}") from e
+                if r.status_code != 200 or not r.json().get("token"):
+                    self._login_failed = f"HTTP {r.status_code}"
+                    raise CRSUnavailable(f"CRS login failed (HTTP {r.status_code}); not retrying")
+                self._token = r.json()["token"]
+            return self._token
 
-    def _post(self, path: str, body: dict, auth: bool = True) -> dict:
-        try:
-            r = self._http.post(self.base + path, json=body, headers=self._auth() if auth else {})
-        except httpx.HTTPError as e:
-            raise CRSUnavailable(f"{path}: {type(e).__name__}") from e
-        if r.status_code >= 500 or r.status_code == 429:
-            raise CRSUnavailable(f"{path}: HTTP {r.status_code}")
-        r.raise_for_status()
-        return r.json()
+    def _call(self, rq: dict) -> tuple[dict, str]:
+        path = rq["path"].replace("{config}", rq.get("config") or "")
+        for attempt in (1, 2):
+            h = {"Authorization": f"Bearer {self._login()}", "Content-Type": "application/json", "Accept": "application/json"}
+            try:
+                r = self._http.request(rq["method"], BASE + path, headers=h, json=rq.get("body"))
+            except httpx.HTTPError as e:
+                raise CRSUnavailable(f"{path}: {type(e).__name__}") from e
+            if r.status_code == 401 and attempt == 1:  # token expired: log in again once
+                self._token = None
+                continue
+            if r.status_code >= 500 or r.status_code == 429:
+                raise CRSUnavailable(f"{path}: HTTP {r.status_code}")
+            if r.status_code >= 400:
+                raise CRSUnavailable(f"{path}: HTTP {r.status_code} (is the product enabled on the account?)")
+            return r.json(), r.headers.get("RequestID", "")
+        raise CRSUnavailable(f"{path}: unauthorised")
 
-    def business_search(self, name, street, city, state, zip, phone, tax_id) -> BusinessResult:
-        body = {"name": name, "street": street, "city": city, "state": state, "zip": zip, "phone": phone, "taxId": tax_id or ""}
-        raw = self._post("/ccc/exp/search", body)
-        hit = _first(raw, ("results", "businesses", "data")) or raw
-        bin_ = str(hit.get("bin") or hit.get("BIN") or "") or None
-        ofac_count = int(_deep(raw, "ofacCount") or 0)
-        return BusinessResult(found=bool(bin_), bin=bin_, legal_name=hit.get("businessName") or hit.get("name"),
-                              years_in_business=_int(_deep(raw, "yearsInBusiness")), ofac_hit=ofac_count > 0,
-                              ofac_detail=str(_deep(raw, "ofacValue") or ""), liens=_int(_deep(raw, "liensCount")) or 0,
-                              judgments=_int(_deep(raw, "judgmentsCount")) or 0, bankruptcies=_int(_deep(raw, "bankruptcyCount")) or 0,
-                              raw=raw)
-
-    def business_score(self, bin: str) -> ScoreResult:
-        raw = self._post("/ccc/exp/score", {"bin": bin})
-        return ScoreResult(score=_int(_deep(raw, "score")), risk_class=str(_deep(raw, "riskClass") or ""))
-
-
-# Fictional sandbox businesses (by tax ID). Not real companies.
-_SANDBOX: dict[str, dict] = {
-    "US-77-4012339": dict(bin="790011223", legal_name="Bayline Precision Machining Inc", years=14, score=81),
-    "US-36-8820415": dict(bin="790044551", legal_name="Northgate Components Trading LLC", years=1, score=22, ofac=True,
-                          ofac_detail="Name and address match an entry on the (simulated) SDN list"),
-    "US-61-2287730": dict(bin="790077102", legal_name="Ridgeview Consulting LLC", years=2, score=48),
-    "US-82-5521904": dict(bin="790088310", legal_name="Kestrel Memory Americas Inc", years=0, score=30, liens=1),
-    "US-45-9900127": dict(bin="790099001", legal_name="Granite Peak Logistics LLC", years=6, score=35, liens=2, judgments=1, bankruptcies=1),
-}
-_TIMEOUT_IDS = {"US-00-0000000"}
+    def check_principal(self, persona_id: str, products: tuple[str, ...] = PRODUCTS) -> PrincipalReport:
+        p = personas()[persona_id]
+        rep = PrincipalReport(persona_id=persona_id, name=p["name"].title())
+        for prod in products:
+            rq = request_for(persona_id, prod)
+            if rq is None:
+                continue
+            body, rid = self._call(rq)
+            rep.results[prod], rep.request_ids[prod] = minimize(prod, body), rid
+        return rep
 
 
-class SimulatedCRS:
-    mode = "simulated"
+class RecordedCRS:
+    """Offline: real sandbox responses recorded by scripts/crs_record.py (minimised)."""
+    mode = "recorded"
 
-    def business_search(self, name, street, city, state, zip, phone, tax_id) -> BusinessResult:
-        if tax_id in _TIMEOUT_IDS:
-            raise CRSUnavailable("sandbox timeout (simulated)")
-        rec = _SANDBOX.get(tax_id or "")
-        if rec is None:
-            return BusinessResult(found=False)
-        return BusinessResult(found=True, bin=rec["bin"], legal_name=rec["legal_name"], years_in_business=rec["years"],
-                              ofac_hit=rec.get("ofac", False), ofac_detail=rec.get("ofac_detail", ""),
-                              liens=rec.get("liens", 0), judgments=rec.get("judgments", 0), bankruptcies=rec.get("bankruptcies", 0))
+    @staticmethod
+    @lru_cache
+    def _data() -> dict:
+        path = HERE / "crs_recorded.json"
+        return json.loads(path.read_text()) if path.exists() else {}
 
-    def business_score(self, bin: str) -> ScoreResult:
-        rec = next((r for r in _SANDBOX.values() if r["bin"] == bin), None)
-        s = rec["score"] if rec else None
-        return ScoreResult(score=s, risk_class="" if s is None else "low" if s >= 70 else "medium" if s >= 40 else "high")
+    def check_principal(self, persona_id: str, products: tuple[str, ...] = PRODUCTS) -> PrincipalReport:
+        p = personas()[persona_id]
+        rec = self._data().get(persona_id) or {}
+        rep = PrincipalReport(persona_id=persona_id, name=p["name"].title())
+        for prod in products:
+            if prod in rec:
+                rep.results[prod] = rec[prod]["result"]
+                rep.request_ids[prod] = rec[prod].get("request_id", "recorded")
+        return rep
+
+
+_crs: Optional[CRS] = None
 
 
 def make_crs() -> CRS:
-    return LiveCRS() if os.environ.get("CRS_BASE_URL") else SimulatedCRS()
+    """The live sandbox when CRS credentials are set (and RECONAI_CRS isn't 'off'), else recorded responses."""
+    global _crs
+    if os.environ.get("RECONAI_CRS", "").lower() == "off" or not (os.environ.get("CRS_USERNAME") and os.environ.get("CRS_PASSWORD")):
+        return RecordedCRS()
+    if _crs is None or not isinstance(_crs, SandboxCRS):
+        _crs = SandboxCRS()
+    return _crs
 
 
-def _first(d: dict, keys) -> Optional[dict]:
-    for k in keys:
-        v = d.get(k) if isinstance(d, dict) else None
-        if isinstance(v, list) and v:
-            return v[0]
-    return None
-
-
-def _deep(d, key):
-    """First value for `key` anywhere in a nested JSON response."""
-    if isinstance(d, dict):
-        if key in d:
-            return d[key]
-        for v in d.values():
-            found = _deep(v, key)
-            if found is not None:
-                return found
-    elif isinstance(d, list):
-        for v in d:
-            found = _deep(v, key)
-            if found is not None:
-                return found
-    return None
-
-
-def _int(v) -> Optional[int]:
-    try:
-        return int(v)
-    except (TypeError, ValueError):
-        return None
+def set_crs(crs: Optional[CRS]) -> None:  # tests
+    global _crs
+    _crs = crs

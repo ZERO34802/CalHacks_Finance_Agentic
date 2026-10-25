@@ -41,12 +41,17 @@ export const stepColor = (s: string) =>
 export const findingColor = (s: string) => (s === "ok" ? "brand" : s === "flag" ? "red" : s === "blocked" ? "orange" : "gray");
 
 // Who's signed in. Mirrors the approval matrix in config/policy.yaml.
-export type Seat = "approver" | "controller" | "cfo";
+export type Seat = "approver" | "controller" | "cfo" | "cto";
 export const PEOPLE: Record<Seat, { email: string; name: string; title: string; role: Role }> = {
   approver: { email: "ap.lead@helix.example", name: "Ana Lee", title: "AP lead", role: "approver" },
   controller: { email: "m.chen@helix.example", name: "M. Chen", title: "Controller", role: "controller" },
   cfo: { email: "r.okafor@helix.example", name: "R. Okafor", title: "CFO", role: "cfo" },
+  cto: { email: "h.jogi@helix.example", name: "H. Jogi", title: "CTO", role: "cto" },
 };
+
+/** Tiered maker-checker: AP leads approve but never release; a controller, CFO or CTO releases. */
+export const canRelease = (role: Role) => role === "controller" || role === "cfo" || role === "cto";
+export const RELEASE_RULE = "AP leads approve; a controller, CFO or CTO releases the payment";
 
 /** Exact sum of Decimal strings via integer cents (BigInt). Never floats for money. */
 export function sumMoney(values: (string | null | undefined)[]): string {

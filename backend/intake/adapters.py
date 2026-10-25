@@ -236,6 +236,31 @@ def derive_links(inv: Invoice) -> Invoice:
     return inv
 
 
+def xlsx_text(data: bytes, max_rows: int = 200) -> str:
+    """Every sheet as tab-separated text for the Reader: each cell's saved value, or (no saved value) its formula as
+    text. Anything starting with = + - @ is prefixed with ' so it reads as data; nothing is evaluated. Unreadable
+    workbooks give '' (the Reader then reports it isn't an invoice)."""
+    import openpyxl
+    try:
+        vals = openpyxl.load_workbook(io.BytesIO(data), read_only=True, data_only=True)
+        forms = openpyxl.load_workbook(io.BytesIO(data), read_only=True, data_only=False)
+    except Exception:
+        return ""
+    out = []
+    for wv, wf in list(zip(vals.worksheets, forms.worksheets))[:5]:
+        out.append(f"# sheet: {wv.title}")
+        for i, (rv, rf) in enumerate(zip(wv.iter_rows(values_only=True), wf.iter_rows(values_only=True))):
+            if i >= max_rows:
+                break
+            cells = []
+            for v, f in zip(rv, rf):
+                c = "" if v is None and f is None else str(v if v is not None else f)
+                cells.append("'" + c if c and c[0] in "=+-@" else c)
+            if any(cells):
+                out.append("\t".join(cells).rstrip())
+    return "\n".join(out)[:40000]
+
+
 def parse_structured(kind: str, data: bytes, doc_id: str, vendor_id: str) -> tuple[Invoice, str]:
     """kind is the sniffed kind: csv | xlsx | json. Returns (invoice, adapter version)."""
     if kind == "csv":

@@ -193,8 +193,8 @@ def _coinbase_run(monkeypatch, wallet="0xKESTRELWALLET"):
     return store, c, r.json()
 
 
-def _release(c, batch, rail="coinbase", who="m.chen@helix.example"):
-    return c.post(f"/ap/payments/{batch['id']}/release", json={"released_by": who, "rail": rail})
+def _release(c, batch, rail="coinbase", who="m.chen@helix.example", role="controller"):
+    return c.post(f"/ap/payments/{batch['id']}/release", json={"released_by": who, "rail": rail, "role": role})
 
 
 def test_usdc_amounts_are_scaled_decimals():
@@ -207,7 +207,7 @@ def test_coinbase_release_pays_the_vendor_master_wallet(offline, monkeypatch):  
     store, c, batch = _coinbase_run(monkeypatch)
     fake = FakeRail()
     coinbase.set_rail(fake)
-    assert _release(c, batch, who="ap.lead@helix.example").status_code == 403   # the preparer can't release
+    assert _release(c, batch, who="ap.lead@helix.example", role="approver").status_code == 403  # AP leads never release
     assert fake.transfers == []
     out = _release(c, batch).json()
     assert out["status"] == "paid" and out["rail"] == "coinbase" and out["released_by"] == "m.chen@helix.example"
@@ -531,6 +531,8 @@ def _form(**over):
             "contact_phone": "+1 510 555 0142", "bank_last4": "4021", **over}
     out = {k: {"v": {"value": v}} for k, v in vals.items()}
     out["tax_form"] = {"v": {"selected_option": {"value": "W-9"}}}
+    out["principal_persona"] = {"v": {"selected_option": {"value": "P19"}}}     # CRS persona: clean owner-operator
+    out["credit_consent"] = {"v": {"selected_options": [{"value": "yes"}]}}
     return out
 
 
@@ -612,7 +614,11 @@ def test_slack_bot_negotiation_contract_and_onboarding(offline, monkeypatch):  #
     assert em.kind == "onboarding_confirmation" and em.id == ok["confirmation_email_id"]
     assert "2% discount if paid within 15 days" in em.body
     assert store.get_record(VendorContract, ct.KIND, contract.id).status == "onboarded"
-    assert "is onboarded as" in fake.posts[-1]["text"] and "approved by m.chen@helix.example" in fake.posts[-1]["text"]
+    onboarded = next(p["text"] for p in fake.posts if "is onboarded as" in p["text"])
+    assert "approved by m.chen@helix.example" in onboarded
+    po_note = next(p for p in fake.posts if "created in Helix ERP from contract" in p["text"])
+    assert po_note["channel"] == "C1" and f"from contract {contract.id}" in po_note["text"]
+    assert fake.posts[-1]["channel"] == "U_HELIX" and "PO-9001 is open" in fake.posts[-1]["text"]  # DM to requester
     assert c.get("/contracts").json()[0]["id"] == contract.id
     pdf = c.get(f"/contracts/{contract.id}/pdf")
     assert pdf.status_code == 200 and pdf.content[:5] == b"%PDF-"

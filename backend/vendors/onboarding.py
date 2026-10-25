@@ -25,7 +25,7 @@ from uuid import uuid4
 
 from backend.core.config import ROOT, load_policy
 from backend.store.base import Store
-from backend.vendors.crs import CRS, CRSUnavailable
+from backend.vendors.crs import CRS, LABEL, CRSUnavailable, personas
 from contracts import Channel, OnboardingCase, OnboardingRequest, OnboardingRequestIn, VendorCheck, Vendor
 
 DATA = ROOT / "data" / "onboarding"
@@ -55,56 +55,103 @@ def _norm(name: str) -> str:
     return " ".join(re.sub(r"\b(inc|llc|ltd|co|corp|sdn|bhd|the)\b|[^a-z0-9 ]", " ", name.lower()).split()[:2])
 
 
+IDENTITY = "Owner identity (TransUnion)"
+FRAUD = "Contact fraud risk (AtData Fraud Finder)"
+COURT = "Bankruptcies, liens, judgments (PitchPoint)"
+PHONE = "Independent phone lookup (AccurateAppend)"
+CREDIT = "Owner credit (Experian prequal, soft pull)"
+IDENTITY_FAIL = {"2201", "2202", "2301"}  # SSN not this person's / DOB mismatch / deceased (TransUnion + CRS texts)
+
+
+def crs_checks(req: OnboardingRequestIn, crs: CRS) -> list[VendorCheck]:
+    """Verify the person behind the supplier through CRS. Thresholds in code; the vendor's text never decides."""
+    label = LABEL.get(crs.mode, "CRS")
+    sim = crs.mode != "sandbox"
+    names = [IDENTITY, FRAUD, COURT, PHONE] + ([CREDIT] if req.credit_consent else [])
+    pid = (req.principal_persona or "").upper().strip()
+    if pid not in personas():
+        return [VendorCheck(name=n, provider=label, status="not_covered", simulated=sim,
+                            detail="No owner / authorized signer given: add one to run CRS identity, fraud and court-record "
+                                   "checks (until then a controller reviews this vendor).") for n in names]
+    products = ("tu_identity_verification", "fraud_finder", "pitchpoint_blj", "accurate_append") + (
+        ("credit_report",) if req.credit_consent else ())
+    rep, err = None, ""
+    for attempt in (1, 2):  # fail closed: one retry, then "incomplete"
+        try:
+            rep = crs.check_principal(pid, products)
+            break
+        except CRSUnavailable as e:
+            err = str(e)
+    if rep is None:
+        return [VendorCheck(name=n, provider=label, status="incomplete", simulated=sim,
+                            detail=f"CRS unavailable after a retry ({err[:160]}). Verification incomplete: vendor stays on hold.")
+                for n in names]
+    who = f"{rep.name} (owner, sandbox persona {pid})"
+    rid = lambda prod: f" · CRS RequestID {rep.request_ids[prod][:8]}" if rep.request_ids.get(prod) else ""  # noqa: E731
+    out = []
+    idv = rep.results.get("tu_identity_verification")
+    if idv is None:
+        out.append(VendorCheck(name=IDENTITY, provider=label, status="incomplete", simulated=sim, detail="No identity result."))
+    else:
+        codes = {m["code"] for m in idv["messages"]}
+        texts = "; ".join(m["text"].capitalize() for m in idv["messages"][:3])
+        status = "pass" if not codes else "fail" if codes & IDENTITY_FAIL else "warn"
+        detail = (f"{who}: name, SSN, date of birth and address verify." if status == "pass" else
+                  f"{who}: {texts}." + (" Step-up verification needed before approval." if "2401" in codes else ""))
+        out.append(VendorCheck(name=IDENTITY, provider=label, status=status, simulated=sim, detail=detail + rid("tu_identity_verification")))
+    ff = rep.results.get("fraud_finder")
+    if ff is not None and ff.get("score") is not None:
+        sc = int(ff["score"])
+        ph = ff.get("phone") or {}
+        flags = [x for x in (
+            "phone not in the owner's name" if ph.get("owner_name_match") == "no_match" else "",
+            f"{ph.get('line_type')} line" if ph.get("line_type") in ("voip", "nonFixedVoip") else "",
+            "prepaid phone" if ph.get("prepaid") else "",
+            f"IP {ff['postal']['ip_distance']} from the address" if (ff.get("postal") or {}).get("ip_distance", "").startswith(">") else "",
+        ) if x]
+        out.append(VendorCheck(name=FRAUD, provider=label, simulated=sim,
+                               status="pass" if sc <= 40 else "warn" if sc < 70 else "fail",
+                               detail=f"Risk score {sc}/100 (AtData: 70+ is high risk)" + (f"; {', '.join(flags)}" if flags else "")
+                                      + "." + rid("fraud_finder")))
+    blj = rep.results.get("pitchpoint_blj")
+    if blj is not None:
+        b, l, j = blj["bankruptcies"], blj["liens"], blj["judgments"]
+        amt = ", ".join(x for x in (f"liens {blj['lien_amount']}" if blj.get("lien_amount") else "",
+                                    f"judgments {blj['judgment_amount']}" if blj.get("judgment_amount") else "") if x)
+        out.append(VendorCheck(name=COURT, provider=label, simulated=sim, status="fail" if b else "warn" if (l or j) else "pass",
+                               detail=f"{b} bankruptcy(ies), {l} lien(s), {j} judgment(s) on civil court record"
+                                      + (f" ({amt} USD)" if amt else "") + "." + rid("pitchpoint_blj")))
+    aa = rep.results.get("accurate_append")
+    if aa is not None:
+        recs = aa.get("records") or []
+        mine = [r for r in recs if r["name"].lower() == rep.name.lower()]
+        out.append(VendorCheck(name=PHONE, provider=label, simulated=sim,
+                               status="pass" if mine else "fail" if recs else "warn",
+                               detail=(f"The owner's phone resolves to {rep.name} ({mine[0]['city']}, {mine[0]['state']}): usable for "
+                                       "bank-change callbacks." if mine else
+                                       f"The owner's phone belongs to {recs[0]['name']}, not {rep.name}." if recs else
+                                       "No independent record for the owner's phone: verify the callback number another way.")
+                                      + rid("accurate_append")))
+    if req.credit_consent:
+        cr = rep.results.get("credit_report")
+        if cr is not None:
+            score = int(cr["score"]) if cr.get("score") else None
+            status = "fail" if cr.get("errors") else "warn" if score is None else \
+                "pass" if score >= 670 else "warn" if score >= 580 else "fail"
+            detail = (f"Bureau error: {cr['errors'][0]}" if cr.get("errors") else
+                      "No credit file at Experian (thin or no history)." if score is None else
+                      f"VantageScore 4.0: {score} (soft pull, owner consented).")
+            out.append(VendorCheck(name=CREDIT, provider=label, status=status, simulated=sim, detail=detail + rid("credit_report")))
+    return out
+
+
 def run_checks(req: OnboardingRequestIn, store: Store, crs: CRS) -> list[VendorCheck]:
     out: list[VendorCheck] = []
     sim = crs.mode == "simulated"
     vendors = store.list_vendors()
 
-    # 1-4: CRS
-    if req.country != "US":
-        for name in ("Business identity", "Business credit", "Liens, judgments, bankruptcies", "Sanctions (OFAC)"):
-            out.append(VendorCheck(name=name, provider="CRS", status="not_covered", simulated=sim,
-                                       detail=f"CRS business data covers US businesses; {req.country} needs a registry extract, "
-                                              "bank letter and manual sanctions screening."))
-    else:
-        biz = None
-        for attempt in (1, 2):
-            try:
-                biz = crs.business_search(req.legal_name, req.address, req.city, req.state, req.zip, req.contact_phone, req.tax_id)
-                break
-            except CRSUnavailable as e:
-                err = str(e)
-        if biz is None:
-            for name in ("Business identity", "Business credit", "Liens, judgments, bankruptcies", "Sanctions (OFAC)"):
-                out.append(VendorCheck(name=name, provider="CRS", status="incomplete", simulated=sim,
-                                           detail=f"CRS unavailable after a retry ({err}). Verification incomplete: vendor stays on hold."))
-        else:
-            if biz.found:
-                years = biz.years_in_business
-                out.append(VendorCheck(name="Business identity", provider="CRS", simulated=sim,
-                                           status="pass" if (years or 0) >= 2 else "warn",
-                                           detail=f"Found {biz.legal_name} (BIN {biz.bin}), {years if years is not None else '?'} year(s) in business."
-                                                  + (" Very new registration." if (years or 0) < 2 else "")))
-                score = crs.business_score(biz.bin) if biz.bin else None
-                s = score.score if score else None
-                out.append(VendorCheck(name="Business credit", provider="CRS", simulated=sim,
-                                           status="pass" if s is not None and s >= 70 else "warn" if s is not None and s >= 40 else "fail",
-                                           detail=f"Intelliscore+ {s if s is not None else 'unavailable'}/100"
-                                                  + (f" ({score.risk_class} risk)" if score and score.risk_class else "") + "."))
-                pr = biz.liens + biz.judgments + biz.bankruptcies
-                out.append(VendorCheck(name="Liens, judgments, bankruptcies", provider="CRS", simulated=sim,
-                                           status="fail" if biz.bankruptcies else "warn" if pr else "pass",
-                                           detail=f"{biz.liens} lien(s), {biz.judgments} judgment(s), {biz.bankruptcies} bankruptcy(ies) on public record."))
-                out.append(VendorCheck(name="Sanctions (OFAC)", provider="CRS", simulated=sim,
-                                           status="fail" if biz.ofac_hit else "pass",
-                                           detail=biz.ofac_detail or ("Possible watchlist match." if biz.ofac_hit else "No watchlist match.")))
-            else:
-                out.append(VendorCheck(name="Business identity", provider="CRS", status="fail", simulated=sim,
-                                           detail="No business on record for this name and tax ID. Possible shell or typo."))
-                for name in ("Business credit", "Liens, judgments, bankruptcies"):
-                    out.append(VendorCheck(name=name, provider="CRS", status="warn", simulated=sim, detail="No credit file (business not found)."))
-                out.append(VendorCheck(name="Sanctions (OFAC)", provider="CRS", status="warn", simulated=sim,
-                                           detail="Not screened: business not found. Screen manually."))
+    # 1-5: CRS sandbox on the owner / authorized signer
+    out += crs_checks(req, crs)
 
     # 5-8: code checks, shared with the scored onboarding flow (A's backend/onboarding/checks.py)
     out += code_checks(req, store)
@@ -117,7 +164,7 @@ CODE_LABEL = {
     "bank_matches_employee": "Bank account vs employees", "lookalike_domain": "Email domain",
     "missing_tax_form": "Tax form", "invalid_tax_form": "Tax form", "domain_age": "Domain age (simulated)",
 }
-BLOCKING = {"Sanctions (OFAC)", "Sanctions list (simulated)", "Bank account vs employees"}
+BLOCKING = {"Sanctions (OFAC)", "Sanctions list (simulated)", "Bank account vs employees", IDENTITY}
 
 
 def _form(req: OnboardingRequestIn) -> Optional[str]:
@@ -168,7 +215,7 @@ class OnboardingError(Exception):
     pass
 
 
-ROLE_RANK = {"approver": 1, "controller": 2, "cfo": 3}
+ROLE_RANK = {"approver": 1, "controller": 2, "cfo": 3, "cto": 3}
 
 
 def decide(case: OnboardingCase, approver: str, role: str, decision: str, comment: str, store: Store, now: datetime) -> OnboardingCase:
@@ -180,7 +227,7 @@ def decide(case: OnboardingCase, approver: str, role: str, decision: str, commen
         if ROLE_RANK.get(role, 0) < ROLE_RANK[case.needs]:
             raise OnboardingError(f"{case.risk_tier.capitalize()}-risk vendors need a {case.needs} to approve.")
         if any(c.status == "fail" and c.name in BLOCKING for c in case.checks):
-            raise OnboardingError("Sanctions or employee-bank matches can't be approved. Reject, or escalate to compliance.")
+            raise OnboardingError("Sanctions, employee-bank or owner-identity failures can't be approved. Reject, or escalate to compliance.")
         if any(c.status == "incomplete" for c in case.checks):
             raise OnboardingError("Verification incomplete (CRS unavailable). Re-run the checks first.")
         r = case.request

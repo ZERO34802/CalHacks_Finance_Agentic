@@ -4,7 +4,7 @@
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "Role".
  */
-export type Role = "system" | "reader" | "investigator" | "approver" | "controller" | "cfo" | "requester";
+export type Role = "system" | "reader" | "investigator" | "approver" | "controller" | "cfo" | "cto" | "requester";
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "ApprovalDecision".
@@ -41,7 +41,7 @@ export type DocKind = "invoice" | "po" | "receipt" | "contract" | "amendment" | 
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "Channel".
  */
-export type Channel = "api" | "email" | "sftp" | "s3" | "erp" | "upload";
+export type Channel = "api" | "email" | "sftp" | "s3" | "erp" | "upload" | "slack";
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "CaseLinkType".
@@ -787,6 +787,18 @@ export interface PO {
   currency: string;
   lines: POLine[];
   requester: string;
+  /**
+   * Supply agreement this PO was created from (Slack contract)
+   */
+  contract_id: string | null;
+  /**
+   * Record in the external ERP, e.g. odoo:purchase.order:42
+   */
+  erp_ref: string | null;
+  /**
+   * ordered | partially_received | received | invoiced | paid
+   */
+  status: string;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -815,6 +827,14 @@ export interface Receipt {
   received_date: string;
   lines: ReceiptLine[];
   received_by: string;
+  /**
+   * Record in the external ERP, e.g. odoo:stock.picking:17
+   */
+  erp_ref: string | null;
+  /**
+   * erp | app | slack (always a Helix person, never the vendor)
+   */
+  source: string;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -1173,6 +1193,20 @@ export interface Employee {
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ErpStatus".
+ */
+export interface ErpStatus {
+  /**
+   * odoo | simulated
+   */
+  mode: string;
+  connected: boolean;
+  url: string | null;
+  database: string | null;
+  note: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "EvalResult".
  */
 export interface EvalResult {
@@ -1470,6 +1504,14 @@ export interface OnboardingRequestIn {
    * Becomes the verified contact on file once approved
    */
   contact_email: string | null;
+  /**
+   * Owner / authorized signer, as a CRS sandbox test persona id (P01-P20): CRS identity, fraud and court-record checks run on them
+   */
+  principal_persona: string | null;
+  /**
+   * The owner consented to a soft credit check (FCRA permissible purpose)
+   */
+  credit_consent: boolean;
 }
 /**
  * One onboarding check as shown in the UI (D): CRS or code, pass/warn/fail.
@@ -1778,6 +1820,42 @@ export interface PrepaymentRequest {
   note: string;
 }
 /**
+ * A PO as the Purchasing page shows it: ordered vs received vs invoiced, with its ERP record.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "PurchaseOrderView".
+ */
+export interface PurchaseOrderView {
+  po: PO;
+  vendor_name: string;
+  receipts: Receipt[];
+  /**
+   * sku -> qty received so far
+   */
+  received: {
+    /**
+     * Decimal amount as string
+     */
+    [k: string]: string;
+  };
+  /**
+   * case ids of bills billed against this PO
+   */
+  invoices: string[];
+  /**
+   * Decimal amount as string
+   */
+  total: string;
+  /**
+   * ordered | partially_received | received | invoiced | paid
+   */
+  status: string;
+  /**
+   * Deep link to the record in the ERP (Odoo)
+   */
+  erp_url: string | null;
+}
+/**
  * One open case in the approval queue, sorted by priority (highest first).
  *
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -1814,10 +1892,34 @@ export interface QueueItem {
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "ReceiveRequest".
+ */
+export interface ReceiveRequest {
+  received_by: string;
+  /**
+   * sku -> qty received now
+   */
+  lines: {
+    /**
+     * Decimal amount as string
+     */
+    [k: string]: string;
+  };
+  /**
+   * app | slack
+   */
+  source: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "ReleaseRequest".
  */
 export interface ReleaseRequest {
   released_by: string;
+  /**
+   * Releaser's role: AP leads can't release; controller/CFO/CTO can
+   */
+  role: Role | null;
   /**
    * bank (simulated) | coinbase (USDC, Base Sepolia testnet)
    */
@@ -1962,6 +2064,18 @@ export interface SkillVersion {
   created_at: string;
   approved_by: string | null;
   git_sha: string | null;
+}
+/**
+ * A Slack user registered to an AP role with /reconai role (who gets which notifications and buttons).
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "SlackRoleHolder".
+ */
+export interface SlackRoleHolder {
+  slack_user: string;
+  name: string;
+  email: string;
+  role: Role;
 }
 /**
  * How one pipeline stage behaved across every case's latest run.

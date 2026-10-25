@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import type { ApReport } from "../../types/contracts";
 import { ap } from "../api";
 import { me, useApp } from "../context";
-import { amount, due, shortName, sumMoney, usd, usdShort } from "../format";
+import { amount, canRelease, due, shortName, sumMoney, usd, usdShort } from "../format";
 import { DiscountCard } from "../discounts";
 import { PageHead, RiskDots, StageBadge, Stat } from "../parts";
 
@@ -15,7 +15,8 @@ export default function Home() {
   useEffect(() => { ap.report().then(setRep).catch(() => {}); }, [bills, lastEvent]);
   const who = me(seat);
   const review = bills.filter((b) => b.stage === "needs_review");
-  const mine = review.filter((b) => b.needs === seat);
+  const top = (x: string) => x === "cfo" || x === "cto";   // the CTO has the CFO's authority
+  const mine = review.filter((b) => b.needs === seat || (top(b.needs) && top(seat)));
   const attention = bills.filter((b) => ["needs_review", "on_hold", "blocked"].includes(b.stage))
     .sort((a, b) => (a.risk === "high" ? -1 : 0) - (b.risk === "high" ? -1 : 0) || (a.days_to_due ?? 999) - (b.days_to_due ?? 999));
   const processing = bills.filter((b) => b.stage === "processing");
@@ -25,7 +26,7 @@ export default function Home() {
       <PageHead title={`Hi ${who.name.split(" ")[0]}`} sub={`Signed in as ${who.title}. Invoices are processed in the background as they arrive.`} />
       <SimpleGrid cols={{ base: 2, md: 5 }} mb="lg">
         <Stat label="Needs your sign-off" value={mine.length} sub={`${review.length} awaiting review in total`} color="violet.7" onClick={() => go("bills/approval")} />
-        <Stat label="Ready to pay" value={usdShort(sumMoney(bills.filter((b) => b.stage === "ready_to_pay").map((b) => b.payable_usd ?? b.amount_usd)))} sub={`${bills.filter((b) => b.stage === "ready_to_pay").length} bills`} onClick={() => go("bills/payment")} />
+        <Stat label="Ready to pay" value={usdShort(sumMoney(bills.filter((b) => b.stage === "ready_to_pay").map((b) => b.payable_usd ?? b.amount_usd)))} sub={`${bills.filter((b) => b.stage === "ready_to_pay").length} bills · ${canRelease(who.role) ? "you can release them" : "approve; a controller/CFO/CTO releases"}`} onClick={() => go("bills/payment")} />
         <Stat label="Payment blocked" value={rep?.blocked ?? "—"} sub="bank, duplicate or hidden-instruction checks" color={rep?.blocked ? "red.7" : undefined} onClick={() => go("bills/payment")} />
         <Stat label="Due in 7 days" value={usdShort(rep?.due_7d_usd)} sub={`open AP ${usdShort(rep?.open_usd)}`} />
         <Stat label="Touchless" value={rep?.touchless_rate == null ? "—" : `${Math.round(rep.touchless_rate * 100)}%`} sub="cleared by agents with no human step" color="brand.7" />

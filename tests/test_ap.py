@@ -116,7 +116,9 @@ def test_payment_runs_pay_only_what_was_booked_and_never_post(offline, monkeypat
     assert _run(c, ["case_25"]).status_code == 400                # already in a run
     batch = ok.json()["id"]
     assert c.post(f"/ap/payments/{batch}/release", json={"released_by": "ap.lead@helix.example"}).status_code == 403
-    done = c.post(f"/ap/payments/{batch}/release", json={"released_by": "m.chen@helix.example"})
+    r = c.post(f"/ap/payments/{batch}/release", json={"released_by": "ap.lead@helix.example", "role": "approver"})
+    assert r.status_code == 403 and "AP leads approve" in r.json()["detail"]        # AP leads never release
+    done = c.post(f"/ap/payments/{batch}/release", json={"released_by": "m.chen@helix.example", "role": "controller"})
     assert done.json()["status"] == "paid" and stages(c)["case_25"]["stage"] == "paid"
     assert ledger_path(store).read_text() == ledger                # payment runs never touch the ledger
 
@@ -129,7 +131,7 @@ def test_release_rechecks_the_guard(offline, monkeypatch):
     case = store.get_case("case_25")
     case.invoice.bank_last4 = "9902"                              # e.g. a re-read shows a new bank account
     store.save_case(case)
-    r = c.post(f"/ap/payments/{batch['id']}/release", json={"released_by": "m.chen@helix.example"})
+    r = c.post(f"/ap/payments/{batch['id']}/release", json={"released_by": "m.chen@helix.example", "role": "controller"})
     assert r.status_code == 400 and "vendor master" in r.json()["detail"]
 
 

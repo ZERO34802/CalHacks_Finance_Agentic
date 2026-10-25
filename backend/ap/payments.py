@@ -8,7 +8,10 @@ Controls enforced here, in code:
 - the payment guard blocks bills with open high-risk signals (bank mismatch, duplicate, hidden instructions)
 - payment always goes to the vendor master's bank account, never the one printed on the invoice
 - a bill can't be in two active payments
-- whoever prepared a run cannot release it
+- tiered maker-checker at release (policy `release.roles`, default controller / CFO / CTO): AP leads approve
+  bills within their limit but never release; a bill an AP lead approved is released by a higher tier (never by
+  that same person); a controller / CFO / CTO who approved a bill may release it themselves. The releaser's
+  approval limit must cover the payment (the PO requester may release: someone else had to approve it)
 - coinbase rail: pay-to is the vendor master's wallet; a failed transfer leaves the run partially paid (retry
   re-sends only the unpaid lines)
 """
@@ -38,6 +41,10 @@ CREATE TABLE IF NOT EXISTS onboarding (id TEXT PRIMARY KEY, body TEXT NOT NULL);
 
 class PaymentError(Exception):
     pass
+
+
+class PaymentForbidden(PaymentError):
+    """The person isn't allowed to do this (HTTP 403), as opposed to a bad request."""
 
 
 class PaymentStore:
@@ -164,8 +171,39 @@ def _probation_block(case, vendor, store):
     return pb(case, vendor, store)
 
 
+RELEASE_ROLES = ("controller", "cfo", "cto")
+
+
+def release_roles(policy: Optional[Policy]) -> tuple[str, ...]:
+    roles = (policy.release.get("roles") if policy is not None else None) or RELEASE_ROLES
+    return tuple(str(r) for r in roles)
+
+
+def release_problem(case: Optional[Case], payment: Payment, released_by: str, role: Optional[str],
+                    policy: Optional[Policy]) -> Optional[str]:
+    """Who may release this payment (code, never a prompt). None = allowed."""
+    if not role:
+        return (f"Say which role {released_by} is releasing as (controller, CFO or CTO); "
+                "no role was given and none is registered for them.")
+    roles = release_roles(policy)
+    if role not in roles:
+        return (f"{released_by} ({role}) can't release payments: AP leads approve bills, release needs "
+                f"{' / '.join(roles)}.")
+    limit = policy.approval_limits.get(role) if policy is not None else None
+    if limit is not None and payment.amount_usd > limit:
+        return f"USD {payment.amount_usd:,.2f} is over the {role} limit of USD {limit:,.2f}."
+    if case is None:
+        return None
+    # the requester may release: they can never approve their own purchase, so an independent person already signed
+    approved = S.last_approved(case)
+    if approved and approved.role.value not in roles and approved.approver.lower() == released_by.lower():
+        return f"{released_by} approved this bill as {approved.role.value} and cannot also release it."
+    return None
+
+
 def release(pay: PaymentStore, batch_id: str, released_by: str, now: datetime,
-            store: Optional[Store] = None, policy: Optional[Policy] = None, rail: str = "bank") -> PaymentBatch:
+            store: Optional[Store] = None, policy: Optional[Policy] = None, rail: str = "bank",
+            role: Optional[str] = None) -> PaymentBatch:
     batch = pay.get(batch_id)
     if batch is None:
         raise PaymentError("No such payment run.")
@@ -176,9 +214,11 @@ def release(pay: PaymentStore, batch_id: str, released_by: str, now: datetime,
         raise PaymentError("Retry a partially paid run on the Coinbase rail it was released on.")
     if rail not in ("bank", "coinbase"):
         raise PaymentError("rail must be bank or coinbase")
-    if released_by == batch.created_by:
-        raise PaymentError(f"{released_by} prepared this run and cannot also release it.")
     unpaid = [p for p in batch.payments if p.status != "paid"]
+    for p in unpaid:  # the release rule, per bill
+        problem = release_problem(store.get_case(p.case_id) if store is not None else None, p, released_by, role, policy)
+        if problem:
+            raise PaymentForbidden(f"{p.case_id}: {problem}" if store is not None else problem)
     if store is not None and policy is not None:  # re-check at release: nothing changed since it was scheduled
         cases = store.list_cases()
         for p in unpaid:
@@ -281,7 +321,7 @@ def decide_prepayment(pay: PaymentStore, prepay_id: str, approver: str, role: st
     if decision == "approved":
         if approver == p.requested_by:
             raise PaymentError(f"{approver} requested this prepayment and cannot approve it.")
-        if role not in ("controller", "cfo"):
+        if role not in ("controller", "cfo", "cto"):
             raise PaymentError("Advance payments need a controller or CFO.")
     p.status = "paid" if decision == "approved" else "rejected"
     p.approved_by, p.approved_at = approver, now

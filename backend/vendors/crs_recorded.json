@@ -1,0 +1,1112 @@
+{
+ "P01": {
+  "accurate_append": {
+   "request_id": "d58ba268-0ce2-4be4-acf2-2cafc004a6ba",
+   "result": {
+    "records": [
+     {
+      "city": "SAN JOSE",
+      "name": "MARGARET OKAFOR",
+      "state": "CA"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "101dc279-1e51-4e76-8e76-547ae8d064f7",
+   "result": {
+    "errors": [],
+    "score": "790"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "13c8fed7-6895-41d8-b521-be02650767cd",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 11
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "4fa71f77-913f-416a-b41f-ec60e3bdff97",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "15120e52-d9d0-426b-bedf-3449d584ef4a",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P02": {
+  "accurate_append": {
+   "request_id": "4a8c5560-a9c7-4445-a737-3a868d7b101a",
+   "result": {
+    "records": [
+     {
+      "city": "AUSTIN",
+      "name": "DANIEL WHITFIELD",
+      "state": "TX"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "c58a9144-0539-4bcf-baa8-08986bb356d5",
+   "result": {
+    "errors": [],
+    "score": "815"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "249c0278-94d3-4eff-abe4-158fc2537fe0",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 9
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "24d2780c-28c6-4ab1-91df-3af711a20a4f",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "f0f0f908-6d15-4b4f-a541-a4386069c468",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P03": {
+  "accurate_append": {
+   "request_id": "1551534d-6740-445c-8d76-35fc5ebe47cf",
+   "result": {
+    "records": [
+     {
+      "city": "BERKELEY",
+      "name": "JASMINE REYES",
+      "state": "CA"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "a8d50b09-b0fd-470f-83b0-ed80c2f9f364",
+   "result": {
+    "errors": [],
+    "score": "660"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "a3e91251-551c-40b2-bf1b-07a0f5f1ef30",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 14
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "42e048f8-baab-48c0-9363-e63fc02023c0",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "46f5b702-cbcf-468b-bd8f-b5c7181bd504",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P04": {
+  "accurate_append": {
+   "request_id": "99a3192c-80c9-4a1a-b3f0-415ddb081bf8",
+   "result": {
+    "records": []
+   }
+  },
+  "credit_report": {
+   "request_id": "9f9ee7bb-3c62-4b75-9d5c-3244b19ef00e",
+   "result": {
+    "errors": [],
+    "score": null
+   }
+  },
+  "fraud_finder": {
+   "request_id": "28279681-e893-4f9c-98e4-8bcf9a08c21d",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 18
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "c0510df6-8005-4269-9bba-da43b5a7c45e",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "ed580857-fe13-4b2d-b116-c936fd823922",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P05": {
+  "accurate_append": {
+   "request_id": "92941980-08e1-4aad-95dd-0fe4a0540917",
+   "result": {
+    "records": [
+     {
+      "city": "ORLANDO",
+      "name": "RICKY DALTON",
+      "state": "FL"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "f73a3e15-4952-4bb9-b400-9afa3b33dc39",
+   "result": {
+    "errors": [],
+    "score": "540"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "a8519b9b-d12b-4787-bb04-6451929bd282",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 52
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "e36eb31b-99a6-4306-af30-0443383419e2",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "ec2bd1c1-f677-440d-a083-eb5444998923",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P06": {
+  "accurate_append": {
+   "request_id": "9a3979ae-026c-4c75-b326-1d2a1815e2b1",
+   "result": {
+    "records": [
+     {
+      "city": "COLUMBUS",
+      "name": "ANGELA MORRISSEY",
+      "state": "OH"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "5e72a4d6-7b5e-42c9-b9f6-10caa91602d0",
+   "result": {
+    "errors": [],
+    "score": "580"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "deb7e404-78ca-482a-8ec4-09a4a4766a53",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 12
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "dc50f082-96b4-4060-817d-a75ff27f90a0",
+   "result": {
+    "bankruptcies": 1,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "13a24202-4b30-40e5-a892-30f962320df4",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P07": {
+  "accurate_append": {
+   "request_id": "3dac20ae-5f53-47d9-ae43-202a2084e2f8",
+   "result": {
+    "records": [
+     {
+      "city": "ATLANTA",
+      "name": "MARCUS BELLAMY",
+      "state": "GA"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "73b51492-0c64-4017-ac53-f27b29b4673e",
+   "result": {
+    "errors": [],
+    "score": "560"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "3ff39b93-6df6-4561-ab8b-5c1d8ef17329",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 12
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "f648850a-8383-4984-b4c1-63af4c86ba22",
+   "result": {
+    "bankruptcies": 1,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "b2091a7c-a8d8-42df-9fea-e8f6bcb17b84",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P08": {
+  "accurate_append": {
+   "request_id": "e71a7d37-90ec-4890-a225-a0cb59eb023f",
+   "result": {
+    "records": [
+     {
+      "city": "CHICAGO",
+      "name": "PRIYA VENKATESAN",
+      "state": "IL"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "b8783b4b-a619-4a59-935d-7636ba6ee9e3",
+   "result": {
+    "errors": [],
+    "score": "690"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "907b599e-ea77-4fa2-8b90-051912494fe7",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 10
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "879546cf-bc30-47f1-9ac1-11d4c025fa4b",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": "12300.0",
+    "judgments": 1,
+    "lien_amount": "7450.0",
+    "liens": 1
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "6dc66e63-7a05-4027-94d3-0d05a4794cdd",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P09": {
+  "accurate_append": {
+   "request_id": "1f346cc8-747b-442b-8222-95308888962b",
+   "result": {
+    "records": [
+     {
+      "city": "DENVER",
+      "name": "DEREK HOLLOWAY",
+      "state": "CO"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "9225bd87-14bf-489d-9779-814626f9720d",
+   "result": {
+    "errors": [],
+    "score": "700"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "14d7611a-2113-419d-bcef-1e72cf288d5c",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5-100 miles"
+    },
+    "score": 11
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "b734ee71-d686-497d-b65c-912dc356a22e",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "c144d5a4-5739-4393-9eb0-cb3a80140c64",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P10": {
+  "accurate_append": {
+   "request_id": "7cafb7a2-f100-460c-b953-1f9390f6362a",
+   "result": {
+    "records": [
+     {
+      "city": "DETROIT",
+      "name": "LAUREN KOWALCZYK",
+      "state": "MI"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "76c04f57-cb21-4cd0-9d78-fde064d4bf83",
+   "result": {
+    "errors": [],
+    "score": "720"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "c44ef9d9-3410-45af-9b64-73e929bf5dde",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 10
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "3b493781-5d08-4791-b132-6d12aa4463ee",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "5b77276d-a76e-4e17-8e0f-c5c79838975d",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P11": {
+  "accurate_append": {
+   "request_id": "106d5eba-0e77-412a-afc7-37c061d841c4",
+   "result": {
+    "records": [
+     {
+      "city": "NATIONAL CITY",
+      "name": "BRANDON SZABO",
+      "state": "CA"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "206a5867-c56f-466e-ad19-1d70628ccf23",
+   "result": {
+    "errors": [],
+    "score": "610"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "6b4b7a67-e6c8-49fd-9a3b-2d22b0dbe8b0",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "100-500 miles"
+    },
+    "score": 11
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "23feabba-e950-4a7b-99d5-d4233891de36",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": "4850.0",
+    "judgments": 1,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "74e0c99a-0200-45bc-99db-5b0a6b6ac01b",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P12": {
+  "accurate_append": {
+   "request_id": "352f50a5-9f81-4d5c-a1d3-fb0647e648e4",
+   "result": {
+    "records": [
+     {
+      "city": "NEW YORK",
+      "name": "RAJESH MENON",
+      "state": "NY"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "47d0ab07-ba97-4c3e-84bc-d577c31a406c",
+   "result": {
+    "errors": [],
+    "score": null
+   }
+  },
+  "fraud_finder": {
+   "request_id": "ac4195c3-c764-4319-96aa-bc49785890be",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "no_match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "> 1000 miles"
+    },
+    "score": 85
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "f490984e-34cb-49bf-b312-90846cebeb5c",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "97a667b7-b858-45a5-ba1f-414706f5c822",
+   "result": {
+    "messages": [
+     {
+      "code": "2201",
+      "text": "INPUT SSN NOT ASSOCIATED WITH INPUT NAME"
+     },
+     {
+      "code": "2202",
+      "text": "INPUT DATE OF BIRTH DOES NOT MATCH FILE"
+     },
+     {
+      "code": "2101",
+      "text": "INPUT CURRENT ADDRESS DOES NOT MATCH FILE CURRENT ADDRESS"
+     }
+    ]
+   }
+  }
+ },
+ "P13": {
+  "accurate_append": {
+   "request_id": "6d01fb03-1ac1-4eab-b1c3-55cb3def2b81",
+   "result": {
+    "records": []
+   }
+  },
+  "credit_report": {
+   "request_id": "2ed9f54a-df89-487e-81a4-b42c88db61bb",
+   "result": {
+    "errors": [],
+    "score": "640"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "24a5f230-ed40-40a1-a54e-7e6f81b1f32a",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "voip",
+     "owner_name_match": "no_match",
+     "prepaid": true,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "> 1000 miles"
+    },
+    "score": 88
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "47fb5963-6ae8-4804-95b8-f7c382de020a",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "6f158f6b-b9f1-4b1f-a349-201b3e1689a4",
+   "result": {
+    "messages": [
+     {
+      "code": "2201",
+      "text": "INPUT SSN NOT ASSOCIATED WITH INPUT NAME"
+     },
+     {
+      "code": "2202",
+      "text": "INPUT DATE OF BIRTH DOES NOT MATCH FILE"
+     },
+     {
+      "code": "2101",
+      "text": "INPUT CURRENT ADDRESS DOES NOT MATCH FILE CURRENT ADDRESS"
+     }
+    ]
+   }
+  }
+ },
+ "P14": {
+  "accurate_append": {
+   "request_id": "1ab8af07-35ff-4983-83b1-06d2f372c03d",
+   "result": {
+    "records": [
+     {
+      "city": "DAYTON",
+      "name": "HAROLD PETTIGREW",
+      "state": "OH"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "21a248ea-4a79-431c-b561-87d9f6fe9696",
+   "result": {
+    "errors": [
+     "This is a deceased file and cannot be shared without additional addendums. Please contact CRS at support@crscreditapi.com"
+    ],
+    "score": null
+   }
+  },
+  "fraud_finder": {
+   "request_id": "5ed17a34-45d0-4a89-98f8-d62b13422f13",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "landline",
+     "owner_name_match": "no_data",
+     "prepaid": false,
+     "status": "dead"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 80
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "8d91959a-3e64-459d-a51b-cfa0305a0844",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "7005def4-4957-4f12-be3c-2fccc19e3cc4",
+   "result": {
+    "messages": [
+     {
+      "code": "2301",
+      "text": "INPUT SSN BELONGS TO A DECEASED PERSON"
+     },
+     {
+      "code": "2101",
+      "text": "INPUT CURRENT ADDRESS DOES NOT MATCH FILE CURRENT ADDRESS"
+     }
+    ]
+   }
+  }
+ },
+ "P15": {
+  "accurate_append": {
+   "request_id": "7ece063a-3dc8-4e01-8448-7805a5af3940",
+   "result": {
+    "records": [
+     {
+      "city": "PORTLAND",
+      "name": "NICOLE FARRAGUT",
+      "state": "OR"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "ba144476-5ab7-4317-ac6b-80d0431c532e",
+   "result": {
+    "errors": [],
+    "score": "740"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "bf2f8072-c51e-4835-a04f-c5bc78368a18",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 10
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "ffb0dde4-5e89-4200-8147-8ac830a39ffb",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "d140ccb7-d55d-45f3-af69-4601b812ad7c",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P16": {
+  "accurate_append": {
+   "request_id": "82f61322-0ea4-4ec6-9465-7f629e014721",
+   "result": {
+    "records": [
+     {
+      "city": "MIAMI",
+      "name": "SAMUEL OYELARAN",
+      "state": "FL"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "c6586cd2-2a33-4756-8a0d-95e4ad0cbe87",
+   "result": {
+    "errors": [],
+    "score": "730"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "0194afed-980d-4cf0-94db-5ecddd2bb3f3",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 50
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "9eec3d04-0e77-4fcc-9d43-0d701752b9af",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "839c3423-174d-4dd4-969c-aec0f9751c4c",
+   "result": {
+    "messages": [
+     {
+      "code": "2401",
+      "text": "IDENTITY VERIFIED - STEP-UP AUTHENTICATION RECOMMENDED (FRAUD ALERT ON FILE)"
+     }
+    ]
+   }
+  }
+ },
+ "P17": {
+  "accurate_append": {
+   "request_id": "95f52d1f-de0e-49b5-9d68-1fa81fc4b45a",
+   "result": {
+    "records": [
+     {
+      "city": "DALLAS",
+      "name": "ELENA CASTELLANOS",
+      "state": "TX"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "ed70d10b-1261-4615-94dd-35ecc9adca4f",
+   "result": {
+    "errors": [],
+    "score": "700"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "64324334-cc2a-442e-938e-89e2cfd20ced",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 11
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "ebdf98d6-d19e-468f-803c-c6d0a691f747",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "a765ce8e-0859-4965-91c4-0243add1b08f",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P18": {
+  "accurate_append": {
+   "request_id": "de520383-5489-442a-8650-88f182617a70",
+   "result": {
+    "records": [
+     {
+      "city": "CHICAGO",
+      "name": "TERRENCE ABERNATHY",
+      "state": "IL"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "2bc5eb14-1f88-42c7-b294-1c9332fc2787",
+   "result": {
+    "errors": [],
+    "score": "650"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "967b3b2c-9ddc-408f-8fcf-16b71b95f449",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 12
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "8b761e18-024e-42da-9432-ff78729eeb20",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "b7ccf693-0892-421d-8eb8-39a2667171d4",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P19": {
+  "accurate_append": {
+   "request_id": "93064eaf-6184-4605-8e96-4fc763bdefc4",
+   "result": {
+    "records": [
+     {
+      "city": "BERKELEY",
+      "name": "GRACE NAKAMURA",
+      "state": "CA"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "38087647-422c-4fdb-bb4a-930782e3d1e0",
+   "result": {
+    "errors": [],
+    "score": "770"
+   }
+  },
+  "fraud_finder": {
+   "request_id": "bdddd42c-683c-4ebd-8947-d49b25d9268e",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "mobile",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 9
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "baa87241-51ee-450d-9227-007dc411e7fd",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "0acb8744-3abb-44b7-a924-790048fd1ffa",
+   "result": {
+    "messages": []
+   }
+  }
+ },
+ "P20": {
+  "accurate_append": {
+   "request_id": "20b251ee-4fa9-45b1-98b2-27da1b51d7b1",
+   "result": {
+    "records": [
+     {
+      "city": "SANTA BARBARA",
+      "name": "DOLORES WHITCOMB",
+      "state": "CA"
+     }
+    ]
+   }
+  },
+  "credit_report": {
+   "request_id": "18111a16-3d20-4f0d-82f6-c20a7170b9eb",
+   "result": {
+    "errors": [],
+    "score": null
+   }
+  },
+  "fraud_finder": {
+   "request_id": "2c7934f2-9f4b-4554-9f73-508cac37fa0f",
+   "result": {
+    "domain_risk": 0,
+    "phone": {
+     "line_type": "landline",
+     "owner_name_match": "match",
+     "prepaid": false,
+     "status": "valid"
+    },
+    "postal": {
+     "deliverability": "deliverable",
+     "ip_distance": "5 miles"
+    },
+    "score": 8
+   }
+  },
+  "pitchpoint_blj": {
+   "request_id": "351dc985-c46d-4c00-91b9-59823efe37b7",
+   "result": {
+    "bankruptcies": 0,
+    "judgment_amount": null,
+    "judgments": 0,
+    "lien_amount": null,
+    "liens": 0
+   }
+  },
+  "tu_identity_verification": {
+   "request_id": "5e85a588-d950-41ea-8d02-138431e52c53",
+   "result": {
+    "messages": []
+   }
+  }
+ }
+}

@@ -13,6 +13,7 @@ approval_limits:      # max invoice total each role may approve (USD equiv)
   approver: "100000.00"
   controller: "1000000.00"
   cfo: "100000000.00"
+  cto: "100000000.00"         # same authority as the CFO
 
 locked_periods:       # YYYY-MM; nothing posts into these
   - "2026-08"
@@ -58,3 +59,6 @@ metrics:              # ESTIMATES, labeled as such in the UI
 
 onboarding:           # vendor onboarding from a Slack contract (CLAUDE.md 10d)
   auto_approve_low_risk: true   # every check passed -> approved by policy, no human click; else a controller decides
+
+release:              # tiered maker-checker at payment release
+  roles: [controller, cfo, cto]   # AP leads approve but never release; an AP-lead approval goes up one level

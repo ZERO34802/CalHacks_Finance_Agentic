@@ -38,7 +38,7 @@ PEOPLE: dict[Role, list[tuple[str, str]]] = {
     Role.controller: [("m.chen@helix.example", "M. Chen, Controller"), ("controller.backup@helix.example", "Controller backup")],
     Role.cfo: [("cfo@helix.example", "CFO (human)"), ("cfo.backup@helix.example", "CFO backup (human)")],
 }
-LIMIT_KEY = {Role.approver: "approver", Role.controller: "controller", Role.cfo: "cfo"}
+LIMIT_KEY = {Role.approver: "approver", Role.controller: "controller", Role.cfo: "cfo", Role.cto: "cto"}
 
 
 class OutOfOffice(BaseModel):

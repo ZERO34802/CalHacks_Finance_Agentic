@@ -1,6 +1,6 @@
 // Vendors: the vendor master (terms, tax, risk, memory, advance payments) and vendor onboarding with CRS checks.
 // Bank details: last 4 only. New vendors: requested inside Helix, verified, approved by a second person.
-import { Alert, Anchor, Badge, Button, Card, Collapse, Drawer, Group, NumberInput, Select, SimpleGrid, Stack, Table, Tabs, Text, TextInput, Textarea, ThemeIcon, Tooltip } from "@mantine/core";
+import { Alert, Anchor, Badge, Button, Card, Checkbox, Collapse, Drawer, Group, NumberInput, Select, SimpleGrid, Stack, Table, Tabs, Text, TextInput, Textarea, ThemeIcon, Tooltip } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconAlertTriangle, IconBrandSlack, IconCheck, IconChevronDown, IconChevronRight, IconClockPause, IconFileText, IconHistory, IconMinus, IconPlus, IconX } from "@tabler/icons-react";
 import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
@@ -245,14 +245,16 @@ function Onboarding({ cases, reload }: { cases: OnboardingCase[]; reload: () => 
 }
 
 const BLANK: OnboardingRequestIn = { legal_name: "", country: "US", currency: "USD", tax_id: "", address: "", city: "", state: "", zip: "", email_domain: "",
-  website: "", bank_last4: "", contact_name: "", contact_phone: "", expected_annual_spend_usd: "0", requested_by: "", tax_form: null, trade_names: [], contact_email: "" };
+  website: "", bank_last4: "", contact_name: "", contact_phone: "", expected_annual_spend_usd: "0", requested_by: "", tax_form: null, trade_names: [], contact_email: "",
+  principal_persona: null, credit_consent: false };
 
 function RequestForm({ opened, onClose, onDone }: { opened: boolean; onClose: () => void; onDone: (c: OnboardingCase) => void }) {
   const { seat } = useApp();
   const [samples, setSamples] = useState<{ label: string; request: OnboardingRequestIn }[]>([]);
+  const [personas, setPersonas] = useState<{ id: string; name: string; profile: string; decision: string }[]>([]);
   const [r, setR] = useState<OnboardingRequestIn>(BLANK);
   const [busy, setBusy] = useState(false);
-  useEffect(() => { if (opened) { ap.onboardingSamples().then(setSamples).catch(() => {}); setR({ ...BLANK, requested_by: me(seat).email }); } }, [opened]);
+  useEffect(() => { if (opened) { ap.onboardingSamples().then(setSamples).catch(() => {}); ap.crsPersonas().then(setPersonas).catch(() => {}); setR({ ...BLANK, requested_by: me(seat).email }); } }, [opened]);
   const f = (k: keyof OnboardingRequestIn) => ({ value: (r[k] as string | null) ?? "", onChange: (e: ChangeEvent<HTMLInputElement>) => setR({ ...r, [k]: e.currentTarget.value }) });
   const submit = async () => {
     setBusy(true);
@@ -263,7 +265,13 @@ function RequestForm({ opened, onClose, onDone }: { opened: boolean; onClose: ()
     <Drawer opened={opened} onClose={onClose} position="right" size="lg" title={<Text fw={650} fz="lg">New vendor request</Text>}>
       <Stack>
         <Select label="Load a sample request (fictional businesses)" placeholder="Pick one" clearable
-          data={samples.map((s, i) => ({ value: String(i), label: s.label }))} onChange={(v) => v != null && setR(samples[Number(v)].request)} />
+          data={samples.map((s, i) => ({ value: String(i), label: s.label }))} onChange={(v) => v != null && setR({ ...BLANK, ...samples[Number(v)].request })} />
+        <Select label="Owner / authorized signer (CRS sandbox test persona)" placeholder="Pick who plays the owner" clearable searchable
+          value={r.principal_persona ?? null} onChange={(v) => setR({ ...r, principal_persona: v })}
+          data={personas.map((p) => ({ value: p.id, label: `${p.id} · ${p.name} · ${p.profile}` }))}
+          description="ReconAI verifies the person behind the company with CRS: identity, fraud signals, court records, phone. Sandbox personas only; no real person is looked up." />
+        <Checkbox label="The owner consents to a soft credit check (no score impact)" checked={!!r.credit_consent}
+          onChange={(e) => setR({ ...r, credit_consent: e.currentTarget.checked })} />
         <SimpleGrid cols={2}>
           <TextInput label="Legal name" required {...f("legal_name")} />
           <TextInput label="Country (ISO)" required {...f("country")} />
@@ -283,7 +291,7 @@ function RequestForm({ opened, onClose, onDone }: { opened: boolean; onClose: ()
           <TextInput label="Expected annual spend (USD)" {...f("expected_annual_spend_usd")} />
           <TextInput label="Requested by" {...f("requested_by")} />
         </SimpleGrid>
-        <Alert variant="light" color="gray">On submit, ReconAI runs CRS business identity, credit, public-record and sanctions checks, plus duplicate-vendor, employee-bank, look-alike-domain and tax-form checks.</Alert>
+        <Alert variant="light" color="gray">On submit, ReconAI runs CRS on the owner (TransUnion identity, AtData fraud risk, PitchPoint bankruptcies/liens/judgments, AccurateAppend phone lookup, and an Experian soft pull if consented), plus duplicate-vendor, sanctions-list, employee-bank, look-alike-domain and tax-form checks.</Alert>
         <Button loading={busy} disabled={!r.legal_name || !r.email_domain || r.bank_last4.length < 4} onClick={submit}>Submit and run checks</Button>
       </Stack>
     </Drawer>

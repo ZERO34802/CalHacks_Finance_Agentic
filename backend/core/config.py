@@ -42,6 +42,7 @@ class Policy(BaseModel):
     queue: dict[str, Any] = {}
     metrics: dict[str, Any] = {}
     onboarding: dict[str, Any] = {}
+    release: dict[str, Any] = {}
 
 
 @lru_cache

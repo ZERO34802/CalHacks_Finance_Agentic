@@ -5,16 +5,24 @@
 # Invite the bot to the negotiation channel: /invite @ReconAI
 display_information:
   name: ReconAI
-  description: Helix Silicon AP agent - negotiation coach, contract drafting and vendor onboarding
+  description: Helix Silicon AP agent - negotiation coach, contracts, onboarding, POs, receipts, invoices, approvals and payments
   background_color: "#0e6e76"
 features:
+  app_home:                     # DMs from ReconAI (approvals, receipts, payment results) land in the Messages tab
+    home_tab_enabled: false
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
   bot_user:
     display_name: ReconAI
     always_online: true
   slash_commands:
     - command: /reconai
-      description: negotiate <vendor> | status | contract | onboard | stop
-      usage_hint: negotiate Acme Probe Cards
+      description: negotiate | contract | onboard | role | roles | shipped | receive | invoice | status | stop
+      usage_hint: negotiate Acme Probe Cards  |  role controller  |  shipped PO-9001 30  |  invoice PO-9001
+      should_escape: false
+    - command: /recon
+      description: Ask ReconAI privately about the negotiation in this channel (only you see it)
+      usage_hint: is $21,800 a good price?
       should_escape: false
 oauth_config:
   scopes:
@@ -25,8 +33,12 @@ oauth_config:
       - mpim:history
       - im:history
       - chat:write
+      - chat:write.public
       - commands
+      - files:read
       - files:write
+      - im:read
+      - im:write
       - users:read
       - users:read.email
 settings:
@@ -36,6 +48,7 @@ settings:
       - message.channels
       - message.groups
       - message.mpim
+      - message.im
   interactivity:
     is_enabled: true
   org_deploy_enabled: false

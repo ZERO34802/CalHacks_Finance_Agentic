@@ -3,7 +3,7 @@ import { API_URL } from "../api";
 import type {
   ApReport, ApSettings, ApprovalRequest, Bill, BillDetail, Case, ChatMessage, ChatReply, IntakeAccepted, MemoryEntry,
   EarlyPayOffer, OnboardingCase, OnboardingRequestIn, OutboundEmail, PaymentBatch, Prepayment, PrepaymentQuote, ReviewPacket, Scoreboard,
-  SignOff, TreasuryStatus, Vendor, VendorContract, VendorMemoryTimeline,
+  SignOff, TreasuryStatus, Vendor, VendorContract, VendorMemoryTimeline, PurchaseOrderView, Receipt, ErpStatus, SlackRoleHolder, Role,
 } from "../types/contracts";
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
@@ -24,8 +24,13 @@ export const ap = {
   runs: () => call<PaymentBatch[]>("/ap/payments"),
   createRun: (case_ids: string[], pay_date: string, created_by: string, methods: Record<string, string> = {}) =>
     post<PaymentBatch>("/ap/payments", { case_ids, pay_date, created_by, methods }),
-  release: (id: string, released_by: string, rail: "bank" | "coinbase" = "bank") =>
-    post<PaymentBatch>(`/ap/payments/${id}/release`, { released_by, rail }),
+  release: (id: string, released_by: string, rail: "bank" | "coinbase" = "bank", role?: Role) =>
+    post<PaymentBatch>(`/ap/payments/${id}/release`, { released_by, rail, role }),
+  erpStatus: () => call<ErpStatus>("/erp/status"),
+  purchaseOrders: () => call<PurchaseOrderView[]>("/erp/pos"),
+  receive: (po: string, received_by: string, lines: Record<string, string>) =>
+    post<Receipt>(`/erp/pos/${encodeURIComponent(po)}/receive`, { received_by, lines, source: "app" }),
+  slackRoles: () => call<SlackRoleHolder[]>("/slack/roles"),
   treasury: () => call<TreasuryStatus>("/ap/coinbase"),
   fundTreasury: () => post<Record<string, string>>("/ap/coinbase/faucet", {}),
   provisionWallets: () => post<Vendor[]>("/ap/coinbase/vendor-wallets", {}),
@@ -51,6 +56,7 @@ export const ap = {
   requestPrepayment: (vendor_id: string, credit_amount: string, requested_by: string, note: string) =>
     post<Prepayment>("/ap/prepayments", { vendor_id, credit_amount, requested_by, note }),
   decidePrepayment: (id: string, req: SignOff) => post<Prepayment>(`/ap/prepayments/${id}/decide`, req),
+  crsPersonas: () => call<{ id: string; name: string; profile: string; decision: string }[]>("/vendors/onboarding/personas"),
   onboardingSamples: () => call<{ label: string; request: OnboardingRequestIn }[]>("/vendors/onboarding/samples"),
   onboarding: () => call<OnboardingCase[]>("/vendors/onboarding/list"),
   submitOnboarding: (req: OnboardingRequestIn) => post<OnboardingCase>("/vendors/onboarding", req),
