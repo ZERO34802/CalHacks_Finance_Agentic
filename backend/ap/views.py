@@ -404,6 +404,18 @@ def settings(policy: Policy) -> ApSettings:
                         status="connected" if os.environ.get("CRS_BASE_URL") else "simulated",
                         note="Vendor onboarding checks. Set CRS_BASE_URL / CRS_USERNAME / CRS_PASSWORD for the live API; "
                              "otherwise a labelled sandbox with fictional businesses"),
+            Integration(name="Coinbase (USDC on Base Sepolia testnet)",
+                        status="connected" if all(os.environ.get(k) for k in ("CDP_API_KEY_ID", "CDP_API_KEY_SECRET", "CDP_WALLET_SECRET"))
+                        else "simulated" if os.environ.get("COINBASE_MODE", "sandbox").lower() == "sandbox" else "not_connected",
+                        note="Release payment runs as on-chain USDC from a CDP server wallet; amounts scaled down for testnet. "
+                             "Without CDP keys: a local sandbox ledger (simulated, same controls)"),
+            Integration(name="Email (Resend)",
+                        status="connected" if os.environ.get("RESEND_API_KEY") else "simulated",
+                        note="Supplier discrepancy emails + onboarding confirmations; always kept in the outbox"
+                             + (f"; demo redirect to {os.environ['RECONAI_EMAIL_REDIRECT']}" if os.environ.get("RECONAI_EMAIL_REDIRECT") else "")),
+            Integration(name="Slack (negotiation coach + onboarding)",
+                        status="connected" if os.environ.get("SLACK_BOT_TOKEN") and os.environ.get("SLACK_APP_TOKEN") else "not_connected",
+                        note="/reconai negotiate in a channel: private market-based coaching, contract drafting, vendor onboarding"),
         ])
 
 

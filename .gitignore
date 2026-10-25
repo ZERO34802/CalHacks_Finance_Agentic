@@ -8,3 +8,4 @@ ui/node_modules/
 ui/dist/
 ui/.env
 .DS_Store
+.venv*/

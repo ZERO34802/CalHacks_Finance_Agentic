@@ -627,7 +627,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-12T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.732432Z",
+                    "updated_at": "2026-10-25T00:25:46.380085Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -691,7 +691,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-14T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.735674Z",
+                    "updated_at": "2026-10-25T00:25:46.383885Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                       "reply case_34 handled: promise"
@@ -842,7 +842,7 @@
                       "confidence": 0.6,
                       "skill": "ap-3way-match",
                       "skill_version": "v3",
-                      "memory_version": "kestrel-memory@v2:a07a1c86",
+                      "memory_version": "kestrel-memory@v2:321360fe",
                       "policy_recommendation": "hold",
                       "engine": "deterministic fallback",
                       "source_of_truth": "The PO / contract price in effect on the invoice date wins; an amendment applies only from its effective date. erp-KESTREL-MSA-AMD3 (price 1240.00) is effective 2026-11-01, after the invoice date 2026-10-16, so it does not apply yet.",
@@ -858,7 +858,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 47200.00 USD; hold 2400.00",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:54:33.743559Z"
+                        "at": "2026-10-25T00:25:46.394302Z"
                       }
                     ],
                     "journal_entry": {
@@ -908,7 +908,7 @@
                         "case_id": "case_03",
                         "to": "finance@kestrelmemory.co.kr",
                         "subject": "[REC case_03] Invoice KM-INV-30152: request for a credit note for the disputed amount",
-                        "body": "Hello Kestrel Memory Inc. accounts receivable,\n\nRegarding invoice KM-INV-30152 (PO PO-7002), reference [REC case_03]: price_over on HBM3E-8H-24G (2400.00 USD).\nPlease send a credit note for the disputed amount by 2026-10-23.\n\nThank you,\nHelix Silicon Accounts Payable",
+                        "body": "Hello Kestrel Memory Inc. accounts receivable,\n\nRegarding invoice KM-INV-30152 dated 2026-10-16 (PO PO-7002, total 49600.00 USD), reference [REC case_03]:\n\nWhat we found:\n- Unit price is above the price agreed for this item on HBM3E-8H-24G: invoice 1240.00, our record 1180.00 (difference 2400.00 USD). Checked against case_03-d1 line 1, erp-PO-7002 line 1, erp-KESTREL-MSA sku HBM3E-8H-24G.\n\nWe are paying the undisputed 47200.00 USD on the normal terms; 2400.00 USD is on hold until this is resolved.\n\nPlease send a credit note for the disputed amount by 2026-10-23.\nWhen you reply, please keep [REC case_03] in the subject so it reaches this case.\n\nThank you,\nHelix Silicon Accounts Payable",
                         "idempotency_key": "82b8aa94d98154d2",
                         "sent_at": "2026-10-16T09:00:00Z"
                       }
@@ -1053,7 +1053,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-16T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.746168Z",
+                    "updated_at": "2026-10-25T00:25:46.397513Z",
                     "notes": [
                       "sub-case 1 of case_03: price_over delta 2400.00"
                     ]
@@ -1130,7 +1130,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-20T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.750836Z",
+                    "updated_at": "2026-10-25T00:25:46.403019Z",
                     "notes": [
                       "intake: case_04.eml: auth spf=pass dkim=pass dmarc=pass",
                       "intake: sender domain 'penang-packtest.com' is a look-alike of Penang Pack & Test Sdn Bhd (penangpacktest.com.my); normalized edit distance 0.00. Bound to V-PENANG for review, NOT trusted.",
@@ -1198,7 +1198,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-21T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.753824Z",
+                    "updated_at": "2026-10-25T00:25:46.406558Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -1338,7 +1338,7 @@
                       "confidence": 0.6,
                       "skill": "ap-3way-match",
                       "skill_version": "v3",
-                      "memory_version": "kestrel-memory@v2:a07a1c86",
+                      "memory_version": "kestrel-memory@v2:321360fe",
                       "policy_recommendation": "hold",
                       "engine": "deterministic fallback",
                       "source_of_truth": "The goods receipt wins over the invoice for quantity: pay only what was received.",
@@ -1354,7 +1354,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 69600.00 USD; hold 17400.00",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:54:33.760933Z"
+                        "at": "2026-10-25T00:25:46.417821Z"
                       }
                     ],
                     "journal_entry": {
@@ -1404,7 +1404,7 @@
                         "case_id": "case_06",
                         "to": "finance@kestrelmemory.co.kr",
                         "subject": "[REC case_06] Invoice KM-INV-30163: request for a credit note for the disputed amount",
-                        "body": "Hello Kestrel Memory Inc. accounts receivable,\n\nRegarding invoice KM-INV-30163 (PO PO-7003), reference [REC case_06]: qty_short on HBM3E-12H-24G (17400.00 USD).\nPlease send a credit note for the disputed amount by 2026-10-21.\n\nThank you,\nHelix Silicon Accounts Payable",
+                        "body": "Hello Kestrel Memory Inc. accounts receivable,\n\nRegarding invoice KM-INV-30163 dated 2026-10-14 (PO PO-7003, total 87000.00 USD), reference [REC case_06]:\n\nWhat we found:\n- Quantity billed is more than we received on HBM3E-12H-24G: invoice 60, our record 48 (difference 17400.00 USD). Checked against case_06-d1 line 1, erp-PO-7003 line 1, erp-GRN-PO-7003 sku HBM3E-12H-24G.\n\nWe are paying the undisputed 69600.00 USD on the normal terms; 17400.00 USD is on hold until this is resolved.\n\nPlease send a credit note for the disputed amount by 2026-10-21.\nWhen you reply, please keep [REC case_06] in the subject so it reaches this case.\n\nThank you,\nHelix Silicon Accounts Payable",
                         "idempotency_key": "0a7481b24f8d435b",
                         "sent_at": "2026-10-14T09:00:00Z"
                       }
@@ -1544,7 +1544,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-14T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.763427Z",
+                    "updated_at": "2026-10-25T00:25:46.420873Z",
                     "notes": [
                       "sub-case 1 of case_06: qty_short delta 17400.00"
                     ]
@@ -1684,7 +1684,7 @@
                       "confidence": 0.6,
                       "skill": "ap-3way-match",
                       "skill_version": "v3",
-                      "memory_version": "formosa-wafer-works@v1:b22d499f",
+                      "memory_version": "formosa-wafer-works@v1:12df91d5",
                       "policy_recommendation": "hold",
                       "engine": "deterministic fallback",
                       "source_of_truth": "The goods receipt wins over the invoice for quantity: pay only what was received.",
@@ -1700,7 +1700,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 8928000.00 TWD; hold 372000.00",
                         "limit": "1000000.00",
-                        "at": "2026-10-24T20:54:33.771622Z"
+                        "at": "2026-10-25T00:25:46.431344Z"
                       }
                     ],
                     "journal_entry": {
@@ -1750,7 +1750,7 @@
                         "case_id": "case_07",
                         "to": "ar.team@formosawafer.com.tw",
                         "subject": "[REC case_07] Invoice INV-647: request for a credit note for the disputed amount",
-                        "body": "Hello Formosa Wafer Works Co., Ltd. accounts receivable,\n\nRegarding invoice INV-647 (PO PO-5502), reference [REC case_07]: qty_short on WFR-N3-300 (372000.00 TWD).\nPlease send a credit note for the disputed amount by 2026-10-20.\n\nThank you,\nHelix Silicon Accounts Payable",
+                        "body": "Hello Formosa Wafer Works Co., Ltd. accounts receivable,\n\nRegarding invoice INV-647 dated 2026-10-13 (PO PO-5502, total 9300000.00 TWD), reference [REC case_07]:\n\nWhat we found:\n- Quantity billed is more than we received on WFR-N3-300: invoice 500, our record 480 (difference 372000.00 TWD). Checked against case_07-d1 line 1, erp-PO-5502 line 1, erp-GRN-PO-5502 sku WFR-N3-300.\n\nWe are paying the undisputed 8928000.00 TWD on the normal terms; 372000.00 TWD is on hold until this is resolved.\n\nPlease send a credit note for the disputed amount by 2026-10-20.\nWhen you reply, please keep [REC case_07] in the subject so it reaches this case.\n\nThank you,\nHelix Silicon Accounts Payable",
                         "idempotency_key": "15efe7a3dc52f6f7",
                         "sent_at": "2026-10-13T09:00:00Z"
                       }
@@ -1890,7 +1890,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-13T02:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.773912Z",
+                    "updated_at": "2026-10-25T00:25:46.434251Z",
                     "notes": [
                       "sub-case 1 of case_07: qty_short delta 372000.00"
                     ]
@@ -1954,7 +1954,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-15T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.778009Z",
+                    "updated_at": "2026-10-25T00:25:46.439384Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -2018,7 +2018,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-11-02T15:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.781681Z",
+                    "updated_at": "2026-10-25T00:25:46.443985Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -2163,7 +2163,7 @@
                       "confidence": 0.6,
                       "skill": "ap-3way-match",
                       "skill_version": "v3",
-                      "memory_version": "aerolane-freight@v2:fa3f25d0",
+                      "memory_version": "aerolane-freight@v2:ca367e8c",
                       "policy_recommendation": "hold",
                       "engine": "deterministic fallback",
                       "source_of_truth": "The PO wins: lines not on the PO need a signed approval.",
@@ -2179,7 +2179,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 15200.00 USD; hold 2800.00",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:54:33.788251Z"
+                        "at": "2026-10-25T00:25:46.452765Z"
                       }
                     ],
                     "journal_entry": {
@@ -2229,7 +2229,7 @@
                         "case_id": "case_10",
                         "to": "ar@aerolane.com",
                         "subject": "[REC case_10] Invoice INV-2305: request for a credit note for the disputed amount",
-                        "body": "Hello Aerolane Freight Ltd accounts receivable,\n\nRegarding invoice INV-2305 (PO PO-8850), reference [REC case_10]: unapproved_freight on FRT-EXPEDITE (2800.00 USD).\nPlease send a credit note for the disputed amount by 2026-10-17.\n\nThank you,\nHelix Silicon Accounts Payable",
+                        "body": "Hello Aerolane Freight Ltd accounts receivable,\n\nRegarding invoice INV-2305 dated 2026-10-10 (PO PO-8850, total 18000.00 USD), reference [REC case_10]:\n\nWhat we found:\n- A freight / expedite charge was billed without an approved PO line on FRT-EXPEDITE: invoice 2800.00, our record not on PO (difference 2800.00 USD). Checked against case_10-d1 line 2, erp-PO-8850 lines.\n\nWe are paying the undisputed 15200.00 USD on the normal terms; 2800.00 USD is on hold until this is resolved.\n\nPlease send a credit note for the disputed amount by 2026-10-17.\nWhen you reply, please keep [REC case_10] in the subject so it reaches this case.\n\nThank you,\nHelix Silicon Accounts Payable",
                         "idempotency_key": "8808c3f208591ca1",
                         "sent_at": "2026-10-10T09:00:00Z"
                       }
@@ -2372,7 +2372,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-10T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.790628Z",
+                    "updated_at": "2026-10-25T00:25:46.455714Z",
                     "notes": [
                       "sub-case 1 of case_10: unapproved_freight delta 2800.00"
                     ]
@@ -2510,7 +2510,7 @@
                       "confidence": 0.6,
                       "skill": "ap-3way-match",
                       "skill_version": "v3",
-                      "memory_version": "formosa-wafer-works@v1:b22d499f",
+                      "memory_version": "formosa-wafer-works@v1:12df91d5",
                       "policy_recommendation": "hold",
                       "engine": "deterministic fallback",
                       "source_of_truth": "The PO wins: lines not on the PO need a signed approval.",
@@ -2526,7 +2526,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 3720000.00 TWD; hold 45000.00",
                         "limit": "1000000.00",
-                        "at": "2026-10-24T20:54:33.801666Z"
+                        "at": "2026-10-25T00:25:46.473002Z"
                       }
                     ],
                     "journal_entry": {
@@ -2576,7 +2576,7 @@
                         "case_id": "case_11",
                         "to": "ar.team@formosawafer.com.tw",
                         "subject": "[REC case_11] Invoice INV-519: request for a credit note for the disputed amount",
-                        "body": "Hello Formosa Wafer Works Co., Ltd. accounts receivable,\n\nRegarding invoice INV-519 (PO PO-5503), reference [REC case_11]: unapproved_freight on FRT-EXP-AIR (45000.00 TWD).\nPlease send a credit note for the disputed amount by 2026-10-21.\n\nThank you,\nHelix Silicon Accounts Payable",
+                        "body": "Hello Formosa Wafer Works Co., Ltd. accounts receivable,\n\nRegarding invoice INV-519 dated 2026-10-14 (PO PO-5503, total 3765000.00 TWD), reference [REC case_11]:\n\nWhat we found:\n- A freight / expedite charge was billed without an approved PO line on FRT-EXP-AIR: invoice 45000.00, our record not on PO (difference 45000.00 TWD). Checked against case_11-d1 line 2, erp-PO-5503 lines.\n\nWe are paying the undisputed 3720000.00 TWD on the normal terms; 45000.00 TWD is on hold until this is resolved.\n\nPlease send a credit note for the disputed amount by 2026-10-21.\nWhen you reply, please keep [REC case_11] in the subject so it reaches this case.\n\nThank you,\nHelix Silicon Accounts Payable",
                         "idempotency_key": "05f34f6f3738b7c7",
                         "sent_at": "2026-10-14T09:00:00Z"
                       }
@@ -2719,7 +2719,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-14T02:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.804117Z",
+                    "updated_at": "2026-10-25T00:25:46.485087Z",
                     "notes": [
                       "sub-case 1 of case_11: unapproved_freight delta 45000.00"
                     ]
@@ -2783,7 +2783,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-17T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.808881Z",
+                    "updated_at": "2026-10-25T00:25:46.490666Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -2847,7 +2847,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-16T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.812304Z",
+                    "updated_at": "2026-10-25T00:25:46.494797Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -2898,7 +2898,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-17T02:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.814752Z",
+                    "updated_at": "2026-10-25T00:25:46.497846Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -2962,7 +2962,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-19T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.824490Z",
+                    "updated_at": "2026-10-25T00:25:46.502135Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3078,7 +3078,7 @@
                       "confidence": 0.9,
                       "skill": null,
                       "skill_version": null,
-                      "memory_version": "kestrel-memory@v2:a07a1c86",
+                      "memory_version": "kestrel-memory@v2:321360fe",
                       "policy_recommendation": "approve",
                       "engine": "code",
                       "source_of_truth": "3-way match. Quantity: invoice line 1 HBM3E-12H-24G qty 50, PO-7001 line 1 qty 50, erp-GRN-PO-7001 qty 50 (goods receipt wins). Price: invoice 1450.00 = PO-7001 line 1 1450.00 / erp-KESTREL-MSA 1450.00 in force on 2026-10-22 (PO / contract in force on the invoice date wins).",
@@ -3094,7 +3094,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within approver limit",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:54:33.827592Z"
+                        "at": "2026-10-25T00:25:46.505917Z"
                       }
                     ],
                     "journal_entry": {
@@ -3132,7 +3132,7 @@
                     "priority": 3.389,
                     "reopens": 0,
                     "created_at": "2026-10-22T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.830560Z",
+                    "updated_at": "2026-10-25T00:25:46.509687Z",
                     "notes": [
                       "poster: already posted (V-KESTREL:KMINV30190); no duplicate entry written"
                     ]
@@ -3196,7 +3196,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-18T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.833548Z",
+                    "updated_at": "2026-10-25T00:25:46.513261Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3260,7 +3260,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-18T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.836528Z",
+                    "updated_at": "2026-10-25T00:25:46.516954Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3324,7 +3324,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-19T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.839889Z",
+                    "updated_at": "2026-10-25T00:25:46.521105Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3388,7 +3388,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-17T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.846428Z",
+                    "updated_at": "2026-10-25T00:25:46.529548Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3523,7 +3523,7 @@
                       "confidence": 0.9,
                       "skill": null,
                       "skill_version": null,
-                      "memory_version": "aerolane-freight@v2:fa3f25d0",
+                      "memory_version": "aerolane-freight@v2:ca367e8c",
                       "policy_recommendation": "approve",
                       "engine": "code",
                       "source_of_truth": "3-way match. Quantity: invoice line 1 FRT-AIR-PEN-SJC qty 1, PO-8860 line 1 qty 1, erp-GRN-PO-8860 qty 1 (goods receipt wins). Price: invoice 18412.50 vs PO-8860 line 1 18400.00: difference 12.50 USD below materiality, auto-accepted and logged (PO / contract in force on the invoice date wins).",
@@ -3539,7 +3539,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within approver limit",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:54:33.849924Z"
+                        "at": "2026-10-25T00:25:46.533848Z"
                       }
                     ],
                     "journal_entry": {
@@ -3577,7 +3577,7 @@
                     "priority": 1.219,
                     "reopens": 0,
                     "created_at": "2026-10-13T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.852304Z",
+                    "updated_at": "2026-10-25T00:25:46.536848Z",
                     "notes": [
                       "poster: already posted (V-AEROLANE:2336); no duplicate entry written"
                     ]
@@ -3641,7 +3641,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-19T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.855500Z",
+                    "updated_at": "2026-10-25T00:25:46.540904Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3705,7 +3705,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-20T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.860976Z",
+                    "updated_at": "2026-10-25T00:25:46.547824Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3769,7 +3769,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-23T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.864031Z",
+                    "updated_at": "2026-10-25T00:25:46.551684Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -3885,7 +3885,7 @@
                       "confidence": 0.9,
                       "skill": null,
                       "skill_version": null,
-                      "memory_version": "kestrel-memory@v2:a07a1c86",
+                      "memory_version": "kestrel-memory@v2:321360fe",
                       "policy_recommendation": "approve",
                       "engine": "code",
                       "source_of_truth": "3-way match. Quantity: invoice line 1 HBM3E-12H-24G qty 50, PO-7004 line 1 qty 50, erp-GRN-PO-7004 qty 50 (goods receipt wins). Price: invoice 1450.00 = PO-7004 line 1 1450.00 / erp-KESTREL-MSA 1450.00 in force on 2026-10-21 (PO / contract in force on the invoice date wins).",
@@ -3901,7 +3901,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within approver limit",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:54:33.866857Z"
+                        "at": "2026-10-25T00:25:46.555256Z"
                       }
                     ],
                     "journal_entry": {
@@ -3939,7 +3939,7 @@
                     "priority": 3.389,
                     "reopens": 0,
                     "created_at": "2026-10-21T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.869649Z",
+                    "updated_at": "2026-10-25T00:25:46.558849Z",
                     "notes": [
                       "poster: already posted (V-KESTREL:KMINV30247); no duplicate entry written"
                     ]
@@ -4003,7 +4003,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-20T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.872665Z",
+                    "updated_at": "2026-10-25T00:25:46.562764Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -4054,7 +4054,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-18T02:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.873194Z",
+                    "updated_at": "2026-10-25T00:25:46.563474Z",
                     "notes": [
                       "intake: QUARANTINED: FWW_INV-158.xlsx: macro-enabled spreadsheet (contains vbaProject.bin); FWW_INV-158.xlsx: file type spoofing: 'FWW_INV-158.xlsx' has content type xlsm"
                     ]
@@ -4105,7 +4105,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-19T02:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.873664Z",
+                    "updated_at": "2026-10-25T00:25:46.564072Z",
                     "notes": [
                       "intake: QUARANTINED: FWW_INV-492.csv: formula injection in money field 'unit_price': \"=18600+0*cmd|' /C calc'!A0\""
                     ]
@@ -4156,7 +4156,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-16T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.874096Z",
+                    "updated_at": "2026-10-25T00:25:46.564608Z",
                     "notes": [
                       "intake: QUARANTINED: aerolane-inv-2347.json: unknown API schema 'aerolane.invoice.v2'"
                     ]
@@ -4207,7 +4207,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-18T03:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.874553Z",
+                    "updated_at": "2026-10-25T00:25:46.565176Z",
                     "notes": [
                       "intake: QUARANTINED: KM-INV-30384.csv: vendor V-KESTREL is not registered on channel sftp"
                     ]
@@ -4305,7 +4305,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-19T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.878250Z",
+                    "updated_at": "2026-10-25T00:25:46.569814Z",
                     "notes": [
                       "reader: embedded instructions found in ['case_31-d2']; treated as data, nothing executed",
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
@@ -4370,7 +4370,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-17T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.881613Z",
+                    "updated_at": "2026-10-25T00:25:46.574073Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -4486,7 +4486,7 @@
                       "confidence": 0.9,
                       "skill": null,
                       "skill_version": null,
-                      "memory_version": "formosa-wafer-works@v1:b22d499f",
+                      "memory_version": "formosa-wafer-works@v1:12df91d5",
                       "policy_recommendation": "approve",
                       "engine": "code",
                       "source_of_truth": "3-way match. Quantity: invoice line 1 WFR-N3-300 qty 100, PO-5506 line 1 qty 100, erp-GRN-PO-5506 qty 100 (goods receipt wins). Price: invoice 18600.00 = PO-5506 line 1 18600.00 / erp-FORMOSA-MSA 18600.00 in force on 2026-10-15 (PO / contract in force on the invoice date wins).",
@@ -4502,7 +4502,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within approver limit",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:54:33.884009Z"
+                        "at": "2026-10-25T00:25:46.577083Z"
                       }
                     ],
                     "journal_entry": {
@@ -4540,7 +4540,7 @@
                     "priority": 3.36,
                     "reopens": 0,
                     "created_at": "2026-10-15T02:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.886473Z",
+                    "updated_at": "2026-10-25T00:25:46.580203Z",
                     "notes": [
                       "poster: already posted (V-FORMOSA:26); no duplicate entry written"
                     ]
@@ -4598,7 +4598,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-16T11:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.888178Z",
+                    "updated_at": "2026-10-25T00:25:46.582324Z",
                     "notes": [
                       "supplier reply to case_02",
                       "attached to case_02: supplier reply"
@@ -4663,7 +4663,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-21T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.891061Z",
+                    "updated_at": "2026-10-25T00:25:46.585819Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -4727,7 +4727,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-24T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.898265Z",
+                    "updated_at": "2026-10-25T00:25:46.595401Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
@@ -4791,7 +4791,7 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-24T02:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.899014Z",
+                    "updated_at": "2026-10-25T00:25:46.596400Z",
                     "notes": [
                       "intake: QUARANTINED: batch manifest: manifest count 3 != 2 files received / 3 listed; batch manifest: manifest sha256 mismatch for FWW_INV-1048.csv; batch manifest: manifest lists FWW_INV-1049.csv but it was not received"
                     ]
@@ -4907,7 +4907,7 @@
                       "confidence": 0.9,
                       "skill": null,
                       "skill_version": null,
-                      "memory_version": "taoyuan-substrate@v1:a1ad0b62",
+                      "memory_version": "taoyuan-substrate@v1:0d253e6d",
                       "policy_recommendation": "approve",
                       "engine": "code",
                       "source_of_truth": "3-way match. Quantity: invoice line 1 SUB-ABF-55 qty 5000, PO-9101 line 1 qty 5000, erp-GRN-PO-9101 qty 5000 (goods receipt wins). Price: invoice 38.40 = PO-9101 line 1 38.40 / erp-TSC-MSA 38.40 in force on 2026-10-21 (PO / contract in force on the invoice date wins).",
@@ -4923,7 +4923,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within approver limit",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:54:33.900730Z"
+                        "at": "2026-10-25T00:25:46.598571Z"
                       }
                     ],
                     "journal_entry": {
@@ -4961,7 +4961,7 @@
                     "priority": 1.078,
                     "reopens": 0,
                     "created_at": "2026-10-21T03:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.902823Z",
+                    "updated_at": "2026-10-25T00:25:46.601459Z",
                     "notes": [
                       "poster: already posted (V-TSC:TSC0101); no duplicate entry written"
                     ]
@@ -5101,7 +5101,7 @@
                       "confidence": 0.6,
                       "skill": "ap-3way-match",
                       "skill_version": "v3",
-                      "memory_version": "taoyuan-substrate@v1:a1ad0b62",
+                      "memory_version": "taoyuan-substrate@v1:0d253e6d",
                       "policy_recommendation": "hold",
                       "engine": "deterministic fallback",
                       "source_of_truth": "The PO / contract price in effect on the invoice date wins; an amendment applies only from its effective date.",
@@ -5117,7 +5117,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 76800.00 TWD; hold 400.00",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:54:33.909006Z"
+                        "at": "2026-10-25T00:25:46.609676Z"
                       }
                     ],
                     "journal_entry": {
@@ -5167,7 +5167,7 @@
                         "case_id": "case_40",
                         "to": "ar@taoyuansubstrate.com.tw",
                         "subject": "[REC case_40] Invoice TSC-0107: request for a credit note for the disputed amount",
-                        "body": "Hello Taoyuan Substrate Corp. accounts receivable,\n\nRegarding invoice TSC-0107 (PO PO-9102), reference [REC case_40]: price_over on SUB-ABF-55 (400.00 TWD).\nPlease send a credit note for the disputed amount by 2026-10-30.\n\nThank you,\nHelix Silicon Accounts Payable",
+                        "body": "Hello Taoyuan Substrate Corp. accounts receivable,\n\nRegarding invoice TSC-0107 dated 2026-10-23 (PO PO-9102, total 77200.00 TWD), reference [REC case_40]:\n\nWhat we found:\n- Unit price is above the price agreed for this item on SUB-ABF-55: invoice 38.60, our record 38.40 (difference 400.00 TWD). Checked against case_40-d1 line 1, erp-PO-9102 line 1, erp-TSC-MSA sku SUB-ABF-55.\n\nWe are paying the undisputed 76800.00 TWD on the normal terms; 400.00 TWD is on hold until this is resolved.\n\nPlease send a credit note for the disputed amount by 2026-10-30.\nWhen you reply, please keep [REC case_40] in the subject so it reaches this case.\n\nThank you,\nHelix Silicon Accounts Payable",
                         "idempotency_key": "2bb28230ba140875",
                         "sent_at": "2026-10-23T09:00:00Z"
                       }
@@ -5307,7 +5307,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-23T03:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.911232Z",
+                    "updated_at": "2026-10-25T00:25:46.612530Z",
                     "notes": [
                       "sub-case 1 of case_40: price_over delta 400.00"
                     ]
@@ -5439,7 +5439,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within approver limit",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:54:33.913726Z"
+                        "at": "2026-10-25T00:25:46.616096Z"
                       }
                     ],
                     "journal_entry": {
@@ -5477,7 +5477,7 @@
                     "priority": 1.427,
                     "reopens": 0,
                     "created_at": "2026-10-22T18:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.916069Z",
+                    "updated_at": "2026-10-25T00:25:46.618886Z",
                     "notes": [
                       "poster: already posted (V-PENANG:PPT6702); no duplicate entry written"
                     ]
@@ -5625,7 +5625,7 @@
                       "confidence": 0.6,
                       "skill": "ap-3way-match",
                       "skill_version": "v3",
-                      "memory_version": "aerolane-freight@v2:fa3f25d0",
+                      "memory_version": "aerolane-freight@v2:ca367e8c",
                       "policy_recommendation": "hold",
                       "engine": "deterministic fallback",
                       "source_of_truth": "The PO wins: lines not on the PO need a signed approval.",
@@ -5641,7 +5641,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 16400.00 USD; hold 45.00",
                         "limit": "100000.00",
-                        "at": "2026-10-24T20:54:33.924528Z"
+                        "at": "2026-10-25T00:25:46.629821Z"
                       }
                     ],
                     "journal_entry": {
@@ -5691,7 +5691,7 @@
                         "case_id": "case_42",
                         "to": "ar@aerolane.com",
                         "subject": "[REC case_42] Invoice INV-2361: request for a credit note for the disputed amount",
-                        "body": "Hello Aerolane Freight Ltd accounts receivable,\n\nRegarding invoice INV-2361 (PO PO-8890), reference [REC case_42]: unapproved_freight on FRT-EXPEDITE (45.00 USD).\nPlease send a credit note for the disputed amount by 2026-10-28.\n\nThank you,\nHelix Silicon Accounts Payable",
+                        "body": "Hello Aerolane Freight Ltd accounts receivable,\n\nRegarding invoice INV-2361 dated 2026-10-21 (PO PO-8890, total 16445.00 USD), reference [REC case_42]:\n\nWhat we found:\n- A freight / expedite charge was billed without an approved PO line on FRT-EXPEDITE: invoice 45.00, our record not on PO (difference 45.00 USD). Checked against case_42-d1 line 2, erp-PO-8890 lines, memory:aerolane-freight line 3.\n\nWe are paying the undisputed 16400.00 USD on the normal terms; 45.00 USD is on hold until this is resolved.\n\nPlease send a credit note for the disputed amount by 2026-10-28.\nWhen you reply, please keep [REC case_42] in the subject so it reaches this case.\n\nThank you,\nHelix Silicon Accounts Payable",
                         "idempotency_key": "f4cc64e574afe225",
                         "sent_at": "2026-10-21T09:00:00Z"
                       }
@@ -5840,7 +5840,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-21T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.926759Z",
+                    "updated_at": "2026-10-25T00:25:46.632622Z",
                     "notes": [
                       "sub-case 1 of case_42: unapproved_freight delta 45.00"
                     ]
@@ -5997,7 +5997,7 @@
                       "confidence": 0.6,
                       "skill": "ap-3way-match",
                       "skill_version": "v3",
-                      "memory_version": "kestrel-memory@v2:a07a1c86",
+                      "memory_version": "kestrel-memory@v2:321360fe",
                       "policy_recommendation": "hold",
                       "engine": "deterministic fallback",
                       "source_of_truth": "The PO / contract price in effect on the invoice date wins; an amendment applies only from its effective date.",
@@ -6013,7 +6013,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 290000.00 USD; hold 1160.00",
                         "limit": "1000000.00",
-                        "at": "2026-10-24T20:54:33.935707Z"
+                        "at": "2026-10-25T00:25:46.644557Z"
                       }
                     ],
                     "journal_entry": {
@@ -6063,7 +6063,7 @@
                         "case_id": "case_43",
                         "to": "finance@kestrelmemory.co.kr",
                         "subject": "[REC case_43] Invoice KM-INV-30640: request for a credit note for the disputed amount",
-                        "body": "Hello Kestrel Memory Inc. accounts receivable,\n\nRegarding invoice KM-INV-30640 (PO PO-7011), reference [REC case_43]: price_over on HBM3E-12H-24G (1160.00 USD).\nPlease send a credit note for the disputed amount by 2026-10-31.\n\nThank you,\nHelix Silicon Accounts Payable",
+                        "body": "Hello Kestrel Memory Inc. accounts receivable,\n\nRegarding invoice KM-INV-30640 dated 2026-10-24 (PO PO-7011, total 291160.00 USD), reference [REC case_43]:\n\nWhat we found:\n- Unit price is above the price agreed for this item on HBM3E-12H-24G: invoice 1455.80, our record 1450.00 (difference 1160.00 USD). Checked against case_43-d1 line 1, erp-PO-7011 line 1, erp-KESTREL-MSA sku HBM3E-12H-24G.\n\nWe are paying the undisputed 290000.00 USD on the normal terms; 1160.00 USD is on hold until this is resolved.\n\nPlease send a credit note for the disputed amount by 2026-10-31.\nWhen you reply, please keep [REC case_43] in the subject so it reaches this case.\n\nThank you,\nHelix Silicon Accounts Payable",
                         "idempotency_key": "d41079d818bf1bac",
                         "sent_at": "2026-10-24T09:00:00Z"
                       }
@@ -6208,7 +6208,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-24T10:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.938932Z",
+                    "updated_at": "2026-10-25T00:25:46.648521Z",
                     "notes": [
                       "sub-case 1 of case_43: price_over delta 1160.00"
                     ]
@@ -6358,7 +6358,7 @@
                       "confidence": 0.6,
                       "skill": "ap-3way-match",
                       "skill_version": "v3",
-                      "memory_version": "kestrel-memory@v3:312705eb",
+                      "memory_version": "kestrel-memory@v3:b05c7fbf",
                       "policy_recommendation": "hold",
                       "engine": "deterministic fallback",
                       "source_of_truth": "The PO / contract price in effect on the invoice date wins; an amendment applies only from its effective date.",
@@ -6374,7 +6374,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 217500.00 USD; hold 975.00",
                         "limit": "1000000.00",
-                        "at": "2026-10-24T20:54:33.949541Z"
+                        "at": "2026-10-25T00:25:46.669148Z"
                       }
                     ],
                     "journal_entry": {
@@ -6424,7 +6424,7 @@
                         "case_id": "case_44",
                         "to": "finance@kestrelmemory.co.kr",
                         "subject": "[REC case_44] Invoice KM-INV-30651: request for a credit note for the disputed amount",
-                        "body": "Hello Kestrel Memory Inc. accounts receivable,\n\nRegarding invoice KM-INV-30651 (PO PO-7012), reference [REC case_44]: price_over on HBM3E-12H-24G (975.00 USD).\nPlease send a credit note for the disputed amount by 2026-10-31.\n\nThank you,\nHelix Silicon Accounts Payable",
+                        "body": "Hello Kestrel Memory Inc. accounts receivable,\n\nRegarding invoice KM-INV-30651 dated 2026-10-24 (PO PO-7012, total 218475.00 USD), reference [REC case_44]:\n\nWhat we found:\n- Unit price is above the price agreed for this item on HBM3E-12H-24G: invoice 1456.50, our record 1450.00 (difference 975.00 USD). Checked against case_44-d1 line 1, erp-PO-7012 line 1, erp-KESTREL-MSA sku HBM3E-12H-24G.\n\nWe are paying the undisputed 217500.00 USD on the normal terms; 975.00 USD is on hold until this is resolved.\n\nPlease send a credit note for the disputed amount by 2026-10-31.\nWhen you reply, please keep [REC case_44] in the subject so it reaches this case.\n\nThank you,\nHelix Silicon Accounts Payable",
                         "idempotency_key": "ddd23c3e30eda764",
                         "sent_at": "2026-10-24T09:00:00Z"
                       }
@@ -6569,7 +6569,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-24T14:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.953089Z",
+                    "updated_at": "2026-10-25T00:25:46.677351Z",
                     "notes": [
                       "sub-case 1 of case_44: price_over delta 975.00"
                     ]
@@ -6719,7 +6719,7 @@
                       "confidence": 0.6,
                       "skill": "ap-3way-match",
                       "skill_version": "v3",
-                      "memory_version": "kestrel-memory@v4:438b1578",
+                      "memory_version": "kestrel-memory@v4:0d43d9d1",
                       "policy_recommendation": "hold",
                       "engine": "deterministic fallback",
                       "source_of_truth": "The PO / contract price in effect on the invoice date wins; an amendment applies only from its effective date.",
@@ -6735,7 +6735,7 @@
                         "scope": "undisputed",
                         "comment": "[simulated: deterministic policy approver] pay undisputed 261000.00 USD; hold 783.00",
                         "limit": "1000000.00",
-                        "at": "2026-10-24T20:54:33.962999Z"
+                        "at": "2026-10-25T00:25:46.696128Z"
                       }
                     ],
                     "journal_entry": {
@@ -6785,7 +6785,7 @@
                         "case_id": "case_45",
                         "to": "finance@kestrelmemory.co.kr",
                         "subject": "[REC case_45] Invoice KM-INV-30668: request for a credit note for the disputed amount",
-                        "body": "Hello Kestrel Memory Inc. accounts receivable,\n\nRegarding invoice KM-INV-30668 (PO PO-7013), reference [REC case_45]: price_over on HBM3E-12H-24G (783.00 USD).\nPlease send a credit note for the disputed amount by 2026-11-01.\n\nThank you,\nHelix Silicon Accounts Payable",
+                        "body": "Hello Kestrel Memory Inc. accounts receivable,\n\nRegarding invoice KM-INV-30668 dated 2026-10-25 (PO PO-7013, total 261783.00 USD), reference [REC case_45]:\n\nWhat we found:\n- Unit price is above the price agreed for this item on HBM3E-12H-24G: invoice 1454.35, our record 1450.00 (difference 783.00 USD). Checked against case_45-d1 line 1, erp-PO-7013 line 1, erp-KESTREL-MSA sku HBM3E-12H-24G.\n\nWe are paying the undisputed 261000.00 USD on the normal terms; 783.00 USD is on hold until this is resolved.\n\nPlease send a credit note for the disputed amount by 2026-11-01.\nWhen you reply, please keep [REC case_45] in the subject so it reaches this case.\n\nThank you,\nHelix Silicon Accounts Payable",
                         "idempotency_key": "f27cf4fb66b26da6",
                         "sent_at": "2026-10-25T09:00:00Z"
                       }
@@ -6796,7 +6796,7 @@
                     "priority": 3.548,
                     "reopens": 0,
                     "created_at": "2026-10-25T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.966517Z",
+                    "updated_at": "2026-10-25T00:25:46.700574Z",
                     "notes": [
                       "router: controller rule made HBM3E-12H-24G price_over material",
                       "controller m.chen@helix.example concurs: hold (consistent with policy (hold), within controller limit)",
@@ -6930,7 +6930,7 @@
                     "priority": null,
                     "reopens": 0,
                     "created_at": "2026-10-25T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.965597Z",
+                    "updated_at": "2026-10-25T00:25:46.699432Z",
                     "notes": [
                       "sub-case 1 of case_45: price_over delta 783.00"
                     ]
@@ -7046,7 +7046,7 @@
                       "confidence": 0.9,
                       "skill": null,
                       "skill_version": null,
-                      "memory_version": "kestrel-memory@v4:438b1578",
+                      "memory_version": "kestrel-memory@v4:0d43d9d1",
                       "policy_recommendation": "approve",
                       "engine": "code",
                       "source_of_truth": "3-way match. Quantity: invoice line 1 HBM3E-8H-24G qty 200, PO-7014 line 1 qty 200, erp-GRN-PO-7014 qty 200 (goods receipt wins). Price: invoice 1180.00 = PO-7014 line 1 1180.00 / erp-KESTREL-MSA 1180.00 in force on 2026-10-26 (erp-KESTREL-MSA-AMD3 at 1240.00 is effective 2026-11-01, after the invoice date: does not apply) (PO / contract in force on the invoice date wins).",
@@ -7062,7 +7062,7 @@
                         "scope": "full",
                         "comment": "[simulated: deterministic policy approver] consistent with policy (approve), within controller limit",
                         "limit": "1000000.00",
-                        "at": "2026-10-24T20:54:33.972547Z"
+                        "at": "2026-10-25T00:25:46.708263Z"
                       }
                     ],
                     "journal_entry": {
@@ -7107,7 +7107,7 @@
                     "priority": 4.035,
                     "reopens": 0,
                     "created_at": "2026-10-26T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.975916Z",
+                    "updated_at": "2026-10-25T00:25:46.712379Z",
                     "notes": [
                       "approver: m.chen@helix.example is out of office; waiting (SLA 2026-10-27 09:00:00+00:00)",
                       "SLA: reminder to m.chen@helix.example (due 2026-10-27T09:00:00+00:00)",
@@ -7204,14 +7204,14 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-12T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.732432Z",
+                    "updated_at": "2026-10-25T00:25:46.380085Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
                   },
                   "steps": [
                     {
-                      "id": "step_b50947a03a",
+                      "id": "step_59e9bba40d",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7251,14 +7251,14 @@
                         "malware_scan": "stub (simulated)"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:54:33.355669Z",
-                      "ended_at": "2026-10-24T20:54:33.357411Z",
-                      "duration_ms": 1,
+                      "started_at": "2026-10-25T00:25:45.550129Z",
+                      "ended_at": "2026-10-25T00:25:45.553023Z",
+                      "duration_ms": 2,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_d92bd573af",
+                      "id": "step_dbbb194379",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7282,14 +7282,14 @@
                         ]
                       },
                       "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
-                      "started_at": "2026-10-24T20:54:33.357504Z",
-                      "ended_at": "2026-10-24T20:54:33.381652Z",
-                      "duration_ms": 24,
+                      "started_at": "2026-10-25T00:25:45.553423Z",
+                      "ended_at": "2026-10-25T00:25:45.638015Z",
+                      "duration_ms": 84,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_2d6e7ad592",
+                      "id": "step_27d4b4bde1",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7307,14 +7307,14 @@
                         "skipped": "not a supplier reply"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:54:33.384795Z",
-                      "ended_at": "2026-10-24T20:54:33.384824Z",
+                      "started_at": "2026-10-25T00:25:45.646177Z",
+                      "ended_at": "2026-10-25T00:25:45.646227Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_0826bda729",
+                      "id": "step_9a0e093718",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7332,14 +7332,14 @@
                         "skipped": "no skill"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:54:33.384846Z",
-                      "ended_at": "2026-10-24T20:54:33.384861Z",
+                      "started_at": "2026-10-25T00:25:45.646256Z",
+                      "ended_at": "2026-10-25T00:25:45.646276Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_20a4ae116c",
+                      "id": "step_10c117d8a8",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7357,14 +7357,14 @@
                         "priority": {}
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:54:33.384875Z",
-                      "ended_at": "2026-10-24T20:54:33.384890Z",
+                      "started_at": "2026-10-25T00:25:45.646295Z",
+                      "ended_at": "2026-10-25T00:25:45.646315Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_c661d38ce2",
+                      "id": "step_f963d5f73e",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7383,8 +7383,8 @@
                         "memory_off": false
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:54:33.384901Z",
-                      "ended_at": "2026-10-24T20:54:33.385077Z",
+                      "started_at": "2026-10-25T00:25:45.646331Z",
+                      "ended_at": "2026-10-25T00:25:45.646556Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
@@ -7490,14 +7490,14 @@
                     "priority": 0.0,
                     "reopens": 0,
                     "created_at": "2026-10-12T09:00:00Z",
-                    "updated_at": "2026-10-24T20:54:33.732432Z",
+                    "updated_at": "2026-10-25T00:25:46.380085Z",
                     "notes": [
                       "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                     ]
                   },
                   "steps": [
                     {
-                      "id": "step_b50947a03a",
+                      "id": "step_59e9bba40d",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7537,14 +7537,14 @@
                         "malware_scan": "stub (simulated)"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:54:33.355669Z",
-                      "ended_at": "2026-10-24T20:54:33.357411Z",
-                      "duration_ms": 1,
+                      "started_at": "2026-10-25T00:25:45.550129Z",
+                      "ended_at": "2026-10-25T00:25:45.553023Z",
+                      "duration_ms": 2,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_d92bd573af",
+                      "id": "step_dbbb194379",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7568,14 +7568,14 @@
                         ]
                       },
                       "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
-                      "started_at": "2026-10-24T20:54:33.357504Z",
-                      "ended_at": "2026-10-24T20:54:33.381652Z",
-                      "duration_ms": 24,
+                      "started_at": "2026-10-25T00:25:45.553423Z",
+                      "ended_at": "2026-10-25T00:25:45.638015Z",
+                      "duration_ms": 84,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_2d6e7ad592",
+                      "id": "step_27d4b4bde1",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7593,14 +7593,14 @@
                         "skipped": "not a supplier reply"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:54:33.384795Z",
-                      "ended_at": "2026-10-24T20:54:33.384824Z",
+                      "started_at": "2026-10-25T00:25:45.646177Z",
+                      "ended_at": "2026-10-25T00:25:45.646227Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_0826bda729",
+                      "id": "step_9a0e093718",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7618,14 +7618,14 @@
                         "skipped": "no skill"
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:54:33.384846Z",
-                      "ended_at": "2026-10-24T20:54:33.384861Z",
+                      "started_at": "2026-10-25T00:25:45.646256Z",
+                      "ended_at": "2026-10-25T00:25:45.646276Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_20a4ae116c",
+                      "id": "step_10c117d8a8",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7643,14 +7643,14 @@
                         "priority": {}
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:54:33.384875Z",
-                      "ended_at": "2026-10-24T20:54:33.384890Z",
+                      "started_at": "2026-10-25T00:25:45.646295Z",
+                      "ended_at": "2026-10-25T00:25:45.646315Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
                     },
                     {
-                      "id": "step_c661d38ce2",
+                      "id": "step_f963d5f73e",
                       "case_id": "case_01",
                       "run_id": "run_mock",
                       "parent_id": null,
@@ -7669,8 +7669,8 @@
                         "memory_off": false
                       },
                       "error": null,
-                      "started_at": "2026-10-24T20:54:33.384901Z",
-                      "ended_at": "2026-10-24T20:54:33.385077Z",
+                      "started_at": "2026-10-25T00:25:45.646331Z",
+                      "ended_at": "2026-10-25T00:25:45.646556Z",
                       "duration_ms": 0,
                       "tokens": 0,
                       "cost_usd": null
@@ -7915,7 +7915,7 @@
                   "priority": 0.0,
                   "reopens": 0,
                   "created_at": "2026-10-12T09:00:00Z",
-                  "updated_at": "2026-10-24T20:54:33.732432Z",
+                  "updated_at": "2026-10-25T00:25:46.380085Z",
                   "notes": [
                     "reader failed: LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)"
                   ]
@@ -7982,7 +7982,8 @@
                       "prepay_discount_pct": null,
                       "prepay_cap_usd": null,
                       "source": "Aerolane rate card (demo terms)"
-                    }
+                    },
+                    "wallet_address": null
                   },
                   {
                     "id": "V-FORMOSA",
@@ -8013,7 +8014,8 @@
                       "prepay_discount_pct": "0.04",
                       "prepay_cap_usd": "1000000.00",
                       "source": "Formosa supply agreement \u00a77 (demo terms)"
-                    }
+                    },
+                    "wallet_address": null
                   },
                   {
                     "id": "V-HSINCHU",
@@ -8034,7 +8036,8 @@
                     "probation_until": "2027-01-20",
                     "contact_email": null,
                     "expected_schedule": null,
-                    "terms": null
+                    "terms": null,
+                    "wallet_address": null
                   },
                   {
                     "id": "V-KESTREL",
@@ -8064,7 +8067,8 @@
                       "prepay_discount_pct": "0.03",
                       "prepay_cap_usd": "250000.00",
                       "source": "Kestrel MSA \u00a74.2 (demo terms)"
-                    }
+                    },
+                    "wallet_address": null
                   },
                   {
                     "id": "V-PENANG",
@@ -8087,7 +8091,8 @@
                     "probation_until": null,
                     "contact_email": "accounts@penangpacktest.com.my",
                     "expected_schedule": null,
-                    "terms": null
+                    "terms": null,
+                    "wallet_address": null
                   },
                   {
                     "id": "V-TSC",
@@ -8110,7 +8115,8 @@
                     "probation_until": "2026-12-30",
                     "contact_email": "ar@taoyuansubstrate.com.tw",
                     "expected_schedule": null,
-                    "terms": null
+                    "terms": null,
+                    "wallet_address": null
                   }
                 ]
               }
@@ -8170,7 +8176,8 @@
                     "prepay_discount_pct": "0.03",
                     "prepay_cap_usd": "250000.00",
                     "source": "Kestrel MSA \u00a74.2 (demo terms)"
-                  }
+                  },
+                  "wallet_address": null
                 }
               }
             }
@@ -8291,7 +8298,7 @@
                     "folder": "counterparties",
                     "subject": "aerolane-freight",
                     "text": "approver approved (undisputed part only) on case_10 (INV-2305): [simulated: deterministic policy approver] pay undisputed 15200.00 USD; hold 2800.00",
-                    "provenance": "approver: d.ortiz@helix.example, 2026-10-24",
+                    "provenance": "approver: d.ortiz@helix.example, 2026-10-25",
                     "valid_from": "2026-10-10",
                     "version": 1
                   },
@@ -8300,7 +8307,7 @@
                     "folder": "counterparties",
                     "subject": "aerolane-freight",
                     "text": "approver approved (undisputed part only) on case_42 (INV-2361): [simulated: deterministic policy approver] pay undisputed 16400.00 USD; hold 45.00",
-                    "provenance": "approver: d.ortiz@helix.example, 2026-10-24",
+                    "provenance": "approver: d.ortiz@helix.example, 2026-10-25",
                     "valid_from": "2026-10-21",
                     "version": 1
                   },
@@ -8408,7 +8415,7 @@
                     "folder": "counterparties",
                     "subject": "formosa-wafer-works",
                     "text": "controller approved (undisputed part only) on case_07 (INV-647): [simulated: deterministic policy approver] pay undisputed 8928000.00 TWD; hold 372000.00",
-                    "provenance": "controller: m.chen@helix.example, 2026-10-24",
+                    "provenance": "controller: m.chen@helix.example, 2026-10-25",
                     "valid_from": "2026-10-13",
                     "version": 1
                   },
@@ -8417,7 +8424,7 @@
                     "folder": "counterparties",
                     "subject": "formosa-wafer-works",
                     "text": "controller approved (undisputed part only) on case_11 (INV-519): [simulated: deterministic policy approver] pay undisputed 3720000.00 TWD; hold 45000.00",
-                    "provenance": "controller: m.chen@helix.example, 2026-10-24",
+                    "provenance": "controller: m.chen@helix.example, 2026-10-25",
                     "valid_from": "2026-10-14",
                     "version": 1
                   },
@@ -8552,7 +8559,7 @@
                     "folder": "counterparties",
                     "subject": "kestrel-memory",
                     "text": "approver approved (undisputed part only) on case_03 (KM-INV-30152): [simulated: deterministic policy approver] pay undisputed 47200.00 USD; hold 2400.00",
-                    "provenance": "approver: d.ortiz@helix.example, 2026-10-24",
+                    "provenance": "approver: d.ortiz@helix.example, 2026-10-25",
                     "valid_from": "2026-10-16",
                     "version": 1
                   },
@@ -8561,7 +8568,7 @@
                     "folder": "counterparties",
                     "subject": "kestrel-memory",
                     "text": "approver approved (undisputed part only) on case_06 (KM-INV-30163): [simulated: deterministic policy approver] pay undisputed 69600.00 USD; hold 17400.00",
-                    "provenance": "approver: d.ortiz@helix.example, 2026-10-24",
+                    "provenance": "approver: d.ortiz@helix.example, 2026-10-25",
                     "valid_from": "2026-10-14",
                     "version": 1
                   },
@@ -8570,7 +8577,7 @@
                     "folder": "counterparties",
                     "subject": "kestrel-memory",
                     "text": "controller approved (undisputed part only) on case_43 (KM-INV-30640): [simulated: deterministic policy approver] pay undisputed 290000.00 USD; hold 1160.00",
-                    "provenance": "controller: m.chen@helix.example, 2026-10-24",
+                    "provenance": "controller: m.chen@helix.example, 2026-10-25",
                     "valid_from": "2026-10-24",
                     "version": 2
                   },
@@ -8579,7 +8586,7 @@
                     "folder": "counterparties",
                     "subject": "kestrel-memory",
                     "text": "controller approved (undisputed part only) on case_44 (KM-INV-30651): [simulated: deterministic policy approver] pay undisputed 217500.00 USD; hold 975.00",
-                    "provenance": "controller: m.chen@helix.example, 2026-10-24",
+                    "provenance": "controller: m.chen@helix.example, 2026-10-25",
                     "valid_from": "2026-10-24",
                     "version": 2
                   },
@@ -8588,7 +8595,7 @@
                     "folder": "counterparties",
                     "subject": "kestrel-memory",
                     "text": "controller approved (undisputed part only) on case_45 (KM-INV-30668): [simulated: deterministic policy approver] pay undisputed 261000.00 USD; hold 783.00",
-                    "provenance": "controller: m.chen@helix.example, 2026-10-24",
+                    "provenance": "controller: m.chen@helix.example, 2026-10-25",
                     "valid_from": "2026-10-25",
                     "version": 1
                   },
@@ -8660,7 +8667,7 @@
                     "folder": "counterparties",
                     "subject": "taoyuan-substrate",
                     "text": "approver approved (undisputed part only) on case_40 (TSC-0107): [simulated: deterministic policy approver] pay undisputed 76800.00 TWD; hold 400.00",
-                    "provenance": "approver: d.ortiz@helix.example, 2026-10-24",
+                    "provenance": "approver: d.ortiz@helix.example, 2026-10-25",
                     "valid_from": "2026-10-23",
                     "version": 1
                   },
@@ -8703,8 +8710,8 @@
                   "$ref": "#/components/schemas/Scoreboard"
                 },
                 "example": {
-                  "run_id": "run_9e322c63",
-                  "at": "2026-10-24T20:54:33.983294Z",
+                  "run_id": "run_6343c213",
+                  "at": "2026-10-25T00:25:46.721968Z",
                   "total": 48,
                   "passed": 21,
                   "catch_rate": 0.9655,
@@ -8713,7 +8720,7 @@
                   "results": [
                     {
                       "case_id": "case_01",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_01",
                         "decision": "approve",
@@ -8760,7 +8767,7 @@
                     },
                     {
                       "case_id": "case_02",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_02",
                         "decision": "hold",
@@ -8815,7 +8822,7 @@
                     },
                     {
                       "case_id": "case_03",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_03",
                         "decision": "hold",
@@ -8871,7 +8878,7 @@
                     },
                     {
                       "case_id": "case_04",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_04",
                         "decision": "escalate",
@@ -8923,7 +8930,7 @@
                     },
                     {
                       "case_id": "case_05",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_05",
                         "decision": "reject",
@@ -8978,7 +8985,7 @@
                     },
                     {
                       "case_id": "case_06",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_06",
                         "decision": "hold",
@@ -9033,7 +9040,7 @@
                     },
                     {
                       "case_id": "case_07",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_07",
                         "decision": "hold",
@@ -9087,7 +9094,7 @@
                     },
                     {
                       "case_id": "case_08",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_08",
                         "decision": "hold",
@@ -9142,7 +9149,7 @@
                     },
                     {
                       "case_id": "case_09",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_09",
                         "decision": "approve",
@@ -9190,7 +9197,7 @@
                     },
                     {
                       "case_id": "case_10",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_10",
                         "decision": "hold",
@@ -9245,7 +9252,7 @@
                     },
                     {
                       "case_id": "case_11",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_11",
                         "decision": "hold",
@@ -9300,7 +9307,7 @@
                     },
                     {
                       "case_id": "case_12",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_12",
                         "decision": "hold",
@@ -9368,7 +9375,7 @@
                     },
                     {
                       "case_id": "case_13",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_13",
                         "decision": "approve",
@@ -9415,7 +9422,7 @@
                     },
                     {
                       "case_id": "case_14",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_14",
                         "decision": "reject",
@@ -9470,7 +9477,7 @@
                     },
                     {
                       "case_id": "case_15",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_15",
                         "decision": "reject",
@@ -9524,7 +9531,7 @@
                     },
                     {
                       "case_id": "case_16",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_16",
                         "decision": "reject",
@@ -9581,7 +9588,7 @@
                     },
                     {
                       "case_id": "case_17",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_17",
                         "decision": "reject",
@@ -9635,7 +9642,7 @@
                     },
                     {
                       "case_id": "case_18",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_18",
                         "decision": "hold",
@@ -9686,7 +9693,7 @@
                     },
                     {
                       "case_id": "case_19",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_19",
                         "decision": "escalate",
@@ -9735,7 +9742,7 @@
                     },
                     {
                       "case_id": "case_20",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_20",
                         "decision": "approve",
@@ -9786,7 +9793,7 @@
                     },
                     {
                       "case_id": "case_21",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_21",
                         "decision": "approve",
@@ -9839,7 +9846,7 @@
                     },
                     {
                       "case_id": "case_22",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_22",
                         "decision": "approve",
@@ -9888,7 +9895,7 @@
                     },
                     {
                       "case_id": "case_23",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_23",
                         "decision": "approve",
@@ -9937,7 +9944,7 @@
                     },
                     {
                       "case_id": "case_24",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_24",
                         "decision": "approve",
@@ -9986,7 +9993,7 @@
                     },
                     {
                       "case_id": "case_25",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_25",
                         "decision": "approve",
@@ -10035,7 +10042,7 @@
                     },
                     {
                       "case_id": "case_26",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_26",
                         "decision": "hold",
@@ -10087,7 +10094,7 @@
                     },
                     {
                       "case_id": "case_27",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_27",
                         "decision": "escalate",
@@ -10127,7 +10134,7 @@
                     },
                     {
                       "case_id": "case_28",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_28",
                         "decision": "escalate",
@@ -10168,7 +10175,7 @@
                     },
                     {
                       "case_id": "case_29",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_29",
                         "decision": "escalate",
@@ -10208,7 +10215,7 @@
                     },
                     {
                       "case_id": "case_30",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_30",
                         "decision": "escalate",
@@ -10248,7 +10255,7 @@
                     },
                     {
                       "case_id": "case_31",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_31",
                         "decision": "escalate",
@@ -10301,7 +10308,7 @@
                     },
                     {
                       "case_id": "case_32",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_32",
                         "decision": "hold",
@@ -10360,7 +10367,7 @@
                     },
                     {
                       "case_id": "case_33",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_33",
                         "decision": "approve",
@@ -10408,7 +10415,7 @@
                     },
                     {
                       "case_id": "case_34",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_34",
                         "decision": null,
@@ -10457,7 +10464,7 @@
                     },
                     {
                       "case_id": "case_35",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_35",
                         "decision": null,
@@ -10510,7 +10517,7 @@
                     },
                     {
                       "case_id": "case_36",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_36",
                         "decision": null,
@@ -10556,7 +10563,7 @@
                     },
                     {
                       "case_id": "case_37",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_37",
                         "decision": "approve",
@@ -10615,7 +10622,7 @@
                     },
                     {
                       "case_id": "case_38",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_38",
                         "decision": "escalate",
@@ -10655,7 +10662,7 @@
                     },
                     {
                       "case_id": "case_39",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_39",
                         "decision": "approve",
@@ -10703,7 +10710,7 @@
                     },
                     {
                       "case_id": "case_40",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_40",
                         "decision": "hold",
@@ -10759,7 +10766,7 @@
                     },
                     {
                       "case_id": "case_41",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_41",
                         "decision": "approve",
@@ -10806,7 +10813,7 @@
                     },
                     {
                       "case_id": "case_42",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_42",
                         "decision": "hold",
@@ -10862,7 +10869,7 @@
                     },
                     {
                       "case_id": "case_43",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_43",
                         "decision": "hold",
@@ -10922,7 +10929,7 @@
                     },
                     {
                       "case_id": "case_44",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_44",
                         "decision": "hold",
@@ -10982,7 +10989,7 @@
                     },
                     {
                       "case_id": "case_45",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_45",
                         "decision": "hold",
@@ -11041,7 +11048,7 @@
                     },
                     {
                       "case_id": "case_46",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_46",
                         "decision": null,
@@ -11089,7 +11096,7 @@
                     },
                     {
                       "case_id": "case_47",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_47",
                         "decision": null,
@@ -11129,7 +11136,7 @@
                     },
                     {
                       "case_id": "case_48",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_48",
                         "decision": null,
@@ -11581,7 +11588,7 @@
                   "onboarding": [
                     {
                       "case_id": "onb_01",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "onb_01",
                         "decision": "approve",
@@ -11612,7 +11619,7 @@
                     },
                     {
                       "case_id": "onb_02",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "onb_02",
                         "decision": "hold",
@@ -11643,7 +11650,7 @@
                     },
                     {
                       "case_id": "onb_03",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "onb_03",
                         "decision": "hold",
@@ -11674,7 +11681,7 @@
                     },
                     {
                       "case_id": "onb_04",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "onb_04",
                         "decision": "hold",
@@ -11705,7 +11712,7 @@
                     },
                     {
                       "case_id": "onb_05",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "onb_05",
                         "decision": "hold",
@@ -11736,7 +11743,7 @@
                     },
                     {
                       "case_id": "onb_06",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "onb_06",
                         "decision": "hold",
@@ -11788,8 +11795,8 @@
                   "$ref": "#/components/schemas/Scoreboard"
                 },
                 "example": {
-                  "run_id": "run_9e322c63",
-                  "at": "2026-10-24T20:54:33.983294Z",
+                  "run_id": "run_6343c213",
+                  "at": "2026-10-25T00:25:46.721968Z",
                   "total": 48,
                   "passed": 21,
                   "catch_rate": 0.9655,
@@ -11798,7 +11805,7 @@
                   "results": [
                     {
                       "case_id": "case_01",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_01",
                         "decision": "approve",
@@ -11845,7 +11852,7 @@
                     },
                     {
                       "case_id": "case_02",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_02",
                         "decision": "hold",
@@ -11900,7 +11907,7 @@
                     },
                     {
                       "case_id": "case_03",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_03",
                         "decision": "hold",
@@ -11956,7 +11963,7 @@
                     },
                     {
                       "case_id": "case_04",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_04",
                         "decision": "escalate",
@@ -12008,7 +12015,7 @@
                     },
                     {
                       "case_id": "case_05",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_05",
                         "decision": "reject",
@@ -12063,7 +12070,7 @@
                     },
                     {
                       "case_id": "case_06",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_06",
                         "decision": "hold",
@@ -12118,7 +12125,7 @@
                     },
                     {
                       "case_id": "case_07",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_07",
                         "decision": "hold",
@@ -12172,7 +12179,7 @@
                     },
                     {
                       "case_id": "case_08",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_08",
                         "decision": "hold",
@@ -12227,7 +12234,7 @@
                     },
                     {
                       "case_id": "case_09",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_09",
                         "decision": "approve",
@@ -12275,7 +12282,7 @@
                     },
                     {
                       "case_id": "case_10",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_10",
                         "decision": "hold",
@@ -12330,7 +12337,7 @@
                     },
                     {
                       "case_id": "case_11",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_11",
                         "decision": "hold",
@@ -12385,7 +12392,7 @@
                     },
                     {
                       "case_id": "case_12",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_12",
                         "decision": "hold",
@@ -12453,7 +12460,7 @@
                     },
                     {
                       "case_id": "case_13",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_13",
                         "decision": "approve",
@@ -12500,7 +12507,7 @@
                     },
                     {
                       "case_id": "case_14",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_14",
                         "decision": "reject",
@@ -12555,7 +12562,7 @@
                     },
                     {
                       "case_id": "case_15",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_15",
                         "decision": "reject",
@@ -12609,7 +12616,7 @@
                     },
                     {
                       "case_id": "case_16",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_16",
                         "decision": "reject",
@@ -12666,7 +12673,7 @@
                     },
                     {
                       "case_id": "case_17",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_17",
                         "decision": "reject",
@@ -12720,7 +12727,7 @@
                     },
                     {
                       "case_id": "case_18",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_18",
                         "decision": "hold",
@@ -12771,7 +12778,7 @@
                     },
                     {
                       "case_id": "case_19",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_19",
                         "decision": "escalate",
@@ -12820,7 +12827,7 @@
                     },
                     {
                       "case_id": "case_20",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_20",
                         "decision": "approve",
@@ -12871,7 +12878,7 @@
                     },
                     {
                       "case_id": "case_21",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_21",
                         "decision": "approve",
@@ -12924,7 +12931,7 @@
                     },
                     {
                       "case_id": "case_22",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_22",
                         "decision": "approve",
@@ -12973,7 +12980,7 @@
                     },
                     {
                       "case_id": "case_23",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_23",
                         "decision": "approve",
@@ -13022,7 +13029,7 @@
                     },
                     {
                       "case_id": "case_24",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_24",
                         "decision": "approve",
@@ -13071,7 +13078,7 @@
                     },
                     {
                       "case_id": "case_25",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_25",
                         "decision": "approve",
@@ -13120,7 +13127,7 @@
                     },
                     {
                       "case_id": "case_26",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_26",
                         "decision": "hold",
@@ -13172,7 +13179,7 @@
                     },
                     {
                       "case_id": "case_27",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_27",
                         "decision": "escalate",
@@ -13212,7 +13219,7 @@
                     },
                     {
                       "case_id": "case_28",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_28",
                         "decision": "escalate",
@@ -13253,7 +13260,7 @@
                     },
                     {
                       "case_id": "case_29",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_29",
                         "decision": "escalate",
@@ -13293,7 +13300,7 @@
                     },
                     {
                       "case_id": "case_30",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_30",
                         "decision": "escalate",
@@ -13333,7 +13340,7 @@
                     },
                     {
                       "case_id": "case_31",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_31",
                         "decision": "escalate",
@@ -13386,7 +13393,7 @@
                     },
                     {
                       "case_id": "case_32",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_32",
                         "decision": "hold",
@@ -13445,7 +13452,7 @@
                     },
                     {
                       "case_id": "case_33",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_33",
                         "decision": "approve",
@@ -13493,7 +13500,7 @@
                     },
                     {
                       "case_id": "case_34",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_34",
                         "decision": null,
@@ -13542,7 +13549,7 @@
                     },
                     {
                       "case_id": "case_35",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_35",
                         "decision": null,
@@ -13595,7 +13602,7 @@
                     },
                     {
                       "case_id": "case_36",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_36",
                         "decision": null,
@@ -13641,7 +13648,7 @@
                     },
                     {
                       "case_id": "case_37",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_37",
                         "decision": "approve",
@@ -13700,7 +13707,7 @@
                     },
                     {
                       "case_id": "case_38",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_38",
                         "decision": "escalate",
@@ -13740,7 +13747,7 @@
                     },
                     {
                       "case_id": "case_39",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_39",
                         "decision": "approve",
@@ -13788,7 +13795,7 @@
                     },
                     {
                       "case_id": "case_40",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_40",
                         "decision": "hold",
@@ -13844,7 +13851,7 @@
                     },
                     {
                       "case_id": "case_41",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_41",
                         "decision": "approve",
@@ -13891,7 +13898,7 @@
                     },
                     {
                       "case_id": "case_42",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_42",
                         "decision": "hold",
@@ -13947,7 +13954,7 @@
                     },
                     {
                       "case_id": "case_43",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_43",
                         "decision": "hold",
@@ -14007,7 +14014,7 @@
                     },
                     {
                       "case_id": "case_44",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_44",
                         "decision": "hold",
@@ -14067,7 +14074,7 @@
                     },
                     {
                       "case_id": "case_45",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_45",
                         "decision": "hold",
@@ -14126,7 +14133,7 @@
                     },
                     {
                       "case_id": "case_46",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_46",
                         "decision": null,
@@ -14174,7 +14181,7 @@
                     },
                     {
                       "case_id": "case_47",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_47",
                         "decision": null,
@@ -14214,7 +14221,7 @@
                     },
                     {
                       "case_id": "case_48",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "case_48",
                         "decision": null,
@@ -14666,7 +14673,7 @@
                   "onboarding": [
                     {
                       "case_id": "onb_01",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "onb_01",
                         "decision": "approve",
@@ -14697,7 +14704,7 @@
                     },
                     {
                       "case_id": "onb_02",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "onb_02",
                         "decision": "hold",
@@ -14728,7 +14735,7 @@
                     },
                     {
                       "case_id": "onb_03",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "onb_03",
                         "decision": "hold",
@@ -14759,7 +14766,7 @@
                     },
                     {
                       "case_id": "onb_04",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "onb_04",
                         "decision": "hold",
@@ -14790,7 +14797,7 @@
                     },
                     {
                       "case_id": "onb_05",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "onb_05",
                         "decision": "hold",
@@ -14821,7 +14828,7 @@
                     },
                     {
                       "case_id": "onb_06",
-                      "run_id": "run_9e322c63",
+                      "run_id": "run_6343c213",
                       "expected": {
                         "case_id": "onb_06",
                         "decision": "hold",
@@ -17972,7 +17979,7 @@
                   "dollars_caught_usd": "38502.40",
                   "hours_saved_estimate": "57.3",
                   "on_time_payment_rate": 1.0,
-                  "avg_hours_to_resolve": 108.5,
+                  "avg_hours_to_resolve": 112.0,
                   "by_vendor": [
                     {
                       "vendor_id": "V-FORMOSA",
@@ -18042,7 +18049,7 @@
                     "ok": 45,
                     "skipped": 0,
                     "flagged": 0,
-                    "avg_ms": 0.5
+                    "avg_ms": 0.8
                   },
                   {
                     "stage": "reader",
@@ -18050,7 +18057,7 @@
                     "ok": 18,
                     "skipped": 0,
                     "flagged": 22,
-                    "avg_ms": 0.4
+                    "avg_ms": 0.6
                   },
                   {
                     "stage": "doc_dedup",
@@ -18082,7 +18089,7 @@
                     "ok": 10,
                     "skipped": 7,
                     "flagged": 0,
-                    "avg_ms": 0.3
+                    "avg_ms": 0.6
                   },
                   {
                     "stage": "investigator",
@@ -18090,7 +18097,7 @@
                     "ok": 0,
                     "skipped": 7,
                     "flagged": 10,
-                    "avg_ms": 2.1
+                    "avg_ms": 3.6
                   },
                   {
                     "stage": "vendor_guard",
@@ -18122,7 +18129,7 @@
                     "ok": 2,
                     "skipped": 15,
                     "flagged": 0,
-                    "avg_ms": 1.1
+                    "avg_ms": 2.8
                   },
                   {
                     "stage": "after_case.agents.skill_feedback",
@@ -18201,355 +18208,355 @@
                 "example": [
                   {
                     "case_id": "case_45",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_a988867d69",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_20a2214470",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.961892Z"
+                    "at": "2026-10-25T00:25:46.694590Z"
                   },
                   {
                     "case_id": "case_44",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_c1f0092559",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_20d301bdcf",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.948096Z"
+                    "at": "2026-10-25T00:25:46.667430Z"
                   },
                   {
                     "case_id": "case_43",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_d1504c1056",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_96df722a17",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.934619Z"
+                    "at": "2026-10-25T00:25:46.643160Z"
                   },
                   {
                     "case_id": "case_42",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_176292655e",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_0cd5f0044a",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.923582Z"
+                    "at": "2026-10-25T00:25:46.628723Z"
                   },
                   {
                     "case_id": "case_40",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_55fa9ef45b",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_2573af4ec8",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.908342Z"
+                    "at": "2026-10-25T00:25:46.608836Z"
                   },
                   {
                     "case_id": "case_37",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_889308f46f",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_5584e016b2",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.897587Z"
+                    "at": "2026-10-25T00:25:46.594439Z"
                   },
                   {
                     "case_id": "case_35",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_3b4434fce1",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_1b4b233808",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.890352Z"
+                    "at": "2026-10-25T00:25:46.584908Z"
                   },
                   {
                     "case_id": "case_32",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_27e68f72d4",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_46c49c5009",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.881105Z"
+                    "at": "2026-10-25T00:25:46.573438Z"
                   },
                   {
                     "case_id": "case_31",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_5d9f269124",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_564624ada8",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.877405Z"
+                    "at": "2026-10-25T00:25:46.568746Z"
                   },
                   {
                     "case_id": "case_26",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_2586bab31a",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_a52e548692",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.871831Z"
+                    "at": "2026-10-25T00:25:46.561649Z"
                   },
                   {
                     "case_id": "case_24",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_f5f63693b9",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_a72f22dbf7",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.863507Z"
+                    "at": "2026-10-25T00:25:46.551036Z"
                   },
                   {
                     "case_id": "case_23",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_7f879adef7",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_f9b6293c3a",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.860113Z"
+                    "at": "2026-10-25T00:25:46.546707Z"
                   },
                   {
                     "case_id": "case_22",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_c139bc9210",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_f40652f68a",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.855142Z"
+                    "at": "2026-10-25T00:25:46.540486Z"
                   },
                   {
                     "case_id": "case_20",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_da8fce80a7",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_32249fc765",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.845579Z"
+                    "at": "2026-10-25T00:25:46.528490Z"
                   },
                   {
                     "case_id": "case_19",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_5e5aa3cd47",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_5512142105",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.839229Z"
+                    "at": "2026-10-25T00:25:46.520322Z"
                   },
                   {
                     "case_id": "case_18",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_5c5716677b",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_e7aef0e111",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.836167Z"
+                    "at": "2026-10-25T00:25:46.516547Z"
                   },
                   {
                     "case_id": "case_17",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_ee3e7786a2",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_97de69c716",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.832835Z"
+                    "at": "2026-10-25T00:25:46.512392Z"
                   },
                   {
                     "case_id": "case_15",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_3526afc8a3",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_c6205a4dbe",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.817360Z"
+                    "at": "2026-10-25T00:25:46.501222Z"
                   },
                   {
                     "case_id": "case_14",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_7296912d46",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_f9bfc8f69c",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.814010Z"
+                    "at": "2026-10-25T00:25:46.496951Z"
                   },
                   {
                     "case_id": "case_13",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_627a47b7ed",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_ca0ccd52ba",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.811656Z"
+                    "at": "2026-10-25T00:25:46.493995Z"
                   },
                   {
                     "case_id": "case_12",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_3255071897",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_0a6e9f505e",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.808096Z"
+                    "at": "2026-10-25T00:25:46.489858Z"
                   },
                   {
                     "case_id": "case_11",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_1958ef8cbe",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_2fe949e06b",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.800595Z"
+                    "at": "2026-10-25T00:25:46.471319Z"
                   },
                   {
                     "case_id": "case_10",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_5e3c84541f",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_79c6be68c0",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.787403Z"
+                    "at": "2026-10-25T00:25:46.451723Z"
                   },
                   {
                     "case_id": "case_09",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_ad6507e02a",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_91ed16896d",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.780815Z"
+                    "at": "2026-10-25T00:25:46.442903Z"
                   },
                   {
                     "case_id": "case_08",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_44dd45c825",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_4010e75d1e",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.777627Z"
+                    "at": "2026-10-25T00:25:46.438951Z"
                   },
                   {
                     "case_id": "case_07",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_3b505b47bf",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_4572f30c64",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.770601Z"
+                    "at": "2026-10-25T00:25:46.430042Z"
                   },
                   {
                     "case_id": "case_06",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_f6587b5463",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_882ede0b3e",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.759866Z"
+                    "at": "2026-10-25T00:25:46.416481Z"
                   },
                   {
                     "case_id": "case_05",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_e6da2bd1cd",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_57ddaa550a",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.753108Z"
+                    "at": "2026-10-25T00:25:46.405731Z"
                   },
                   {
                     "case_id": "case_04",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_8fa223b1fe",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_cf9d21389e",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.750422Z"
+                    "at": "2026-10-25T00:25:46.402584Z"
                   },
                   {
                     "case_id": "case_03",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_30ffa2a182",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_8c4f170920",
                     "stage": "investigator",
                     "status": "retried",
                     "error": null,
                     "next_stage": "vendor_guard",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.742266Z"
+                    "at": "2026-10-25T00:25:46.392818Z"
                   },
                   {
                     "case_id": "case_02",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_b3c7cd0b03",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_af42686659",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.734839Z"
+                    "at": "2026-10-25T00:25:46.382925Z"
                   },
                   {
                     "case_id": "case_01",
-                    "run_id": "run_9e322c63",
-                    "step_id": "step_36989a0fb4",
+                    "run_id": "run_6343c213",
+                    "step_id": "step_08bc005478",
                     "stage": "reader",
                     "status": "failed",
                     "error": "LLMUnavailable: evidence missing: Reader LLM unavailable (RECONAI_LLM=off or no ANTHROPIC_API_KEY)",
                     "next_stage": "after_case.agents.supplier_reply",
                     "next_status": "ok",
-                    "at": "2026-10-24T20:54:33.731306Z"
+                    "at": "2026-10-25T00:25:46.378835Z"
                   }
                 ]
               }
@@ -19146,6 +19153,278 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OnboardingCase"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/emails": {
+      "get": {
+        "summary": "List Emails",
+        "operationId": "list_emails_emails_get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Case Id"
+            }
+          },
+          {
+            "name": "vendor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OutboundEmail"
+                  },
+                  "title": "Response List Emails Emails Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/emails/{case_id}/send": {
+      "post": {
+        "summary": "Send Case Emails",
+        "description": "Retry delivery of this case's supplier emails (sent ones are never re-sent).",
+        "operationId": "send_case_emails_emails__case_id__send_post",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OutboundEmail"
+                  },
+                  "title": "Response Send Case Emails Emails  Case Id  Send Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/coinbase": {
+      "get": {
+        "summary": "Coinbase Status",
+        "operationId": "coinbase_status_ap_coinbase_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreasuryStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/coinbase/faucet": {
+      "post": {
+        "summary": "Coinbase Faucet",
+        "description": "Top the treasury up with testnet ETH (gas) and USDC from the CDP faucet.",
+        "operationId": "coinbase_faucet_ap_coinbase_faucet_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Coinbase Faucet Ap Coinbase Faucet Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ap/coinbase/vendor-wallets": {
+      "post": {
+        "summary": "Coinbase Vendor Wallets",
+        "description": "Demo setup: give each vendor without one a testnet payout wallet (a CDP account), recorded in the vendor\nmaster. In production the vendor supplies its address at onboarding and it is verified like bank details.",
+        "operationId": "coinbase_vendor_wallets_ap_coinbase_vendor_wallets_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Vendor"
+                  },
+                  "type": "array",
+                  "title": "Response Coinbase Vendor Wallets Ap Coinbase Vendor Wallets Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contracts": {
+      "get": {
+        "summary": "List Contracts",
+        "operationId": "list_contracts_contracts_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/VendorContract"
+                  },
+                  "type": "array",
+                  "title": "Response List Contracts Contracts Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contracts/{contract_id}/pdf": {
+      "get": {
+        "summary": "Contract Pdf",
+        "operationId": "contract_pdf_contracts__contract_id__pdf_get",
+        "parameters": [
+          {
+            "name": "contract_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Contract Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/memory/vendors/{vendor_id}/timeline": {
+      "get": {
+        "summary": "Vendor Memory Timeline",
+        "operationId": "vendor_memory_timeline_memory_vendors__vendor_id__timeline_get",
+        "parameters": [
+          {
+            "name": "vendor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vendor Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorMemoryTimeline"
                 }
               }
             }
@@ -23235,6 +23514,41 @@
         ],
         "title": "MemoryEntry"
       },
+      "MemoryEvent": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "title": "Kind",
+            "description": "skill_change | memory_use"
+          },
+          "at": {
+            "type": "string",
+            "format": "date",
+            "title": "At"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "case_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Case Ids",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "at",
+          "label",
+          "case_ids"
+        ],
+        "title": "MemoryEvent"
+      },
       "MemoryFolder": {
         "type": "string",
         "enum": [
@@ -23246,6 +23560,150 @@
           "patterns"
         ],
         "title": "MemoryFolder"
+      },
+      "MemorySlot": {
+        "properties": {
+          "entry_id": {
+            "type": "string",
+            "title": "Entry Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "current": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MemoryVersion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/MemoryVersion"
+            },
+            "type": "array",
+            "title": "Versions",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "entry_id",
+          "label",
+          "current",
+          "versions"
+        ],
+        "title": "MemorySlot",
+        "description": "A memory line and its history (oldest version first)."
+      },
+      "MemoryUse": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "title": "Case Id"
+          },
+          "memory_version": {
+            "type": "string",
+            "title": "Memory Version"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision"
+          },
+          "at": {
+            "type": "string",
+            "format": "date",
+            "title": "At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "memory_version",
+          "decision",
+          "at"
+        ],
+        "title": "MemoryUse",
+        "description": "A case decision that read this vendor's memory (from the trace)."
+      },
+      "MemoryVersion": {
+        "properties": {
+          "entry_id": {
+            "type": "string",
+            "title": "Entry Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "provenance": {
+            "type": "string",
+            "title": "Provenance"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "system_of_record | computed | controller | approver | outcome | seed"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date",
+            "title": "Valid From"
+          },
+          "change": {
+            "type": "string",
+            "title": "Change",
+            "description": "added | updated | forgotten"
+          },
+          "cases": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Cases",
+            "default": []
+          },
+          "people": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "People",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "entry_id",
+          "version",
+          "text",
+          "provenance",
+          "source",
+          "valid_from",
+          "change",
+          "cases",
+          "people"
+        ],
+        "title": "MemoryVersion",
+        "description": "One version of one memory line."
       },
       "OnboardingCase": {
         "properties": {
@@ -23327,6 +23785,40 @@
               }
             ],
             "title": "Vendor Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "app | slack (negotiated in Slack, contract attached)",
+            "default": "app"
+          },
+          "contract_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contract Id"
+          },
+          "auto_approved": {
+            "type": "boolean",
+            "title": "Auto Approved",
+            "description": "Approved by policy (low risk, every check passed), no human click",
+            "default": false
+          },
+          "confirmation_email_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmation Email Id"
           }
         },
         "additionalProperties": false,
@@ -23343,7 +23835,11 @@
           "decided_by",
           "decided_at",
           "decision_comment",
-          "vendor_id"
+          "vendor_id",
+          "source",
+          "contract_id",
+          "auto_approved",
+          "confirmation_email_id"
         ],
         "title": "OnboardingCase"
       },
@@ -23596,6 +24092,18 @@
             "type": "array",
             "title": "Trade Names",
             "default": []
+          },
+          "contact_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Email",
+            "description": "Becomes the verified contact on file once approved"
           }
         },
         "additionalProperties": false,
@@ -23708,6 +24216,18 @@
             "type": "array",
             "title": "Trade Names",
             "default": []
+          },
+          "contact_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Email",
+            "description": "Becomes the verified contact on file once approved"
           }
         },
         "additionalProperties": false,
@@ -23729,7 +24249,8 @@
           "expected_annual_spend_usd",
           "requested_by",
           "tax_form",
-          "trade_names"
+          "trade_names",
+          "contact_email"
         ],
         "title": "OnboardingRequestIn"
       },
@@ -23832,6 +24353,127 @@
           "notes"
         ],
         "title": "OnboardingResult"
+      },
+      "OutboundEmail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind",
+            "description": "supplier_discrepancy | onboarding_confirmation | onboarding_received"
+          },
+          "case_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Case Id"
+          },
+          "vendor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor Id"
+          },
+          "to": {
+            "type": "string",
+            "title": "To",
+            "description": "Intended recipient (contact on file)"
+          },
+          "delivered_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivered To",
+            "description": "Where it actually went (demo redirect inbox)"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "sent | outbox | failed"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider",
+            "description": "resend | outbox"
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Id"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "title": "Idempotency Key"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "case_id",
+          "vendor_id",
+          "to",
+          "delivered_to",
+          "subject",
+          "body",
+          "status",
+          "provider",
+          "provider_id",
+          "error",
+          "idempotency_key",
+          "created_at"
+        ],
+        "title": "OutboundEmail",
+        "description": "An email ReconAI sent or queued. Delivered via Resend when configured; always kept here (the outbox)."
       },
       "PO": {
         "properties": {
@@ -24000,6 +24642,94 @@
             "title": "Credit Applied",
             "description": "advance-payment credit used",
             "default": "0"
+          },
+          "rail": {
+            "type": "string",
+            "title": "Rail",
+            "description": "bank (simulated ACH/wire) | coinbase (USDC on-chain)",
+            "default": "bank"
+          },
+          "network": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Network",
+            "description": "e.g. base-sepolia (coinbase rail)"
+          },
+          "onchain_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Onchain Token"
+          },
+          "onchain_amount": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d+(\\.\\d+)?$",
+                "description": "Decimal amount as string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Onchain Amount",
+            "description": "Token amount sent (testnet: scaled from amount_usd)"
+          },
+          "payee_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payee Address",
+            "description": "Vendor master wallet_address, never the invoice's"
+          },
+          "tx_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tx Hash"
+          },
+          "explorer_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explorer Url"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
           }
         },
         "additionalProperties": false,
@@ -24018,7 +24748,15 @@
           "status",
           "gross_amount",
           "discount_amount",
-          "credit_applied"
+          "credit_applied",
+          "rail",
+          "network",
+          "onchain_token",
+          "onchain_amount",
+          "payee_address",
+          "tx_hash",
+          "explorer_url",
+          "error"
         ],
         "title": "Payment"
       },
@@ -24036,7 +24774,19 @@
           "status": {
             "type": "string",
             "title": "Status",
-            "description": "scheduled | paid"
+            "description": "scheduled | paid | partially_paid"
+          },
+          "rail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rail",
+            "description": "Set at release: bank | coinbase"
           },
           "created_by": {
             "type": "string",
@@ -24091,6 +24841,7 @@
           "id",
           "pay_date",
           "status",
+          "rail",
           "created_by",
           "created_at",
           "released_by",
@@ -25666,6 +26417,73 @@
         "title": "TagScore",
         "description": "Per-tag breakdown (format:*, channel:*, attack, dedup, ...)."
       },
+      "TreasuryStatus": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "description": "live | not_configured"
+          },
+          "network": {
+            "type": "string",
+            "title": "Network"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "balances": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Balances",
+            "description": "token symbol -> decimal amount"
+          },
+          "usd_scale": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Usd Scale",
+            "description": "testnet: USDC sent = amount_usd x usd_scale"
+          },
+          "explorer_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explorer Url"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mode",
+          "network",
+          "address",
+          "balances",
+          "usd_scale",
+          "explorer_url",
+          "note"
+        ],
+        "title": "TreasuryStatus",
+        "description": "The Coinbase (CDP) treasury wallet that pays vendors on the coinbase rail."
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -25815,6 +26633,18 @@
                 "type": "null"
               }
             ]
+          },
+          "wallet_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wallet Address",
+            "description": "On-chain payout address on file (Coinbase rail, testnet). Changed only like bank details: never from an invoice or email"
           }
         },
         "additionalProperties": false,
@@ -25834,7 +26664,8 @@
           "probation_until",
           "contact_email",
           "expected_schedule",
-          "terms"
+          "terms",
+          "wallet_address"
         ],
         "title": "Vendor"
       },
@@ -25876,6 +26707,125 @@
         "title": "VendorCheck",
         "description": "One onboarding check as shown in the UI (D): CRS or code, pass/warn/fail."
       },
+      "VendorContract": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "vendor_name": {
+            "type": "string",
+            "title": "Vendor Name"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "items": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "sku/description, qty, unit, unit_price"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "total": {
+            "type": "string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "title": "Total",
+            "description": "Decimal amount as string"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/PaymentTerms"
+          },
+          "delivery": {
+            "type": "string",
+            "title": "Delivery",
+            "default": ""
+          },
+          "warranty": {
+            "type": "string",
+            "title": "Warranty",
+            "default": ""
+          },
+          "other_terms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Other Terms",
+            "default": []
+          },
+          "requested_by": {
+            "type": "string",
+            "title": "Requested By"
+          },
+          "channel": {
+            "type": "string",
+            "title": "Channel"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "draft | accepted | onboarding | onboarded | held",
+            "default": "draft"
+          },
+          "accepted_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted By"
+          },
+          "onboarding_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Onboarding Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "vendor_name",
+          "category",
+          "items",
+          "currency",
+          "total",
+          "terms",
+          "delivery",
+          "warranty",
+          "other_terms",
+          "requested_by",
+          "channel",
+          "created_at",
+          "status",
+          "accepted_by",
+          "onboarding_id"
+        ],
+        "title": "VendorContract",
+        "description": "A supply contract ReconAI drafted from a Slack negotiation. Terms are what both sides agreed in the thread."
+      },
       "VendorExceptions": {
         "properties": {
           "vendor_id": {
@@ -25904,6 +26854,85 @@
           "exceptions"
         ],
         "title": "VendorExceptions"
+      },
+      "VendorMemoryTimeline": {
+        "properties": {
+          "vendor_id": {
+            "type": "string",
+            "title": "Vendor Id"
+          },
+          "vendor_name": {
+            "type": "string",
+            "title": "Vendor Name"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "memory_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memory Version"
+          },
+          "slots": {
+            "items": {
+              "$ref": "#/components/schemas/MemorySlot"
+            },
+            "type": "array",
+            "title": "Slots",
+            "default": []
+          },
+          "uses": {
+            "items": {
+              "$ref": "#/components/schemas/MemoryUse"
+            },
+            "type": "array",
+            "title": "Uses",
+            "default": []
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/MemoryEvent"
+            },
+            "type": "array",
+            "title": "Events",
+            "default": []
+          },
+          "sources": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Sources",
+            "default": {}
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "vendor_id",
+          "vendor_name",
+          "subject",
+          "memory_version",
+          "slots",
+          "uses",
+          "events",
+          "sources"
+        ],
+        "title": "VendorMemoryTimeline"
       },
       "backend__api__routes_a__QueueItem": {
         "properties": {
@@ -26153,6 +27182,12 @@
           "released_by": {
             "type": "string",
             "title": "Released By"
+          },
+          "rail": {
+            "type": "string",
+            "title": "Rail",
+            "description": "bank (simulated) | coinbase (USDC, Base Sepolia testnet)",
+            "default": "bank"
           }
         },
         "additionalProperties": false,

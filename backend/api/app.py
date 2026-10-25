@@ -17,6 +17,7 @@ from typing import Optional
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from backend.core.config import load_policy
 from backend.core.runner import make_ctx, run_case
@@ -28,6 +29,12 @@ from backend.ap.payments import (PaymentError, PaymentStore, create_batch, decid
                                  release as release_batch, request_prepayment)
 from backend.vendors import onboarding as onb
 from backend.vendors.crs import make_crs
+from backend.ap import coinbase
+from backend.memory import timeline as memory_timeline
+from backend.notify import email as mail
+from backend.slack import bot as slack_bot
+from backend.slack import contract as slack_contract
+from backend.slack import onboard as slack_onboard
 from backend.dashboard.views import approval_queue, business_metrics, failures, stage_stats
 from backend.evals.fixtures import case_dir, case_ids, load_fixture, seed
 from backend.intake.ingest import ingest
@@ -39,8 +46,8 @@ from backend.store.sqlite import DEFAULT_DB
 from contracts import (ApReport, ApSettings, EarlyPayOffer, OnboardingCase, OnboardingRequestIn, Prepayment, PrepaymentQuote,
                        PrepaymentRequest, SignOff, Approval, ApprovalRequest, Bill, BillDetail, DashboardMetrics, PaymentBatch,
                        PaymentBatchRequest, ReleaseRequest, Case, CaseDetail, CaseStatus, ChatReply, ChatRequest,
-                       Decision, Event, FailureItem, IntakeAccepted, MemoryEntry, QueueItem, ReviewPacket, Scoreboard, StageStat,
-                       Vendor)
+                       Decision, Event, FailureItem, IntakeAccepted, MemoryEntry, OutboundEmail, QueueItem, ReviewPacket,
+                       Scoreboard, StageStat, TreasuryStatus, Vendor, VendorContract, VendorMemoryTimeline)
 
 store = get_store()
 payments = PaymentStore(getattr(store, "path", DEFAULT_DB))  # payment runs live next to the case store
@@ -53,7 +60,15 @@ _loop: Optional[asyncio.AbstractEventLoop] = None
 async def _lifespan(_: FastAPI):
     global _loop
     _loop = asyncio.get_running_loop()  # pipeline threads hand WS events to this loop
+    try:
+        slack_bot.start(store, payments)  # Socket Mode in background threads when SLACK_* tokens are set
+    except Exception as e:  # a bad Slack token must not take the API down
+        print(f"Slack bot not started: {type(e).__name__}: {e}")
     yield
+    import threading  # never let a slow Slack socket close block a reload / shutdown
+    t = threading.Thread(target=slack_bot.stop, daemon=True)
+    t.start()
+    t.join(timeout=3)
 
 
 app = FastAPI(title="ReconAI API", version="0.1.0", lifespan=_lifespan)
@@ -93,10 +108,17 @@ def get_case(case_id: str) -> CaseDetail:
 def add_case(case: Case) -> CaseDetail:
     """Add a case (judges' scenario) and run it through the pipeline. Steps stream on WS /events."""
     ctx = make_ctx(store)
+    ctx.human_signoff = _human_signoff()
     ctx.trace.subscribe(_broadcast)
     store.save_case(case)
     case = run_case(case, ctx)
     return CaseDetail(case=case, steps=store.list_steps(case.id, ctx.run_id))
+
+
+def _human_signoff() -> bool:
+    """RECONAI_HUMAN_SIGNOFF (default on): in the live app every bill waits for a real person's approval; the
+    simulated reviewers only recommend. Evals and tests run their own contexts with simulated sign-off."""
+    return os.environ.get("RECONAI_HUMAN_SIGNOFF", "on").lower() != "off"
 
 
 # Demo pacing: stub stages finish in milliseconds; this keeps a background run visible. 0 disables.
@@ -105,14 +127,24 @@ DEMO_PACE = float(os.environ.get("RECONAI_DEMO_PACE", "0.35"))
 
 def _run_in_background(case: Case) -> None:
     ctx = make_ctx(store)
+    ctx.human_signoff = _human_signoff()
     ctx.trace.subscribe(_broadcast)
     if DEMO_PACE:
         ctx.trace.subscribe(lambda e: time.sleep(DEMO_PACE) if e.type == "step.finished" else None)
     try:
         final = run_case(case, ctx)
+        _deliver(final)
         _broadcast(Event(type="run.finished", case_id=final.id, status=final.status, at=utcnow()))
     except Exception:  # the failed step is already in the trace
         _broadcast(Event(type="run.failed", case_id=case.id, at=utcnow()))
+
+
+def _deliver(case: Case) -> None:
+    """Send the supplier emails the agents drafted (once each; kept in the outbox either way)."""
+    try:
+        mail.deliver_case(store, case)
+    except Exception as e:  # email trouble never blocks the AP flow
+        print(f"email delivery failed for {case.id}: {e}")
 
 
 @app.post("/intake", response_model=IntakeAccepted, status_code=202)
@@ -209,6 +241,7 @@ def approve(case_id: str, req: ApprovalRequest) -> Case:
         ctx = make_ctx(store)
         ctx.trace.subscribe(_broadcast)
         case = run_case(case, ctx, start_at="poster")
+        _deliver(case)
     _broadcast(Event(type="case.updated", case_id=case.id, status=case.status, at=utcnow()))
     return case
 
@@ -323,7 +356,7 @@ def ap_create_run(req: PaymentBatchRequest) -> PaymentBatch:
 def ap_release_run(batch_id: str, req: ReleaseRequest) -> PaymentBatch:
     """Release a run (simulated settlement). The person who prepared it can't release it (403)."""
     try:
-        batch = release_batch(payments, batch_id, req.released_by, ap.utcnow(), store, load_policy())
+        batch = release_batch(payments, batch_id, req.released_by, ap.utcnow(), store, load_policy(), rail=req.rail)
     except PaymentError as e:
         raise HTTPException(403 if "cannot also release" in str(e) else 400, str(e))
     for p in batch.payments:
@@ -411,8 +444,103 @@ def onboarding_decide(case_id: str, req: SignOff) -> OnboardingCase:
         c = onb.decide(_onb(case_id), req.approver, req.role.value, req.decision, req.comment, store, ap.utcnow())
     except onb.OnboardingError as e:
         raise HTTPException(403, str(e))
+    slack_onboard.finish(c, store, ap.utcnow())  # contract terms onto the vendor master + confirmation email
     payments.save_onboarding(c)
+    if c.source == "slack" and slack_bot.BOT is not None:
+        try:
+            slack_bot.BOT.notify_decided(c)
+        except Exception as e:
+            print(f"slack notify failed: {e}")
     return c
+
+
+# --- outbox (supplier emails, onboarding confirmations) -------------------------------------------
+
+@app.get("/emails", response_model=list[OutboundEmail])
+def list_emails(case_id: Optional[str] = None, vendor_id: Optional[str] = None) -> list[OutboundEmail]:
+    return mail.outbox(store, case_id, vendor_id)
+
+
+@app.post("/emails/{case_id}/send", response_model=list[OutboundEmail])
+def send_case_emails(case_id: str) -> list[OutboundEmail]:
+    """Retry delivery of this case's supplier emails (sent ones are never re-sent)."""
+    case = store.get_case(case_id)
+    if case is None:
+        raise HTTPException(404, f"case {case_id} not found")
+    return mail.deliver_case(store, case)
+
+
+# --- Coinbase rail (USDC on Base Sepolia testnet) ----------------------------------------------------
+
+def _rail():
+    rail = coinbase.get_rail()
+    if rail is None:
+        raise HTTPException(409, "Coinbase isn't configured: set CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET")
+    return rail
+
+
+@app.get("/ap/coinbase", response_model=TreasuryStatus)
+def coinbase_status() -> TreasuryStatus:
+    rail = coinbase.get_rail()
+    if rail is None:
+        return coinbase.not_configured()
+    try:
+        return rail.status()
+    except coinbase.RailError as e:
+        raise HTTPException(502, str(e))
+
+
+@app.post("/ap/coinbase/faucet")
+def coinbase_faucet() -> dict[str, str]:
+    """Top the treasury up with testnet ETH (gas) and USDC from the CDP faucet."""
+    try:
+        return _rail().fund()
+    except coinbase.RailError as e:
+        raise HTTPException(502, str(e))
+
+
+@app.post("/ap/coinbase/vendor-wallets", response_model=list[Vendor])
+def coinbase_vendor_wallets() -> list[Vendor]:
+    """Demo setup: give each vendor without one a testnet payout wallet (a CDP account), recorded in the vendor
+    master. In production the vendor supplies its address at onboarding and it is verified like bank details."""
+    rail, out = _rail(), []
+    for v in store.list_vendors():
+        if not v.wallet_address:
+            try:
+                v.wallet_address = rail.create_wallet(coinbase.wallet_name(v))
+            except coinbase.RailError as e:
+                raise HTTPException(502, str(e))
+            store.save_vendor(v)
+        out.append(v)
+    return out
+
+
+# --- contracts drafted in Slack ---------------------------------------------------------------------
+
+@app.get("/contracts", response_model=list[VendorContract])
+def list_contracts() -> list[VendorContract]:
+    return sorted(store.list_records(VendorContract, slack_contract.KIND), key=lambda c: c.created_at, reverse=True)
+
+
+@app.get("/contracts/{contract_id}/pdf")
+def contract_pdf(contract_id: str):
+    c = store.get_record(VendorContract, slack_contract.KIND, contract_id)
+    if c is None:
+        raise HTTPException(404, f"contract {contract_id} not found")
+    path = slack_contract.OUT / f"{c.id}.pdf"
+    if not path.exists():
+        path = slack_contract.render_pdf(c)
+    return FileResponse(path, media_type="application/pdf", filename=path.name)
+
+
+# --- per-vendor memory timeline ---------------------------------------------------------------------
+
+@app.get("/memory/vendors/{vendor_id}/timeline", response_model=VendorMemoryTimeline)
+def vendor_memory_timeline(vendor_id: str) -> VendorMemoryTimeline:
+    vendor = store.get_vendor(vendor_id)
+    if vendor is None:
+        raise HTTPException(404, f"vendor {vendor_id} not found")
+    return memory_timeline.build(store, vendor)
 
 
 @app.websocket("/events")

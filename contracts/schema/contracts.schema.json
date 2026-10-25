@@ -3058,6 +3058,37 @@
       "title": "MemoryEntry",
       "type": "object"
     },
+    "MemoryEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "description": "skill_change | memory_use",
+          "type": "string"
+        },
+        "at": {
+          "format": "date",
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "case_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "at",
+        "label",
+        "case_ids"
+      ],
+      "title": "MemoryEvent",
+      "type": "object"
+    },
     "MemoryFolder": {
       "enum": [
         "company",
@@ -3069,6 +3100,136 @@
       ],
       "title": "MemoryFolder",
       "type": "string"
+    },
+    "MemorySlot": {
+      "additionalProperties": false,
+      "description": "A memory line and its history (oldest version first).",
+      "properties": {
+        "entry_id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "current": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MemoryVersion"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "versions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/MemoryVersion"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "entry_id",
+        "label",
+        "current",
+        "versions"
+      ],
+      "title": "MemorySlot",
+      "type": "object"
+    },
+    "MemoryUse": {
+      "additionalProperties": false,
+      "description": "A case decision that read this vendor's memory (from the trace).",
+      "properties": {
+        "case_id": {
+          "type": "string"
+        },
+        "memory_version": {
+          "type": "string"
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "at": {
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "memory_version",
+        "decision",
+        "at"
+      ],
+      "title": "MemoryUse",
+      "type": "object"
+    },
+    "MemoryVersion": {
+      "additionalProperties": false,
+      "description": "One version of one memory line.",
+      "properties": {
+        "entry_id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer"
+        },
+        "text": {
+          "type": "string"
+        },
+        "provenance": {
+          "type": "string"
+        },
+        "source": {
+          "description": "system_of_record | computed | controller | approver | outcome | seed",
+          "type": "string"
+        },
+        "valid_from": {
+          "format": "date",
+          "type": "string"
+        },
+        "change": {
+          "description": "added | updated | forgotten",
+          "type": "string"
+        },
+        "cases": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "people": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "entry_id",
+        "version",
+        "text",
+        "provenance",
+        "source",
+        "valid_from",
+        "change",
+        "cases",
+        "people"
+      ],
+      "title": "MemoryVersion",
+      "type": "object"
     },
     "OnboardingCase": {
       "additionalProperties": false,
@@ -3143,6 +3304,38 @@
             }
           ],
           "default": null
+        },
+        "source": {
+          "default": "app",
+          "description": "app | slack (negotiated in Slack, contract attached)",
+          "type": "string"
+        },
+        "contract_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "auto_approved": {
+          "default": false,
+          "description": "Approved by policy (low risk, every check passed), no human click",
+          "type": "boolean"
+        },
+        "confirmation_email_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -3157,7 +3350,11 @@
         "decided_by",
         "decided_at",
         "decision_comment",
-        "vendor_id"
+        "vendor_id",
+        "source",
+        "contract_id",
+        "auto_approved",
+        "confirmation_email_id"
       ],
       "title": "OnboardingCase",
       "type": "object"
@@ -3388,6 +3585,18 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "contact_email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Becomes the verified contact on file once approved"
         }
       },
       "required": [
@@ -3407,7 +3616,8 @@
         "expected_annual_spend_usd",
         "requested_by",
         "tax_form",
-        "trade_names"
+        "trade_names",
+        "contact_email"
       ],
       "title": "OnboardingRequestIn",
       "type": "object"
@@ -3506,6 +3716,118 @@
         "notes"
       ],
       "title": "OnboardingResult",
+      "type": "object"
+    },
+    "OutboundEmail": {
+      "additionalProperties": false,
+      "description": "An email ReconAI sent or queued. Delivered via Resend when configured; always kept here (the outbox).",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "description": "supplier_discrepancy | onboarding_confirmation | onboarding_received",
+          "type": "string"
+        },
+        "case_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "vendor_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "to": {
+          "description": "Intended recipient (contact on file)",
+          "type": "string"
+        },
+        "delivered_to": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where it actually went (demo redirect inbox)"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "status": {
+          "description": "sent | outbox | failed",
+          "type": "string"
+        },
+        "provider": {
+          "description": "resend | outbox",
+          "type": "string"
+        },
+        "provider_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "idempotency_key": {
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "case_id",
+        "vendor_id",
+        "to",
+        "delivered_to",
+        "subject",
+        "body",
+        "status",
+        "provider",
+        "provider_id",
+        "error",
+        "idempotency_key",
+        "created_at"
+      ],
+      "title": "OutboundEmail",
       "type": "object"
     },
     "PO": {
@@ -3700,6 +4022,93 @@
           "description": "advance-payment credit used",
           "pattern": "^-?\\d+(\\.\\d+)?$",
           "type": "string"
+        },
+        "rail": {
+          "default": "bank",
+          "description": "bank (simulated ACH/wire) | coinbase (USDC on-chain)",
+          "type": "string"
+        },
+        "network": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "e.g. base-sepolia (coinbase rail)"
+        },
+        "onchain_token": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "onchain_amount": {
+          "anyOf": [
+            {
+              "description": "Decimal amount as string",
+              "pattern": "^-?\\d+(\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Token amount sent (testnet: scaled from amount_usd)"
+        },
+        "payee_address": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Vendor master wallet_address, never the invoice's"
+        },
+        "tx_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "explorer_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -3716,7 +4125,15 @@
         "status",
         "gross_amount",
         "discount_amount",
-        "credit_applied"
+        "credit_applied",
+        "rail",
+        "network",
+        "onchain_token",
+        "onchain_amount",
+        "payee_address",
+        "tx_hash",
+        "explorer_url",
+        "error"
       ],
       "title": "Payment",
       "type": "object"
@@ -3732,8 +4149,20 @@
           "type": "string"
         },
         "status": {
-          "description": "scheduled | paid",
+          "description": "scheduled | paid | partially_paid",
           "type": "string"
+        },
+        "rail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Set at release: bank | coinbase"
         },
         "created_by": {
           "type": "string"
@@ -3782,6 +4211,7 @@
         "id",
         "pay_date",
         "status",
+        "rail",
         "created_by",
         "created_at",
         "released_by",
@@ -4549,10 +4979,16 @@
       "properties": {
         "released_by": {
           "type": "string"
+        },
+        "rail": {
+          "default": "bank",
+          "description": "bank (simulated) | coinbase (USDC, Base Sepolia testnet)",
+          "type": "string"
         }
       },
       "required": [
-        "released_by"
+        "released_by",
+        "rail"
       ],
       "title": "ReleaseRequest",
       "type": "object"
@@ -5297,6 +5733,68 @@
       "title": "TagScore",
       "type": "object"
     },
+    "TreasuryStatus": {
+      "additionalProperties": false,
+      "description": "The Coinbase (CDP) treasury wallet that pays vendors on the coinbase rail.",
+      "properties": {
+        "mode": {
+          "description": "live | not_configured",
+          "type": "string"
+        },
+        "network": {
+          "type": "string"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "balances": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "token symbol -> decimal amount",
+          "type": "object"
+        },
+        "usd_scale": {
+          "description": "testnet: USDC sent = amount_usd x usd_scale",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "explorer_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "note": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "network",
+        "address",
+        "balances",
+        "usd_scale",
+        "explorer_url",
+        "note"
+      ],
+      "title": "TreasuryStatus",
+      "type": "object"
+    },
     "Vendor": {
       "additionalProperties": false,
       "properties": {
@@ -5398,6 +5896,18 @@
             }
           ],
           "default": null
+        },
+        "wallet_address": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "On-chain payout address on file (Coinbase rail, testnet). Changed only like bank details: never from an invoice or email"
         }
       },
       "required": [
@@ -5415,7 +5925,8 @@
         "probation_until",
         "contact_email",
         "expected_schedule",
-        "terms"
+        "terms",
+        "wallet_address"
       ],
       "title": "Vendor",
       "type": "object"
@@ -5453,6 +5964,112 @@
       "title": "VendorCheck",
       "type": "object"
     },
+    "VendorContract": {
+      "additionalProperties": false,
+      "description": "A supply contract ReconAI drafted from a Slack negotiation. Terms are what both sides agreed in the thread.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "vendor_name": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "items": {
+          "description": "sku/description, qty, unit, unit_price",
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "total": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "terms": {
+          "$ref": "#/$defs/PaymentTerms"
+        },
+        "delivery": {
+          "default": "",
+          "type": "string"
+        },
+        "warranty": {
+          "default": "",
+          "type": "string"
+        },
+        "other_terms": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "requested_by": {
+          "type": "string"
+        },
+        "channel": {
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "default": "draft",
+          "description": "draft | accepted | onboarding | onboarded | held",
+          "type": "string"
+        },
+        "accepted_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "onboarding_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "vendor_name",
+        "category",
+        "items",
+        "currency",
+        "total",
+        "terms",
+        "delivery",
+        "warranty",
+        "other_terms",
+        "requested_by",
+        "channel",
+        "created_at",
+        "status",
+        "accepted_by",
+        "onboarding_id"
+      ],
+      "title": "VendorContract",
+      "type": "object"
+    },
     "VendorExceptions": {
       "additionalProperties": false,
       "properties": {
@@ -5476,6 +6093,79 @@
         "exceptions"
       ],
       "title": "VendorExceptions",
+      "type": "object"
+    },
+    "VendorMemoryTimeline": {
+      "additionalProperties": false,
+      "properties": {
+        "vendor_id": {
+          "type": "string"
+        },
+        "vendor_name": {
+          "type": "string"
+        },
+        "subject": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "memory_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "slots": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/MemorySlot"
+          },
+          "type": "array"
+        },
+        "uses": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/MemoryUse"
+          },
+          "type": "array"
+        },
+        "events": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/MemoryEvent"
+          },
+          "type": "array"
+        },
+        "sources": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "default": {},
+          "type": "object"
+        }
+      },
+      "required": [
+        "vendor_id",
+        "vendor_name",
+        "subject",
+        "memory_version",
+        "slots",
+        "uses",
+        "events",
+        "sources"
+      ],
+      "title": "VendorMemoryTimeline",
       "type": "object"
     }
   },

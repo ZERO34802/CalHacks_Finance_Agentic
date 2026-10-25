@@ -1,12 +1,14 @@
 // Bill Pay > Bills, organised by lifecycle stage: Overview · For approval · For payment · History.
 // For approval: bulk approve (limits enforced server-side). For payment: Review payments drawer to schedule
-// approved bills and release scheduled runs (preparer can't release). Payments are SIMULATED.
+// approved bills and release scheduled runs (preparer can't release). Bank rail is SIMULATED; the Coinbase rail
+// sends real USDC on Base Sepolia testnet (scaled-down amounts).
 import { Alert, Avatar, Badge, Button, Card, Checkbox, Chip, Divider, Drawer, Group, ScrollArea, Stack, Tabs, Text, TextInput, Tooltip } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconSearch } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import type { ApprovalDecision, PaymentBatch } from "../../types/contracts";
 import { ap } from "../api";
+import { fmtUsdc, microOf, microUsdc, OnchainLine, TreasuryCard, useTreasury } from "../coinbase";
 import { me, useApp } from "../context";
 import { amount, day, shortName, STAGES, sumMoney, usd, when } from "../format";
 import { Avatarish, BillsTable } from "../parts";
@@ -99,11 +101,19 @@ function ReviewPayments({ opened, onClose, selected, onDone }: { opened: boolean
   const [date, setDate] = useState(today());
   const [pick, setPick] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+  const [wallets, setWallets] = useState<Record<string, string | null>>({});
   const who = me(seat);
+  const tr = useTreasury(opened);
   useEffect(() => { if (opened) ap.runs().then(setRuns).catch(() => {}); }, [opened, lastEvent, bills]);
   const toSchedule = bills.filter((b) => selected.includes(b.case_id) && b.stage === "ready_to_pay");
   const scheduled = runs.filter((r) => r.status === "scheduled");
-  useEffect(() => { setPick(scheduled.filter((r) => r.created_by !== who.email).map((r) => r.id)); }, [runs.length, seat, opened]);
+  const partial = runs.filter((r) => r.status === "partially_paid");
+  const onchain = runs.filter((r) => r.status === "paid" && r.rail === "coinbase").sort((a, b) => (b.released_at ?? "").localeCompare(a.released_at ?? "")).slice(0, 5);
+  const vname = (id: string) => shortName(vendors[id]?.name ?? id);
+  const noWallet = (r: PaymentBatch) => [...new Set(r.payments.filter((p) => p.status !== "paid" && !(wallets[p.vendor_id] ?? vendors[p.vendor_id]?.wallet_address)).map((p) => vname(p.vendor_id)))];
+  const scale = tr.t?.usd_scale ?? "0.000001";
+  const need = (rs: PaymentBatch[]) => rs.flatMap((r) => r.payments.filter((p) => p.status !== "paid")).reduce((n, p) => n + microUsdc(p.amount_usd, scale), 0n);
+  useEffect(() => { setPick(scheduled.filter((r) => r.created_by !== who.email).map((r) => r.id)); }, [scheduled.map((r) => r.id).join(), seat, opened]);
   const byDate = useMemo(() => {
     const m = new Map<string, PaymentBatch[]>();
     scheduled.forEach((r) => m.set(r.pay_date, [...(m.get(r.pay_date) ?? []), r]));
@@ -119,18 +129,29 @@ function ReviewPayments({ opened, onClose, selected, onDone }: { opened: boolean
     } catch (e) { notifications.show({ color: "red", title: "Can't schedule", message: e instanceof Error ? e.message : String(e) }); }
     finally { setBusy(false); }
   };
-  const release = async () => {
+  const release = async (ids: string[], rail: "bank" | "coinbase") => {
     setBusy(true);
-    const res = await Promise.allSettled(pick.map((id) => ap.release(id, who.email)));
-    const bad = res.map((r, i) => (r.status === "rejected" ? `${pick[i]}: ${(r.reason as Error).message}` : null)).filter(Boolean);
-    notifications.show({ color: bad.length ? "orange" : "green", title: `${res.length - bad.length} run(s) released (simulated)`, message: bad.join(" · ") || "Paid." });
+    const res = await Promise.allSettled(ids.map((id) => ap.release(id, who.email, rail)));
+    const bad = res.map((r, i) => (r.status === "rejected" ? `${ids[i]}: ${(r.reason as Error).message}` : null)).filter(Boolean);
+    const done = res.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
+    const failed = done.flatMap((b) => b.payments.filter((p) => p.status === "failed"));
+    if (rail === "bank") notifications.show({ color: bad.length ? "orange" : "green", title: `${done.length} run(s) released (simulated)`, message: bad.join(" · ") || "Paid." });
+    else notifications.show({ color: bad.length || failed.length ? "orange" : "green", autoClose: 10000,
+      title: `${done.length} run(s) sent via Coinbase · testnet`,
+      message: [done.length ? `${done.flatMap((b) => b.payments).filter((p) => p.status === "paid" && p.tx_hash).length} USDC transfer(s) confirmed on-chain${failed.length ? `, ${failed.length} failed (retry below)` : ""}.` : "", ...bad].filter(Boolean).join(" · ") });
     onDone(); setRuns(await ap.runs()); setBusy(false);
+    if (rail === "coinbase") tr.reload();
   };
-  const pickedTotal = sumMoney(scheduled.filter((r) => pick.includes(r.id)).map((r) => r.total_usd));
+  const picked = scheduled.filter((r) => pick.includes(r.id));
+  const pickedTotal = sumMoney(picked.map((r) => r.total_usd));
+  const pickedNeed = need(picked);
+  const lowFunds = tr.live && tr.t ? microOf(tr.t.balances.USDC ?? "0") < pickedNeed : false;
+  const missing = [...new Set(picked.flatMap(noWallet))];
 
   return (
     <Drawer opened={opened} onClose={onClose} position="right" size={560} title={<Text fz={26} fw={650}>Review payments</Text>} scrollAreaComponent={ScrollArea.Autosize}>
       <Stack>
+        <TreasuryCard tr={tr} onWallets={(vs) => setWallets(Object.fromEntries(vs.map((v) => [v.id, v.wallet_address])))} />
         {toSchedule.length > 0 && (
           <Card withBorder>
             <Text fw={600} mb={4}>Schedule {toSchedule.length} approved bill{toSchedule.length > 1 ? "s" : ""}</Text>
@@ -163,6 +184,7 @@ function ReviewPayments({ opened, onClose, selected, onDone }: { opened: boolean
               <Text fz="xs" c="dimmed" mb={6}>{rs.reduce((n, r) => n + r.payments.length, 0)} bill(s)</Text>
               {rs.map((r) => {
                 const mineRun = r.created_by === who.email;
+                const nw = tr.live ? noWallet(r) : [];
                 return (
                   <Card key={r.id} withBorder padding="sm" mb="xs" bg={pick.includes(r.id) ? "brand.0" : undefined}>
                     <Group justify="space-between" wrap="nowrap">
@@ -175,7 +197,8 @@ function ReviewPayments({ opened, onClose, selected, onDone }: { opened: boolean
                       </Group>
                       <Stack gap={0} align="flex-end"><Text fz="sm" ff="monospace">{usd(r.total_usd)}</Text>{r.payments.length > 1 && <Badge size="xs" variant="outline">Batched</Badge>}</Stack>
                     </Group>
-                    <Text fz={10} c="dimmed" mt={4}>prepared by {r.created_by} · {when(r.created_at)}</Text>
+                    <Text fz={10} c="dimmed" mt={4}>prepared by {r.created_by} · {when(r.created_at)}{tr.live && ` · ${fmtUsdc(need([r]))} on ${tr.sandbox ? "sandbox" : "testnet"}`}</Text>
+                    {nw.length > 0 && <Text fz="xs" c="orange.8" mt={2}>No payout wallet on file for {nw.join(", ")}: Coinbase release will be refused.</Text>}
                   </Card>
                 );
               })}
@@ -184,10 +207,48 @@ function ReviewPayments({ opened, onClose, selected, onDone }: { opened: boolean
         </div>
         {scheduled.length > 0 && <>
           <Divider />
-          <Group justify="space-between"><div><Text fz="xs" c="dimmed">Releasing</Text><Text fz={22} fw={600}>{usd(pickedTotal)}</Text></div>
-            <Button color="green" disabled={!pick.length} loading={busy} onClick={release}>Release payments</Button></Group>
-          <Alert variant="light" color="gray">Simulated. Payments always go to the vendor master's account, never the one printed on an invoice.</Alert>
+          <Group justify="space-between" align="flex-end">
+            <div><Text fz="xs" c="dimmed">Releasing</Text><Text fz={22} fw={600}>{usd(pickedTotal)}</Text>
+              {tr.live && picked.length > 0 && <Text fz="xs" c="dimmed">{fmtUsdc(pickedNeed)} via Coinbase · {tr.sandbox ? "sandbox" : "testnet"}</Text>}</div>
+            <Group gap="xs">
+              <Button variant="default" disabled={!picked.length} loading={busy} onClick={() => release(picked.map((r) => r.id), "bank")}>Release (bank · simulated)</Button>
+              <Tooltip label={tr.t ? "Coinbase isn't configured (CDP keys missing)" : "Checking the Coinbase treasury…"} disabled={tr.live}>
+                <span><Button color="green" disabled={!picked.length || !tr.live} loading={busy} onClick={() => release(picked.map((r) => r.id), "coinbase")}>Release via Coinbase (USDC)</Button></span>
+              </Tooltip>
+            </Group>
+          </Group>
+          {tr.live && picked.length > 0 && lowFunds && <Alert variant="light" color="orange" p="xs">Treasury has {fmtUsdc(microOf(tr.t?.balances.USDC ?? "0"))}; these runs need {fmtUsdc(pickedNeed)}. Fund from the faucet first.</Alert>}
+          {tr.live && missing.length > 0 && <Alert variant="light" color="orange" p="xs">{missing.join(", ")} {missing.length > 1 ? "have" : "has"} no payout wallet in the vendor master. Create vendor payout wallets above, or release on the bank rail.</Alert>}
+          <Alert variant="light" color="gray">Bank release is simulated. Coinbase sends real USDC on Base Sepolia testnet, scaled down from the USD amount. Payments always go to the vendor master's account or wallet, never one printed on an invoice.</Alert>
         </>}
+        {partial.length > 0 && <div>
+          <Text fw={600} mb={4}>Partially paid on Coinbase</Text>
+          {partial.map((r) => {
+            const mineRun = r.created_by === who.email;
+            return (
+              <Card key={r.id} withBorder padding="sm" mb="xs" style={{ borderColor: "var(--mantine-color-orange-4)" }}>
+                <Group justify="space-between" mb={4}><Text fz="sm" fw={500}>{r.id} · {usd(r.total_usd)}</Text>
+                  <Badge size="xs" color="orange" variant="light">{r.payments.filter((p) => p.status === "paid").length}/{r.payments.length} paid</Badge></Group>
+                {r.payments.map((p) => <OnchainLine key={p.id} p={p} vendor={vname(p.vendor_id)} />)}
+                <Group justify="space-between" mt={6}>
+                  <Text fz={10} c="dimmed">prepared by {r.created_by} · released by {r.released_by}{r.released_at && ` · ${when(r.released_at)}`}</Text>
+                  <Tooltip label={mineRun ? "You prepared this run" : "Coinbase isn't configured"} disabled={!mineRun && tr.live}>
+                    <span><Button size="xs" color="orange" variant="light" disabled={mineRun || !tr.live} loading={busy} onClick={() => release([r.id], "coinbase")}>Retry failed on Coinbase</Button></span>
+                  </Tooltip>
+                </Group>
+              </Card>
+            );
+          })}
+        </div>}
+        {onchain.length > 0 && <div>
+          <Text fw={600} mb={4}>Paid via Coinbase · {tr.sandbox ? "sandbox (simulated)" : "testnet"}</Text>
+          {onchain.map((r) => (
+            <Card key={r.id} withBorder padding="sm" mb="xs">
+              <Group justify="space-between" mb={2}><Text fz="sm" fw={500}>{r.id} · {usd(r.total_usd)}</Text><Text fz={10} c="dimmed">released by {r.released_by}{r.released_at && ` · ${when(r.released_at)}`}</Text></Group>
+              {r.payments.map((p) => <OnchainLine key={p.id} p={p} vendor={vname(p.vendor_id)} />)}
+            </Card>
+          ))}
+        </div>}
       </Stack>
     </Drawer>
   );

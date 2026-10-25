@@ -23,13 +23,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [seat, setSeatState] = useState<Seat>(() => (localStorage.getItem("seat") as Seat) || "approver");
   const [route, setRoute] = useState(readRoute);
 
-  const refresh = useCallback(() => { ap.bills().then(setBills).catch(() => {}); }, []);
+  const refresh = useCallback(() => {
+    ap.bills().then(setBills).catch(() => {});
+    ap.vendors().then((v) => setVendors(Object.fromEntries(v.map((x) => [x.id, x])))).catch(() => {});  // wallets, terms, onboarded vendors
+  }, []);
   const go = (path: string) => { location.hash = `/${path}`; };
   const setSeat = (s: Seat) => { setSeatState(s); try { localStorage.setItem("seat", s); } catch { /* private mode */ } };
 
   useEffect(() => {
     refresh();
-    ap.vendors().then((v) => setVendors(Object.fromEntries(v.map((x) => [x.id, x])))).catch(() => {});
     const on = () => { setRoute(readRoute()); window.scrollTo({ top: 0 }); };
     window.addEventListener("hashchange", on);
     return () => window.removeEventListener("hashchange", on);

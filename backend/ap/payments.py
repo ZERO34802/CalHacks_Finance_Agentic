@@ -1,4 +1,5 @@
-"""Payment runs. Owner: D. SIMULATED: nothing leaves the building; "paid" means the run was released.
+"""Payment runs. Owner: D. Two rails at release: "bank" (SIMULATED: nothing leaves the building; "paid" means the
+run was released) and "coinbase" (real USDC transfers on Base Sepolia testnet, backend/ap/coinbase.py).
 
 Controls enforced here, in code:
 - only bills the Poster booked to AP can be scheduled, for at most the booked amount (the undisputed part of a
@@ -8,6 +9,8 @@ Controls enforced here, in code:
 - payment always goes to the vendor master's bank account, never the one printed on the invoice
 - a bill can't be in two active payments
 - whoever prepared a run cannot release it
+- coinbase rail: pay-to is the vendor master's wallet; a failed transfer leaves the run partially paid (retry
+  re-sends only the unpaid lines)
 """
 from __future__ import annotations
 
@@ -110,7 +113,7 @@ def create_batch(store: Store, pay: PaymentStore, policy: Policy, case_ids: list
                  created_by: str, now: datetime, methods: Optional[dict[str, str]] = None) -> PaymentBatch:
     if not case_ids:
         raise PaymentError("Pick at least one bill.")
-    if pay_date < now.date():
+    if pay_date < now.astimezone().date():  # the scheduler's local day, not UTC (evenings in PT are already tomorrow in UTC)
         raise PaymentError("The pay date is in the past.")
     batch_id = f"run_{uuid4().hex[:6]}"
     payments, total = [], Decimal("0.00")
@@ -162,17 +165,23 @@ def _probation_block(case, vendor, store):
 
 
 def release(pay: PaymentStore, batch_id: str, released_by: str, now: datetime,
-            store: Optional[Store] = None, policy: Optional[Policy] = None) -> PaymentBatch:
+            store: Optional[Store] = None, policy: Optional[Policy] = None, rail: str = "bank") -> PaymentBatch:
     batch = pay.get(batch_id)
     if batch is None:
         raise PaymentError("No such payment run.")
-    if batch.status != "scheduled":
+    retry = batch.status == "partially_paid"
+    if batch.status != "scheduled" and not retry:
         raise PaymentError("This run was already released.")
+    if retry and rail != "coinbase":
+        raise PaymentError("Retry a partially paid run on the Coinbase rail it was released on.")
+    if rail not in ("bank", "coinbase"):
+        raise PaymentError("rail must be bank or coinbase")
     if released_by == batch.created_by:
         raise PaymentError(f"{released_by} prepared this run and cannot also release it.")
+    unpaid = [p for p in batch.payments if p.status != "paid"]
     if store is not None and policy is not None:  # re-check at release: nothing changed since it was scheduled
         cases = store.list_cases()
-        for p in batch.payments:
+        for p in unpaid:
             case = store.get_case(p.case_id)
             owed = S.payable(case, cases) if case else None
             if owed is None or (p.gross_amount if p.gross_amount is not None else p.amount) > owed:
@@ -182,9 +191,24 @@ def release(pay: PaymentStore, batch_id: str, released_by: str, now: datetime,
             block = payment_block(signals(case, vendor, policy, store)) or S.oob_problem(case)
             if block:
                 raise PaymentError(f"{p.case_id}: {block}")
-    batch.status, batch.released_by, batch.released_at = "paid", released_by, now
-    for p in batch.payments:
-        p.status = "paid"
+    if rail == "coinbase":
+        from backend.ap import coinbase
+        cb = coinbase.get_rail()
+        if cb is None:
+            raise PaymentError("Coinbase isn't configured: set CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET.")
+        if store is None:
+            raise PaymentError("Coinbase release needs the vendor master.")
+        vendors = {v.id: v for v in store.list_vendors()}
+        try:
+            coinbase.settle(batch.payments, vendors, cb)
+        except coinbase.RailError as e:
+            raise PaymentError(str(e)) from e
+        batch.status = "paid" if all(p.status == "paid" for p in batch.payments) else "partially_paid"
+    else:
+        batch.status = "paid"
+        for p in batch.payments:
+            p.status = "paid"
+    batch.rail, batch.released_by, batch.released_at = rail, released_by, now
     pay.save(batch)
     return batch
 

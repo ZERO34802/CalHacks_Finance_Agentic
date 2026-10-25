@@ -41,6 +41,7 @@ class Policy(BaseModel):
     probation: dict[str, Any] = {}
     queue: dict[str, Any] = {}
     metrics: dict[str, Any] = {}
+    onboarding: dict[str, Any] = {}
 
 
 @lru_cache

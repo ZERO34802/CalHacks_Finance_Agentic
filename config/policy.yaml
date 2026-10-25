@@ -55,3 +55,6 @@ queue:                # priority = weights . features (A computes; higher = soon
 metrics:              # ESTIMATES, labeled as such in the UI
   minutes_saved_clean: 6
   minutes_saved_exception: 45
+
+onboarding:           # vendor onboarding from a Slack contract (CLAUDE.md 10d)
+  auto_approve_low_risk: true   # every check passed -> approved by policy, no human click; else a controller decides

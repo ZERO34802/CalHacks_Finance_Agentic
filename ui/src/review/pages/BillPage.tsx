@@ -1,20 +1,23 @@
 // One bill, three panes (layout modelled on bill-pay review screens):
 //   left   bill list grouped by stage, search, Prev/Next (K / J)
 //   centre verdict + checks, payment status, vendor, bill details, line items + GL coding, payment method,
-//          approvals chain; tabs for Activity, Agent trace, Ask ReconAI; sticky actions
+//          approvals chain; tabs for Activity, Agent trace, Emails (sent to the vendor automatically), Ask ReconAI; sticky actions
 //   right  the invoice as extracted, every document, the email. Supplier text is UNTRUSTED: plain text only.
 import {
   ActionIcon, Alert, Anchor, Badge, Box, Button, Card, Group, Loader, Paper, ScrollArea, Select, SimpleGrid, Stack, Stepper,
   Table, Tabs, Text, Textarea, TextInput, ThemeIcon, Timeline, Tooltip,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconAlertTriangle, IconArrowLeft, IconCheck, IconCircleCheck, IconSparkles, IconX } from "@tabler/icons-react";
+import { IconAlertTriangle, IconArrowLeft, IconCheck, IconCircleCheck, IconMail, IconSparkles, IconX } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { ApprovalDecision, BillDetail, ChatMessage, PaymentBatch, ReviewPacket } from "../../types/contracts";
+import type { ApprovalDecision, BillDetail, ChatMessage, OutboundEmail, PaymentBatch, ReviewPacket } from "../../types/contracts";
 import { ap } from "../api";
 import { me, useApp } from "../context";
 import { amount, day, due, findingColor, PEOPLE, shortName, STAGES, stage, stepColor, when, type Seat } from "../format";
+import { EmailCard, emailGist, emailStatus } from "../emails";
 import { Avatarish, StageBadge } from "../parts";
+
+const short = (h?: string | null) => (h ? `${h.slice(0, 6)}…${h.slice(-4)}` : "—");
 
 type Msg = ChatMessage & { source?: string };
 const METHOD: Record<string, string> = { ach: "ACH (direct deposit)", wire: "Domestic wire", intl_wire: "International wire (SWIFT)", check: "Check by mail" };
@@ -29,9 +32,12 @@ export default function BillPage({ id, tab: tabParam }: { id: string; tab?: stri
   const [packet, setPacket] = useState<ReviewPacket | null>(null);
   const [tab, setTab] = useState<string>(tabParam === "ask" ? "ask" : "overview");
   const [msgs, setMsgs] = useState<Msg[]>([]);
+  const [emails, setEmails] = useState<OutboundEmail[]>([]);
+  const loadEmails = () => { ap.emails({ case_id: id }).then(setEmails).catch(() => setEmails([])); };
   const load = () => {
     ap.bill(id).then(setD).catch(() => setD(null));
     ap.review(id).then(setPacket).catch(() => setPacket(null));
+    loadEmails();
   };
   useEffect(load, [id]);
   useEffect(() => { if (tabParam === "ask") setTab("ask"); }, [tabParam]);
@@ -55,13 +61,15 @@ export default function BillPage({ id, tab: tabParam }: { id: string; tab?: stri
                   <Tabs.Tab value="overview">Overview</Tabs.Tab>
                   <Tabs.Tab value="activity" rightSection={<Badge size="xs" variant="light">{d.activity.length}</Badge>}>Activity</Tabs.Tab>
                   <Tabs.Tab value="trace">Agent trace</Tabs.Tab>
+                  <Tabs.Tab value="emails" leftSection={<IconMail size={14} />} rightSection={emails.length ? <Badge size="xs" variant="light">{emails.length}</Badge> : null}>Emails</Tabs.Tab>
                   <Tabs.Tab value="ask" leftSection={<IconSparkles size={14} />}>Ask ReconAI</Tabs.Tab>
                 </Tabs.List>
               </Tabs>
               {d.bill.stage === "processing" ? <Running packet={packet} />
-                : tab === "overview" ? <Overview d={d} packet={packet} onAsk={(q) => { pendingQ.current = q; setTab("ask"); }} />
+                : tab === "overview" ? <Overview d={d} packet={packet} emails={emails} onEmails={() => setTab("emails")} onAsk={(q) => { pendingQ.current = q; setTab("ask"); }} />
                   : tab === "activity" ? <Activity d={d} />
                     : tab === "trace" ? <Trace packet={packet} />
+                      : tab === "emails" ? <Emails id={id} emails={emails} reload={loadEmails} />
                       : <Chat id={id} packet={packet} msgs={msgs} setMsgs={setMsgs} />}
               <Box h={40} />
             </ScrollArea>
@@ -134,13 +142,14 @@ const VERDICT = {
   risk: { title: "Higher risk of fraud", color: "red", icon: <IconAlertTriangle size={18} /> },
 } as const;
 
-function Overview({ d, packet, onAsk }: { d: BillDetail; packet: ReviewPacket; onAsk: (q: string) => void }) {
+function Overview({ d, packet, emails, onEmails, onAsk }: { d: BillDetail; packet: ReviewPacket; emails: OutboundEmail[]; onEmails: () => void; onAsk: (q: string) => void }) {
   const { vendors, go } = useApp();
   const b = d.bill, v = vendors[b.vendor_id], cur = b.currency;
   const vd = VERDICT[d.verdict as keyof typeof VERDICT] ?? VERDICT.review;
   const failed = d.checks.filter((c) => !c.passed), passed = d.checks.filter((c) => c.passed);
   const [showAll, setShowAll] = useState(false);
   const po = b.po_number ?? "—";
+  const sent = emails.filter((e) => e.kind === "supplier_discrepancy").at(-1);
   return (
     <Stack gap="xl">
       <Card withBorder padding="lg" style={{ borderColor: `var(--mantine-color-${vd.color}-4)` }} bg={d.verdict === "risk" ? "red.0" : undefined}>
@@ -161,6 +170,14 @@ function Overview({ d, packet, onAsk }: { d: BillDetail; packet: ReviewPacket; o
         {b.payable && b.payable !== b.amount && <Alert mt="sm" color="blue" variant="light" title="Pay what's clean">
           The undisputed {amount(b.payable, cur)} is booked and payable; {amount(b.disputed, cur)} stays held until the vendor credits or corrects it{b.sub_case_ids.length ? ` (${b.sub_case_ids.join(", ")})` : ""}.</Alert>}
         {!b.invoice_no && b.warning && <Alert mt="sm" color="orange" variant="light">{b.warning}</Alert>}
+        {sent && (
+          <Group gap={6} mt="sm" wrap="nowrap" style={{ cursor: "pointer" }} onClick={onEmails}>
+            <IconMail size={15} color={`var(--mantine-color-${emailStatus(sent).color}-7)`} style={{ flexShrink: 0 }} />
+            <Text fz="sm" truncate>{sent.status === "sent" ? "Emailed" : sent.status === "failed" ? "Email to" : "Queued email to"} {shortName(b.vendor_name)} ({sent.to}) · {when(sent.created_at)} · {emailGist(sent)}
+              {sent.status === "failed" ? " · delivery failed" : sent.status === "outbox" ? " · in outbox" : ""}</Text>
+            <Anchor fz="sm" style={{ flexShrink: 0 }}>View</Anchor>
+          </Group>
+        )}
         {d.verdict === "risk" && <Text fz="sm" fw={600} c="red.8" mt="sm">Call the vendor on the number in the vendor master (never the one on the invoice or email) before paying.</Text>}
         <Text fz="sm" fw={600} mt="md" mb={4}>Checks passed</Text>
         <Stack gap={3}>
@@ -254,7 +271,8 @@ function PaymentStatus({ d }: { d: BillDetail }) {
   const s = d.bill.stage;
   const active = s === "paid" ? 4 : s === "scheduled" ? 2 : s === "ready_to_pay" ? 1 : 0;
   const label: Record<string, string> = { needs_review: "Awaiting approval", on_hold: "On hold", blocked: "Payment blocked", ready_to_pay: "Approved, not scheduled",
-    scheduled: "Scheduled", paid: "Paid (simulated)", rejected: "Rejected", processing: "Processing" };
+    scheduled: "Scheduled", rejected: "Rejected", processing: "Processing", failed: "Payment failed",
+    paid: d.bill.payment?.rail === "coinbase" ? `Paid via Coinbase${d.bill.payment.network === "sandbox" ? " (sandbox)" : " (testnet)"}` : "Paid (simulated bank)" };
   return (
     <div>
       <Group justify="space-between" mb="xs">
@@ -345,11 +363,19 @@ function ActionBar({ d, onDone }: { d: BillDetail; onDone: (text?: string) => vo
       notifications.show({ color: "brand", title: "Scheduled", message: text }); onDone(text);
     } catch (e) { fail(e, approveFirst ? "Couldn't approve & schedule" : "Couldn't schedule"); onDone(); } finally { setBusy(null); }
   };
-  const release = async () => {
+  const release = async (rail: "bank" | "coinbase") => {
     if (!run) return;
-    setBusy("release");
-    try { await ap.release(run.id, who.email); const t = `Released by ${who.name}. Paid (simulated).`; notifications.show({ color: "green", title: "Paid", message: t }); onDone(t); }
-    catch (e) { fail(e, "Can't release"); } finally { setBusy(null); }
+    setBusy(rail);
+    try {
+      const r = await ap.release(run.id, who.email, rail);
+      const p = r.payments.find((x) => x.case_id === b.case_id);
+      const t = rail === "coinbase"
+        ? (p?.status === "paid" ? `Released by ${who.name} via Coinbase: ${p.onchain_amount} USDC sent to ${short(p.payee_address)}${p.network === "sandbox" ? " (sandbox, simulated)" : ""} · tx ${short(p.tx_hash)}.`
+          : `Coinbase transfer failed: ${p?.error ?? "see Review payments"}. Retry from Bills → For payment.`)
+        : `Released by ${who.name}. Paid (simulated bank transfer).`;
+      notifications.show({ color: p?.status === "paid" || rail === "bank" ? "green" : "red", title: p?.status === "failed" ? "Not paid" : "Paid", message: t, autoClose: 9000 });
+      onDone(t);
+    } catch (e) { fail(e, rail === "coinbase" ? "Can't release via Coinbase" : "Can't release"); } finally { setBusy(null); }
   };
 
   let left: ReactNode = null, right: ReactNode = null;
@@ -372,9 +398,16 @@ function ActionBar({ d, onDone }: { d: BillDetail; onDone: (text?: string) => vo
     const self = run?.created_by === who.email;
     left = <Text fz="xs" c="dimmed">{run ? `${run.id} · prepared by ${run.created_by}` : "Scheduled"}</Text>;
     right = <Tooltip label="You prepared this payment. Someone else must release it." disabled={!self}>
-      <Button color="green" disabled={self || !run} loading={busy === "release"} onClick={release}>Release payment</Button></Tooltip>;
+      <Group gap="xs" wrap="nowrap">
+        <Button variant="default" disabled={self || !run} loading={busy === "bank"} onClick={() => release("bank")}>Release · bank (simulated)</Button>
+        <Button color="green" disabled={self || !run} loading={busy === "coinbase"} onClick={() => release("coinbase")}>Release via Coinbase (USDC)</Button>
+      </Group></Tooltip>;
   } else if (b.stage === "paid") {
-    left = <Text fz="xs" c="dimmed">Paid {b.payment && day(b.payment.pay_date)} · {b.payment && METHOD[b.payment.method]} → •••• {b.payment?.pay_to_last4} (simulated)</Text>;
+    const pm = b.payment;
+    left = pm?.rail === "coinbase"
+      ? <Text fz="xs" c="dimmed" truncate>Paid via Coinbase · {pm.onchain_amount} USDC → {short(pm.payee_address)} · tx {pm.explorer_url
+          ? <Anchor href={pm.explorer_url} target="_blank" fz="xs">{short(pm.tx_hash)}</Anchor> : short(pm.tx_hash)}{pm.network === "sandbox" ? " (sandbox, simulated)" : " · Base Sepolia testnet"}</Text>
+      : <Text fz="xs" c="dimmed">Paid {pm && day(pm.pay_date)} · {pm && METHOD[pm.method]} → •••• {pm?.pay_to_last4} (simulated)</Text>;
   } else if (b.stage === "rejected") {
     left = <Text fz="xs" c="dimmed">Rejected. Nothing will be paid.</Text>;
   }
@@ -403,6 +436,29 @@ function Activity({ d }: { d: BillDetail }) {
     <Timeline active={d.activity.length} bulletSize={14} lineWidth={2}>
       {d.activity.map((a, i) => <Timeline.Item key={i} title={<Text fz="sm">{a.text}</Text>}><Text fz="xs" c="dimmed">{a.actor} · {when(a.at)}</Text></Timeline.Item>)}
     </Timeline>
+  );
+}
+
+function Emails({ id, emails, reload }: { id: string; emails: OutboundEmail[]; reload: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const retry = async () => {
+    setBusy(true);
+    try {
+      const out = await ap.sendCaseEmails(id);
+      const ok = out.filter((e) => e.status === "sent").length;
+      notifications.show({ color: ok === out.length ? "green" : "orange", title: "Delivery retried", message: `${ok} of ${out.length} sent` });
+      reload();
+    } catch (e) { notifications.show({ color: "red", title: "Couldn't retry", message: e instanceof Error ? e.message : String(e) }); } finally { setBusy(false); }
+  };
+  if (!emails.length) return <Text fz="sm" c="dimmed">No emails sent for this bill. When the agents flag a mismatch, ReconAI emails the vendor's contact on file with the reasoning.</Text>;
+  return (
+    <Stack>
+      <Group justify="space-between">
+        <Text fz="sm" c="dimmed">Sent automatically when the agents flagged this bill. Always to the contact on file, never the invoice's reply-to.</Text>
+        {emails.some((e) => e.status !== "sent") && <Button size="compact-sm" variant="light" loading={busy} onClick={retry}>Retry delivery</Button>}
+      </Group>
+      {emails.map((e) => <EmailCard key={e.id} e={e} />)}
+    </Stack>
   );
 }
 

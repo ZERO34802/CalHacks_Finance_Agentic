@@ -444,6 +444,26 @@ export interface Payment {
    * advance-payment credit used
    */
   credit_applied: string;
+  /**
+   * bank (simulated ACH/wire) | coinbase (USDC on-chain)
+   */
+  rail: string;
+  /**
+   * e.g. base-sepolia (coinbase rail)
+   */
+  network: string | null;
+  onchain_token: string | null;
+  /**
+   * Token amount sent (testnet: scaled from amount_usd)
+   */
+  onchain_amount: string | null;
+  /**
+   * Vendor master wallet_address, never the invoice's
+   */
+  payee_address: string | null;
+  tx_hash: string | null;
+  explorer_url: string | null;
+  error: string | null;
 }
 /**
  * An early-payment discount on one bill, computed in code from the vendor's terms.
@@ -1320,6 +1340,66 @@ export interface MemoryEntry {
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "MemoryEvent".
+ */
+export interface MemoryEvent {
+  /**
+   * skill_change | memory_use
+   */
+  kind: string;
+  at: string;
+  label: string;
+  case_ids: string[];
+}
+/**
+ * A memory line and its history (oldest version first).
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "MemorySlot".
+ */
+export interface MemorySlot {
+  entry_id: string;
+  label: string;
+  current: MemoryVersion | null;
+  versions: MemoryVersion[];
+}
+/**
+ * One version of one memory line.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "MemoryVersion".
+ */
+export interface MemoryVersion {
+  entry_id: string;
+  version: number;
+  text: string;
+  provenance: string;
+  /**
+   * system_of_record | computed | controller | approver | outcome | seed
+   */
+  source: string;
+  valid_from: string;
+  /**
+   * added | updated | forgotten
+   */
+  change: string;
+  cases: string[];
+  people: string[];
+}
+/**
+ * A case decision that read this vendor's memory (from the trace).
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "MemoryUse".
+ */
+export interface MemoryUse {
+  case_id: string;
+  memory_version: string;
+  decision: string | null;
+  at: string;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "OnboardingCase".
  */
 export interface OnboardingCase {
@@ -1347,6 +1427,16 @@ export interface OnboardingCase {
   decided_at: string | null;
   decision_comment: string;
   vendor_id: string | null;
+  /**
+   * app | slack (negotiated in Slack, contract attached)
+   */
+  source: string;
+  contract_id: string | null;
+  /**
+   * Approved by policy (low risk, every check passed), no human click
+   */
+  auto_approved: boolean;
+  confirmation_email_id: string | null;
 }
 /**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
@@ -1376,6 +1466,10 @@ export interface OnboardingRequestIn {
    */
   tax_form: string | null;
   trade_names: string[];
+  /**
+   * Becomes the verified contact on file once approved
+   */
+  contact_email: string | null;
 }
 /**
  * One onboarding check as shown in the UI (D): CRS or code, pass/warn/fail.
@@ -1457,6 +1551,43 @@ export interface OnboardingResult {
   notes: string[];
 }
 /**
+ * An email ReconAI sent or queued. Delivered via Resend when configured; always kept here (the outbox).
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "OutboundEmail".
+ */
+export interface OutboundEmail {
+  id: string;
+  /**
+   * supplier_discrepancy | onboarding_confirmation | onboarding_received
+   */
+  kind: string;
+  case_id: string | null;
+  vendor_id: string | null;
+  /**
+   * Intended recipient (contact on file)
+   */
+  to: string;
+  /**
+   * Where it actually went (demo redirect inbox)
+   */
+  delivered_to: string | null;
+  subject: string;
+  body: string;
+  /**
+   * sent | outbox | failed
+   */
+  status: string;
+  /**
+   * resend | outbox
+   */
+  provider: string;
+  provider_id: string | null;
+  error: string | null;
+  idempotency_key: string;
+  created_at: string;
+}
+/**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "PaidInvoice".
  */
@@ -1483,9 +1614,13 @@ export interface PaymentBatch {
   id: string;
   pay_date: string;
   /**
-   * scheduled | paid
+   * scheduled | paid | partially_paid
    */
   status: string;
+  /**
+   * Set at release: bank | coinbase
+   */
+  rail: string | null;
   created_by: string;
   created_at: string;
   released_by: string | null;
@@ -1683,6 +1818,10 @@ export interface QueueItem {
  */
 export interface ReleaseRequest {
   released_by: string;
+  /**
+   * bank (simulated) | coinbase (USDC, Base Sepolia testnet)
+   */
+  rail: string;
 }
 /**
  * Everything the reviewer gets once the background run is done.
@@ -1842,6 +1981,32 @@ export interface StageStat {
   avg_ms: number | null;
 }
 /**
+ * The Coinbase (CDP) treasury wallet that pays vendors on the coinbase rail.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "TreasuryStatus".
+ */
+export interface TreasuryStatus {
+  /**
+   * live | not_configured
+   */
+  mode: string;
+  network: string;
+  address: string | null;
+  /**
+   * token symbol -> decimal amount
+   */
+  balances: {
+    [k: string]: string;
+  };
+  /**
+   * testnet: USDC sent = amount_usd x usd_scale
+   */
+  usd_scale: string;
+  explorer_url: string | null;
+  note: string;
+}
+/**
  * This interface was referenced by `ReconAIContracts`'s JSON-Schema
  * via the `definition` "Vendor".
  */
@@ -1870,4 +2035,59 @@ export interface Vendor {
    */
   expected_schedule: string | null;
   terms: PaymentTerms | null;
+  /**
+   * On-chain payout address on file (Coinbase rail, testnet). Changed only like bank details: never from an invoice or email
+   */
+  wallet_address: string | null;
+}
+/**
+ * A supply contract ReconAI drafted from a Slack negotiation. Terms are what both sides agreed in the thread.
+ *
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "VendorContract".
+ */
+export interface VendorContract {
+  id: string;
+  vendor_name: string;
+  category: string;
+  /**
+   * sku/description, qty, unit, unit_price
+   */
+  items: {
+    [k: string]: unknown;
+  }[];
+  currency: string;
+  /**
+   * Decimal amount as string
+   */
+  total: string;
+  terms: PaymentTerms;
+  delivery: string;
+  warranty: string;
+  other_terms: string[];
+  requested_by: string;
+  channel: string;
+  created_at: string;
+  /**
+   * draft | accepted | onboarding | onboarded | held
+   */
+  status: string;
+  accepted_by: string | null;
+  onboarding_id: string | null;
+}
+/**
+ * This interface was referenced by `ReconAIContracts`'s JSON-Schema
+ * via the `definition` "VendorMemoryTimeline".
+ */
+export interface VendorMemoryTimeline {
+  vendor_id: string;
+  vendor_name: string;
+  subject: string | null;
+  memory_version: string | null;
+  slots: MemorySlot[];
+  uses: MemoryUse[];
+  events: MemoryEvent[];
+  sources: {
+    [k: string]: number;
+  };
 }

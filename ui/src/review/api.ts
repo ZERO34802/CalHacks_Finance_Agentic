@@ -2,7 +2,8 @@
 import { API_URL } from "../api";
 import type {
   ApReport, ApSettings, ApprovalRequest, Bill, BillDetail, Case, ChatMessage, ChatReply, IntakeAccepted, MemoryEntry,
-  EarlyPayOffer, OnboardingCase, OnboardingRequestIn, PaymentBatch, Prepayment, PrepaymentQuote, ReviewPacket, Scoreboard, SignOff, Vendor,
+  EarlyPayOffer, OnboardingCase, OnboardingRequestIn, OutboundEmail, PaymentBatch, Prepayment, PrepaymentQuote, ReviewPacket, Scoreboard,
+  SignOff, TreasuryStatus, Vendor, VendorContract, VendorMemoryTimeline,
 } from "../types/contracts";
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
@@ -23,7 +24,17 @@ export const ap = {
   runs: () => call<PaymentBatch[]>("/ap/payments"),
   createRun: (case_ids: string[], pay_date: string, created_by: string, methods: Record<string, string> = {}) =>
     post<PaymentBatch>("/ap/payments", { case_ids, pay_date, created_by, methods }),
-  release: (id: string, released_by: string) => post<PaymentBatch>(`/ap/payments/${id}/release`, { released_by }),
+  release: (id: string, released_by: string, rail: "bank" | "coinbase" = "bank") =>
+    post<PaymentBatch>(`/ap/payments/${id}/release`, { released_by, rail }),
+  treasury: () => call<TreasuryStatus>("/ap/coinbase"),
+  fundTreasury: () => post<Record<string, string>>("/ap/coinbase/faucet", {}),
+  provisionWallets: () => post<Vendor[]>("/ap/coinbase/vendor-wallets", {}),
+  emails: (q: { case_id?: string; vendor_id?: string } = {}) =>
+    call<OutboundEmail[]>(`/emails?${new URLSearchParams(Object.entries(q).filter(([, v]) => v) as [string, string][])}`),
+  sendCaseEmails: (case_id: string) => post<OutboundEmail[]>(`/emails/${case_id}/send`, {}),
+  contracts: () => call<VendorContract[]>("/contracts"),
+  contractPdfUrl: (id: string) => `${API_URL}/contracts/${id}/pdf`,
+  memoryTimeline: (vendor_id: string) => call<VendorMemoryTimeline>(`/memory/vendors/${vendor_id}/timeline`),
   fixtures: () => call<Case[]>("/fixtures"),
   vendors: () => call<Vendor[]>("/vendors"),
   memory: () => call<MemoryEntry[]>("/memory"),

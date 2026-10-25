@@ -1,13 +1,14 @@
 // Vendors: the vendor master (terms, tax, risk, memory, advance payments) and vendor onboarding with CRS checks.
 // Bank details: last 4 only. New vendors: requested inside Helix, verified, approved by a second person.
-import { Alert, Badge, Button, Card, Drawer, Group, NumberInput, Select, SimpleGrid, Stack, Table, Tabs, Text, TextInput, Textarea, ThemeIcon, Tooltip } from "@mantine/core";
+import { Alert, Anchor, Badge, Button, Card, Collapse, Drawer, Group, NumberInput, Select, SimpleGrid, Stack, Table, Tabs, Text, TextInput, Textarea, ThemeIcon, Tooltip } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconAlertTriangle, IconCheck, IconClockPause, IconMinus, IconPlus, IconX } from "@tabler/icons-react";
+import { IconAlertTriangle, IconBrandSlack, IconCheck, IconChevronDown, IconChevronRight, IconClockPause, IconFileText, IconHistory, IconMinus, IconPlus, IconX } from "@tabler/icons-react";
 import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
-import type { MemoryEntry, OnboardingCase, OnboardingRequestIn, Prepayment, PrepaymentQuote, Vendor } from "../../types/contracts";
+import type { MemoryEntry, OnboardingCase, OnboardingRequestIn, OutboundEmail, Prepayment, PrepaymentQuote, Vendor, VendorContract } from "../../types/contracts";
 import { ap } from "../api";
 import { me, useApp } from "../context";
 import { amount, day, PEOPLE, RISK, shortName, sumMoney, usd, when, type Seat } from "../format";
+import { EmailCard, EmailStatusBadge } from "../emails";
 import { Avatarish, BillsTable } from "../parts";
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -15,7 +16,7 @@ const pctText = (p?: string | null) => (p ? `${(Number(p) * 100).toFixed(1).repl
 const terms = (v: Vendor) => (v.terms?.discount_pct ? `${pctText(v.terms.discount_pct).replace("%", "")}/${v.terms.discount_days} net ${v.terms.net_days}` : `net ${v.terms?.net_days ?? 30}`);
 
 export default function Vendors({ openId }: { openId?: string }) {
-  const { vendors, bills } = useApp();
+  const { vendors, bills, go } = useApp();
   const [tab, setTab] = useState<string>("vendors");
   const [memory, setMemory] = useState<MemoryEntry[]>([]);
   const [open, setOpen] = useState<Vendor | null>(null);
@@ -67,6 +68,9 @@ export default function Vendors({ openId }: { openId?: string }) {
             <Table fz="sm"><Table.Tbody>
               <Table.Tr><Table.Td c="dimmed">Also known as</Table.Td><Table.Td>{open.aliases.join(" · ") || "—"}</Table.Td></Table.Tr>
               <Table.Tr><Table.Td c="dimmed">Bank on file</Table.Td><Table.Td ff="monospace">•••• {open.bank_last4} ({open.country === "US" ? "ACH" : "international wire"})</Table.Td></Table.Tr>
+              {open.wallet_address && <Table.Tr><Table.Td c="dimmed">Payout wallet</Table.Td><Table.Td><Tooltip label={open.wallet_address}><Text span ff="monospace" fz="sm">{short(open.wallet_address)}</Text></Tooltip>
+                <Text span fz="xs" c="dimmed"> · Coinbase, testnet (simulated)</Text></Table.Td></Table.Tr>}
+              {open.contact_email && <Table.Tr><Table.Td c="dimmed">Contact on file</Table.Td><Table.Td ff="monospace">{open.contact_email}</Table.Td></Table.Tr>}
               <Table.Tr><Table.Td c="dimmed">Domain</Table.Td><Table.Td ff="monospace">{open.email_domain}</Table.Td></Table.Tr>
               <Table.Tr><Table.Td c="dimmed">Tax ID</Table.Td><Table.Td ff="monospace">{open.tax_id ?? "missing"} · {open.country === "US" ? "W-9" : "W-8BEN-E"}</Table.Td></Table.Tr>
               <Table.Tr><Table.Td c="dimmed">Payment terms</Table.Td><Table.Td>{terms(open)}{open.terms && <Text fz="xs" c="dimmed">{open.terms.source}</Text>}</Table.Td></Table.Tr>
@@ -75,7 +79,8 @@ export default function Vendors({ openId }: { openId?: string }) {
             {of(open).flatMap((b) => b.signals).filter((s) => s.code === "bank_mismatch").map((s, i) =>
               <Alert key={i} color="red" variant="light" title="Bank change requested">{s.detail}</Alert>)}
             <AdvancePayments v={open} />
-            <div><Text fw={600} mb="xs">What the agents remember</Text>
+            <div><Group justify="space-between" mb="xs"><Text fw={600}>What the agents remember</Text>
+              <Button size="compact-sm" variant="light" leftSection={<IconHistory size={14} />} onClick={() => go(`memory/${open.id}`)}>View memory timeline</Button></Group>
               {memory.filter((m) => m.subject === slug(shortName(open.name))).map((m) => (
                 <Group key={m.id} justify="space-between" align="flex-start" py={6} style={{ borderTop: "1px solid var(--mantine-color-gray-2)" }} wrap="nowrap">
                   <Text fz="sm">{m.text}</Text><Text fz="xs" c="brand.7" ff="monospace" ta="right" miw={180}>{m.provenance}<br /><Text span c="dimmed" fz="xs">since {day(m.valid_from)}</Text></Text>
@@ -83,11 +88,28 @@ export default function Vendors({ openId }: { openId?: string }) {
               ))}
               {!memory.some((m) => m.subject === slug(shortName(open.name))) && <Text fz="sm" c="dimmed">Nothing remembered yet.</Text>}
             </div>
+            <VendorEmails vendorId={open.id} />
             <div><Text fw={600} mb="xs">Bills</Text><BillsTable bills={of(open)} footer={false} /></div>
           </Stack>
         )}
       </Drawer>
     </>
+  );
+}
+
+const short = (a: string) => (a.length > 14 ? `${a.slice(0, 6)}…${a.slice(-4)}` : a);
+
+function VendorEmails({ vendorId }: { vendorId: string }) {
+  const [list, setList] = useState<OutboundEmail[]>([]);
+  const [shown, setShown] = useState(false);
+  useEffect(() => { setShown(false); ap.emails({ vendor_id: vendorId }).then(setList).catch(() => setList([])); }, [vendorId]);
+  return (
+    <div>
+      <Anchor component="button" c="dark" onClick={() => setShown((x) => !x)} disabled={!list.length}>
+        <Group gap={4}>{shown ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}<Text fw={600}>Emails to this vendor · {list.length}</Text></Group>
+      </Anchor>
+      <Collapse in={shown}><Stack gap="sm" mt="xs">{list.map((e) => <EmailCard key={e.id} e={e} />)}</Stack></Collapse>
+    </div>
   );
 }
 
@@ -182,6 +204,9 @@ const CHECK_ICON: Record<string, { c: string; i: ReactNode }> = {
 function Onboarding({ cases, reload }: { cases: OnboardingCase[]; reload: () => void }) {
   const [form, setForm] = useState(false);
   const [open, setOpen] = useState<OnboardingCase | null>(null);
+  const [contracts, setContracts] = useState<VendorContract[]>([]);
+  const [emails, setEmails] = useState<OutboundEmail[]>([]);
+  useEffect(() => { ap.contracts().then(setContracts).catch(() => {}); ap.emails().then(setEmails).catch(() => {}); }, [cases]);
   return (
     <>
       <Group justify="space-between" mb="sm">
@@ -197,12 +222,14 @@ function Onboarding({ cases, reload }: { cases: OnboardingCase[]; reload: () => 
               const warns = c.checks.filter((x) => ["warn", "incomplete", "not_covered"].includes(x.status)).length;
               return (
                 <Table.Tr key={c.id} style={{ cursor: "pointer" }} onClick={() => setOpen(c)}>
-                  <Table.Td><Group gap="sm" wrap="nowrap"><Avatarish name={c.request.legal_name} /><div><Text fz="sm" fw={500}>{c.request.legal_name}</Text><Text fz="xs" c="dimmed">{c.request.country} · {c.request.email_domain}</Text></div></Group></Table.Td>
+                  <Table.Td><Group gap="sm" wrap="nowrap"><Avatarish name={c.request.legal_name} /><div><Group gap={6}><Text fz="sm" fw={500}>{c.request.legal_name}</Text><SourceBadge c={c} /></Group>
+                    <Text fz="xs" c="dimmed">{c.request.country} · {c.request.email_domain}{c.contract_id ? ` · contract ${c.contract_id}` : ""}</Text></div></Group></Table.Td>
                   <Table.Td><Text fz="sm">{c.request.requested_by.split("@")[0]}</Text><Text fz="xs" c="dimmed">{when(c.created_at)}</Text></Table.Td>
                   <Table.Td><Group gap={4}>{fails > 0 && <Badge size="sm" color="red" variant="light">{fails} failed</Badge>}{warns > 0 && <Badge size="sm" color="orange" variant="light">{warns} to review</Badge>}
                     {!fails && !warns && <Badge size="sm" color="green" variant="light">all passed</Badge>}</Group></Table.Td>
                   <Table.Td><Badge variant="light" color={RISK[c.risk_tier]}>{c.risk_tier}</Badge></Table.Td>
-                  <Table.Td><Badge variant="light" color={c.status === "approved" ? "green" : c.status === "rejected" ? "gray" : "violet"}>{c.status.replace("_", " ")}</Badge></Table.Td>
+                  <Table.Td><Badge variant="light" color={c.status === "approved" ? "green" : c.status === "rejected" ? "gray" : "violet"}>{c.status.replace("_", " ")}</Badge>
+                    {c.auto_approved && <Badge size="xs" variant="light" color="brand" ml={4} tt="none">auto-approved by policy</Badge>}</Table.Td>
                   <Table.Td><Text fz="sm">{c.status === "needs_review" ? PEOPLE[c.needs as Seat]?.title : "—"}</Text></Table.Td>
                 </Table.Tr>);
             })}</Table.Tbody>
@@ -210,13 +237,15 @@ function Onboarding({ cases, reload }: { cases: OnboardingCase[]; reload: () => 
         )}
       </Card>
       <RequestForm opened={form} onClose={() => setForm(false)} onDone={(c) => { setForm(false); reload(); setOpen(c); }} />
-      <CaseDrawer c={open} onClose={() => setOpen(null)} onDone={(c) => { reload(); setOpen(c); }} />
+      <CaseDrawer c={open} onClose={() => setOpen(null)} onDone={(c) => { reload(); setOpen(c); }}
+        contract={contracts.find((k) => k.id === open?.contract_id) ?? null}
+        confirmation={emails.filter((e) => e.kind === "onboarding_confirmation" && (e.id === open?.confirmation_email_id || (!!open?.vendor_id && e.vendor_id === open.vendor_id))).at(-1) ?? null} />
     </>
   );
 }
 
 const BLANK: OnboardingRequestIn = { legal_name: "", country: "US", currency: "USD", tax_id: "", address: "", city: "", state: "", zip: "", email_domain: "",
-  website: "", bank_last4: "", contact_name: "", contact_phone: "", expected_annual_spend_usd: "0", requested_by: "", tax_form: null, trade_names: [] };
+  website: "", bank_last4: "", contact_name: "", contact_phone: "", expected_annual_spend_usd: "0", requested_by: "", tax_form: null, trade_names: [], contact_email: "" };
 
 function RequestForm({ opened, onClose, onDone }: { opened: boolean; onClose: () => void; onDone: (c: OnboardingCase) => void }) {
   const { seat } = useApp();
@@ -227,7 +256,7 @@ function RequestForm({ opened, onClose, onDone }: { opened: boolean; onClose: ()
   const f = (k: keyof OnboardingRequestIn) => ({ value: (r[k] as string | null) ?? "", onChange: (e: ChangeEvent<HTMLInputElement>) => setR({ ...r, [k]: e.currentTarget.value }) });
   const submit = async () => {
     setBusy(true);
-    try { onDone(await ap.submitOnboarding({ ...r, tax_id: r.tax_id || null, bank_last4: r.bank_last4.slice(-4) })); }
+    try { onDone(await ap.submitOnboarding({ ...r, tax_id: r.tax_id || null, contact_email: r.contact_email || null, bank_last4: r.bank_last4.slice(-4) })); }
     catch (e) { notifications.show({ color: "red", title: "Couldn't submit", message: e instanceof Error ? e.message : String(e) }); } finally { setBusy(false); }
   };
   return (
@@ -250,6 +279,7 @@ function RequestForm({ opened, onClose, onDone }: { opened: boolean; onClose: ()
           <TextInput label="Bank account (last 4 only)" required maxLength={4} {...f("bank_last4")} />
           <TextInput label="Contact name" {...f("contact_name")} />
           <TextInput label="Contact phone" {...f("contact_phone")} />
+          <TextInput label="Contact email (confirmation goes here)" type="email" {...f("contact_email")} description="Becomes the verified contact on file once approved" />
           <TextInput label="Expected annual spend (USD)" {...f("expected_annual_spend_usd")} />
           <TextInput label="Requested by" {...f("requested_by")} />
         </SimpleGrid>
@@ -260,7 +290,42 @@ function RequestForm({ opened, onClose, onDone }: { opened: boolean; onClose: ()
   );
 }
 
-function CaseDrawer({ c, onClose, onDone }: { c: OnboardingCase | null; onClose: () => void; onDone: (c: OnboardingCase) => void }) {
+function SourceBadge({ c }: { c: OnboardingCase }) {
+  return c.source === "slack" ? <Badge size="xs" variant="light" color="grape" tt="none" leftSection={<IconBrandSlack size={11} />}>Slack</Badge> : null;
+}
+
+function ContractCard({ k, id }: { k: VendorContract | null; id: string }) {
+  const t = k?.terms;
+  return (
+    <Card withBorder padding="md">
+      <Group justify="space-between" mb={k ? "xs" : 0}>
+        <Group gap={6}><IconFileText size={16} /><Anchor fz="sm" fw={600} href={ap.contractPdfUrl(id)} target="_blank" rel="noopener noreferrer">Contract {id} (PDF)</Anchor></Group>
+        {k && <Group gap={6}><Badge size="xs" variant="light" color={k.status === "onboarded" ? "green" : k.status === "held" ? "red" : "gray"}>{k.status}</Badge>
+          <Text fz="xs" c="dimmed">{k.channel} · {k.accepted_by ? `accepted by ${k.accepted_by}` : `requested by ${k.requested_by}`}</Text></Group>}
+      </Group>
+      {k && (
+        <>
+          <Table fz="xs" verticalSpacing={4}>
+            <Table.Thead><Table.Tr><Table.Th>Item</Table.Th><Table.Th ta="right">Qty</Table.Th><Table.Th ta="right">Unit price</Table.Th><Table.Th ta="right">Amount</Table.Th></Table.Tr></Table.Thead>
+            <Table.Tbody>{k.items.map((it, i) => (
+              <Table.Tr key={i}><Table.Td>{String(it.description ?? "")}{it.sku != null && <Text fz={10} c="dimmed" ff="monospace">{String(it.sku)}</Text>}</Table.Td>
+                <Table.Td ta="right">{it.qty != null ? `${Number(it.qty).toLocaleString()} ${String(it.unit ?? "")}` : ""}</Table.Td>
+                <Table.Td ta="right" ff="monospace">{amount(it.unit_price as string | null)}</Table.Td><Table.Td ta="right" ff="monospace">{amount(it.amount as string | null)}</Table.Td></Table.Tr>))}</Table.Tbody>
+          </Table>
+          <Group justify="space-between" mt="xs">
+            <Text fz="xs" c="dimmed">{t ? `net ${t.net_days}${t.discount_pct ? ` · ${pctText(t.discount_pct)} if paid in ${t.discount_days}d` : ""}${t.prepay_discount_pct ? ` · ${pctText(t.prepay_discount_pct)} off prepayments` : ""}` : ""}
+              {k.delivery ? ` · ${k.delivery}` : ""}{k.warranty ? ` · ${k.warranty}` : ""}</Text>
+            <Text fz="sm" fw={600}>Total {amount(k.total, k.currency)}</Text>
+          </Group>
+          {k.other_terms.length > 0 && <Text fz="xs" c="dimmed" mt={4}>{k.other_terms.join(" · ")}</Text>}
+        </>
+      )}
+    </Card>
+  );
+}
+
+function CaseDrawer({ c, onClose, onDone, contract, confirmation }: { c: OnboardingCase | null; onClose: () => void; onDone: (c: OnboardingCase) => void;
+  contract: VendorContract | null; confirmation: OutboundEmail | null }) {
   const { seat } = useApp();
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
@@ -278,9 +343,12 @@ function CaseDrawer({ c, onClose, onDone }: { c: OnboardingCase | null; onClose:
   const blocked = c.checks.some((x) => x.status === "fail" && ["Sanctions (OFAC)", "Bank account vs employees"].includes(x.name));
   return (
     <Drawer opened onClose={onClose} position="right" size="xl"
-      title={<Group gap="sm"><Text fw={650} fz="lg">{c.request.legal_name}</Text><Badge variant="light" color={RISK[c.risk_tier]}>{c.risk_tier} risk</Badge></Group>}>
+      title={<Group gap="sm"><Text fw={650} fz="lg">{c.request.legal_name}</Text><Badge variant="light" color={RISK[c.risk_tier]}>{c.risk_tier} risk</Badge><SourceBadge c={c} />
+        {c.auto_approved && <Badge variant="light" color="brand" tt="none">Auto-approved by policy</Badge>}</Group>}>
       <Stack>
-        <Text fz="sm" c="dimmed">{c.request.country} · {c.request.email_domain} · bank •••• {c.request.bank_last4} · requested by {c.request.requested_by} · {when(c.created_at)}</Text>
+        <Text fz="sm" c="dimmed">{c.request.country} · {c.request.email_domain} · bank •••• {c.request.bank_last4}{c.request.contact_email ? ` · contact ${c.request.contact_email}` : ""} · requested by {c.request.requested_by} · {when(c.created_at)}</Text>
+        {c.source === "slack" && <Text fz="sm">Negotiated in Slack; the accepted contract is attached and its terms become the vendor's payment terms.</Text>}
+        {c.contract_id && <ContractCard k={contract} id={c.contract_id} />}
         {c.crs_mode === "simulated" && <Alert variant="light" color="yellow">CRS is in simulated sandbox mode (no CRS credentials configured). Results come from fictional test businesses.</Alert>}
         <Card withBorder padding="sm">
           <Stack gap="sm">{c.checks.map((x) => (
@@ -306,7 +374,11 @@ function CaseDrawer({ c, onClose, onDone }: { c: OnboardingCase | null; onClose:
             </Group>
           </Card>
         ) : <Alert color={c.status === "approved" ? "green" : "gray"} variant="light" title={c.status === "approved" ? `Approved · added as ${c.vendor_id} (probation)` : "Rejected"}>
-          by {c.decided_by} · {c.decided_at && when(c.decided_at)}{c.decision_comment && ` · “${c.decision_comment}”`}</Alert>}
+          {c.auto_approved ? "Auto-approved by policy (low risk, every check passed)" : `by ${c.decided_by}`} · {c.decided_at && when(c.decided_at)}{c.decision_comment && ` · “${c.decision_comment}”`}</Alert>}
+        {(confirmation || c.confirmation_email_id) && (
+          <div><Group gap="xs" mb="xs"><Text fw={600}>Confirmation email</Text>{confirmation && <EmailStatusBadge e={confirmation} />}</Group>
+            {confirmation ? <EmailCard e={confirmation} /> : <Text fz="sm" c="dimmed">{c.confirmation_email_id}</Text>}</div>
+        )}
       </Stack>
     </Drawer>
   );

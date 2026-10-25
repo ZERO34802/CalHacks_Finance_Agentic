@@ -184,11 +184,14 @@ def decide(case: OnboardingCase, approver: str, role: str, decision: str, commen
         if any(c.status == "incomplete" for c in case.checks):
             raise OnboardingError("Verification incomplete (CRS unavailable). Re-run the checks first.")
         r = case.request
-        vid = "V-" + re.sub(r"[^A-Z0-9]+", "", r.legal_name.upper())[:12]
+        base = vid = "V-" + re.sub(r"[^A-Z0-9]+", "", r.legal_name.upper())[:12]
+        n = 2
+        while store.get_vendor(vid) is not None:  # never overwrite an existing vendor master record (bank, terms)
+            vid, n = f"{base}-{n}", n + 1
         days = int(load_policy().probation.get("days", 90))
         store.save_vendor(Vendor(id=vid, name=r.legal_name, aliases=r.trade_names, country=r.country, currency=r.currency,
                                  email_domain=r.email_domain, bank_last4=r.bank_last4, channels=[Channel.email],
-                                 tax_id=r.tax_id, critical=False, on_probation=True,
+                                 tax_id=r.tax_id, critical=False, on_probation=True, contact_email=r.contact_email,
                                  probation_until=(now + timedelta(days=days)).date()))
         case.vendor_id = vid
     case.status = decision

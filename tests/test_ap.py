@@ -209,3 +209,26 @@ def test_detail_has_checks_chain_and_warning(offline, monkeypatch, tmp_path):
     assert d["last_paid"]["invoice_no"] == "KM-INV-29980"
     ok = c.get("/ap/bills/case_25").json()
     assert ok["verdict"] == "ready" and ok["approval_steps"][1]["status"] == "done"
+
+
+def test_human_signoff_mode_books_nothing_until_a_person_approves(offline, monkeypatch):
+    from backend.core.runner import make_ctx, run_fixture
+    from backend.evals.fixtures import case_dir, load_fixture
+    store = fresh_store()
+    ctx = make_ctx(store)
+    ctx.human_signoff = True                                      # the live app's mode
+    for cid in ("case_25", "case_06"):                            # clean, and a short delivery (hold)
+        run_fixture(load_fixture(cid), case_dir(cid), ctx)
+    c = client(monkeypatch, store)
+    bs = stages(c)
+    for cid in ("case_25", "case_06"):
+        case = store.get_case(cid)
+        assert case.journal_entry is None and not [a for a in case.approvals if a.decision.value == "approved"], cid
+        assert bs[cid]["stage"] == "needs_review", cid           # waits for a person, nothing payable
+    assert _run(c, ["case_25"]).status_code == 400
+    ok = c.post("/approvals/case_25", json={"approver": "ap.lead@helix.example", "role": "approver",
+                                            "decision": "approved", "comment": "checked"})
+    assert ok.status_code == 200 and ok.json()["journal_entry"] and stages(c)["case_25"]["stage"] == "ready_to_pay"
+    held = c.post("/approvals/case_06", json={"approver": "ap.lead@helix.example", "role": "approver",
+                                              "decision": "approved", "comment": ""})
+    assert held.status_code == 200 and stages(c)["case_06"]["payable"] == "69600.00"   # only the undisputed part

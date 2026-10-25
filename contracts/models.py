@@ -169,6 +169,8 @@ class Vendor(Model):
     contact_email: Optional[str] = Field(None, description="Verified contact on file; outbound goes here, never reply-to")
     expected_schedule: Optional[str] = Field(None, description="daily | weekly: expected-file schedule (missing-file alerts)")
     terms: Optional[PaymentTerms] = None
+    wallet_address: Optional[str] = Field(None, description="On-chain payout address on file (Coinbase rail, testnet). "
+                                          "Changed only like bank details: never from an invoice or email")
 
 
 # --- Documents --------------------------------------------------------------
@@ -852,12 +854,21 @@ class Payment(Model):
     gross_amount: Optional[Money] = Field(None, description="invoice total before discount and credits")
     discount_amount: Money = Field(Decimal("0"), description="early-payment discount taken")
     credit_applied: Money = Field(Decimal("0"), description="advance-payment credit used")
+    rail: str = Field("bank", description="bank (simulated ACH/wire) | coinbase (USDC on-chain)")
+    network: Optional[str] = Field(None, description="e.g. base-sepolia (coinbase rail)")
+    onchain_token: Optional[str] = None
+    onchain_amount: Optional[Money] = Field(None, description="Token amount sent (testnet: scaled from amount_usd)")
+    payee_address: Optional[str] = Field(None, description="Vendor master wallet_address, never the invoice's")
+    tx_hash: Optional[str] = None
+    explorer_url: Optional[str] = None
+    error: Optional[str] = None
 
 
 class PaymentBatch(Model):
     id: str
     pay_date: date
-    status: str = Field(description="scheduled | paid")
+    status: str = Field(description="scheduled | paid | partially_paid")
+    rail: Optional[str] = Field(None, description="Set at release: bank | coinbase")
     created_by: str
     created_at: datetime
     released_by: Optional[str] = None
@@ -875,6 +886,18 @@ class PaymentBatchRequest(Model):
 
 class ReleaseRequest(Model):
     released_by: str
+    rail: str = Field("bank", description="bank (simulated) | coinbase (USDC, Base Sepolia testnet)")
+
+
+class TreasuryStatus(Model):
+    """The Coinbase (CDP) treasury wallet that pays vendors on the coinbase rail."""
+    mode: str = Field(description="live | not_configured")
+    network: str
+    address: Optional[str] = None
+    balances: dict[str, str] = Field(default_factory=dict, description="token symbol -> decimal amount")
+    usd_scale: Money = Field(description="testnet: USDC sent = amount_usd x usd_scale")
+    explorer_url: Optional[str] = None
+    note: str = ""
 
 
 class EarlyPayOffer(Model):
@@ -968,6 +991,7 @@ class OnboardingRequestIn(Model):
     requested_by: str
     tax_form: Optional[str] = Field(None, description="W-9 (US) | W-8BEN-E (non-US); null = not received")
     trade_names: list[str] = []
+    contact_email: Optional[str] = Field(None, description="Becomes the verified contact on file once approved")
 
 
 class VendorCheck(Model):
@@ -992,6 +1016,95 @@ class OnboardingCase(Model):
     decided_at: Optional[datetime] = None
     decision_comment: str = ""
     vendor_id: Optional[str] = None
+    source: str = Field("app", description="app | slack (negotiated in Slack, contract attached)")
+    contract_id: Optional[str] = None
+    auto_approved: bool = Field(False, description="Approved by policy (low risk, every check passed), no human click")
+    confirmation_email_id: Optional[str] = None
+
+
+class VendorContract(Model):
+    """A supply contract ReconAI drafted from a Slack negotiation. Terms are what both sides agreed in the thread."""
+    id: str
+    vendor_name: str
+    category: str
+    items: list[dict[str, Any]] = Field(default_factory=list, description="sku/description, qty, unit, unit_price")
+    currency: str
+    total: Money
+    terms: PaymentTerms
+    delivery: str = ""
+    warranty: str = ""
+    other_terms: list[str] = []
+    requested_by: str
+    channel: str
+    created_at: datetime
+    status: str = Field("draft", description="draft | accepted | onboarding | onboarded | held")
+    accepted_by: Optional[str] = None
+    onboarding_id: Optional[str] = None
+
+
+class OutboundEmail(Model):
+    """An email ReconAI sent or queued. Delivered via Resend when configured; always kept here (the outbox)."""
+    id: str
+    kind: str = Field(description="supplier_discrepancy | onboarding_confirmation | onboarding_received")
+    case_id: Optional[str] = None
+    vendor_id: Optional[str] = None
+    to: str = Field(description="Intended recipient (contact on file)")
+    delivered_to: Optional[str] = Field(None, description="Where it actually went (demo redirect inbox)")
+    subject: str
+    body: str
+    status: str = Field(description="sent | outbox | failed")
+    provider: str = Field(description="resend | outbox")
+    provider_id: Optional[str] = None
+    error: Optional[str] = None
+    idempotency_key: str
+    created_at: datetime
+
+
+class MemoryVersion(Model):
+    """One version of one memory line."""
+    entry_id: str
+    version: int
+    text: str
+    provenance: str
+    source: str = Field(description="system_of_record | computed | controller | approver | outcome | seed")
+    valid_from: date
+    change: str = Field(description="added | updated | forgotten")
+    cases: list[str] = []
+    people: list[str] = []
+
+
+class MemorySlot(Model):
+    """A memory line and its history (oldest version first)."""
+    entry_id: str
+    label: str
+    current: Optional[MemoryVersion] = None
+    versions: list[MemoryVersion] = []
+
+
+class MemoryUse(Model):
+    """A case decision that read this vendor's memory (from the trace)."""
+    case_id: str
+    memory_version: str
+    decision: Optional[str] = None
+    at: date
+
+
+class MemoryEvent(Model):
+    kind: str = Field(description="skill_change | memory_use")
+    at: date
+    label: str
+    case_ids: list[str] = []
+
+
+class VendorMemoryTimeline(Model):
+    vendor_id: str
+    vendor_name: str
+    subject: Optional[str] = None
+    memory_version: Optional[str] = None
+    slots: list[MemorySlot] = []
+    uses: list[MemoryUse] = []
+    events: list[MemoryEvent] = []
+    sources: dict[str, int] = {}
 
 
 class Bill(Model):
@@ -1137,6 +1250,7 @@ ALL_MODELS: list[type[BaseModel]] = [
     Signal, MatchRow, GLLine, CheckResult, ApprovalStep, LastPaid, Payment, PaymentBatch, PaymentBatchRequest, ReleaseRequest, Bill, ActivityItem,
     BillDetail, AgingBucket, ForecastWeek, SpendRow, ApReport, Integration, ApSettings,
     PaymentTerms, EarlyPayOffer, PrepayApplication, Prepayment, PrepaymentRequest, PrepaymentQuote, SignOff,
-    OnboardingRequestIn, VendorCheck, OnboardingCase,
+    OnboardingRequestIn, VendorCheck, OnboardingCase, TreasuryStatus, VendorContract, OutboundEmail,
+    MemoryVersion, MemorySlot, MemoryUse, MemoryEvent, VendorMemoryTimeline,
     CaseDetail, ApprovalRequest,
 ]

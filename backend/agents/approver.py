@@ -393,6 +393,18 @@ class Approver:
             rule_meta = meta
             tag = "[simulated role-play]" if meta.get("engine") == "claude" else "[simulated: deterministic policy approver]"
 
+            if review.decision == ApprovalDecision.approved and ctx.human_signoff:
+                # human sign-off mode: the simulated reviewer's "approve" is a recommendation; nothing is booked
+                # until a real person approves in the app (POST /approvals resumes at the Poster)
+                rec = proposal.recommendation
+                case.notes.append(f"{role.value} {who} (simulated reviewer) recommends {rec.value}: {review.reason}. "
+                                  "Waiting for a human sign-off.")
+                case = self._finish(case, rec, ctx, {**detail, "human_signoff": True})
+                case.status = CaseStatus.awaiting_approval
+                case.pending_approval = sla_pending(case, ctx, role, who)
+                ctx.trace.annotate(detail={"case_status": case.status.value, "awaiting_human_signoff": role.value})
+                return case
+
             if review.decision == ApprovalDecision.approved:
                 rec = proposal.recommendation
                 if rec == Decision.approve:

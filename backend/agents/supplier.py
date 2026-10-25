@@ -3,7 +3,8 @@
 Outbound: for a hold (or a vendor-risk escalation) that needs something from the vendor, draft ONE email to the
 contact on file (Vendor.contact_email; never reply-to-sender), create the matching FollowUp with a due date, and
 set status awaiting_vendor (holds). The subject carries `[REC <case_id>]` so replies link back. Idempotent.
-SIMULATED: emails are recorded on the case, not sent.
+Delivery: the API layer sends each drafted email once via backend/notify/email.py (Resend when configured,
+always kept in the outbox); pipeline runs, evals and tests only draft.
 
 Inbound: A's Registry links a reply (subject/body contains `[REC <case_id>]`) to the target case and notes
 "supplier reply to <case_id>". `handle_reply` then updates the target's follow-ups. Reply text is UNTRUSTED:
@@ -68,38 +69,77 @@ def needed_kinds(case: Case) -> list[K]:
 
 
 class EmailBody(BaseModel):
-    body: str = Field(description="Plain-text email body, under 120 words, polite and specific")
+    body: str = Field(description="Plain-text email body, 150-280 words, polite, specific and structured")
 
 
-EMAIL_SYSTEM = """You write one short email from Helix Silicon Accounts Payable to a supplier's accounts-receivable
-contact on file. Use only the facts given; quote amounts exactly as given (never compute). Ask for exactly the
-requested item by the due date and mention the case reference. Never mention internal people, approvals, controls,
-fraud suspicion, internal notes or memory. Never ask for or include bank account numbers. For a bank-detail change,
-say details will not change until verified by phone at the number on file, and ask them not to send bank details
-by email. Sign as "Helix Silicon Accounts Payable"."""
+EMAIL_SYSTEM = """You write one email from Helix Silicon Accounts Payable to a supplier's accounts-receivable
+contact on file, explaining why an invoice did not pass our check and exactly what we need. Use only the facts
+given; quote every amount, quantity and document reference exactly as given (never compute or round).
+Structure: (1) one line naming the invoice, PO and case reference; (2) one bullet per issue saying what the
+invoice states, what our record states (name the document reference given, e.g. the PO line, receiving log row
+or contract price in force on the invoice date) and the difference; (3) what we are paying now and what is on
+hold, if given; (4) the exact request and the due date; (5) ask them to keep the case reference in the subject
+when replying. Never mention internal people, approvals, controls, risk scores, fraud suspicion, internal notes
+or memory. Never ask for or include bank account numbers. For a bank-detail change, do not describe the issue;
+say details will not change until verified by phone at the number on file, and ask them not to send bank
+details by email. Sign as "Helix Silicon Accounts Payable"."""
+
+ISSUE = {T.qty_short: "Quantity billed is more than we received",
+         T.price_over: "Unit price is above the price agreed for this item",
+         T.unapproved_freight: "A freight / expedite charge was billed without an approved PO line",
+         T.currency_mismatch: "The invoice currency does not match the purchase order",
+         T.total_mismatch: "The invoice total does not equal the sum of its lines",
+         T.fx_gap: "The converted amount does not match the agreed exchange basis"}
+
+
+def _sources(d) -> list[str]:
+    return [f"{c.doc_id} {c.locator}".strip() for c in d.citations][:3]
 
 
 def _facts(case: Case, vendor: Vendor, kinds: list[K], due: date) -> dict:
     inv = case.invoice
-    return {"vendor": vendor.name, "reference": f"[REC {case.id}]", "invoice_no": inv.invoice_no if inv else None,
-            "invoice_date": str(inv.invoice_date) if inv else None, "po_number": inv.po_number if inv else None,
-            "currency": inv.currency if inv else None,
-            "discrepancies": [{"type": d.type.value, "sku": d.sku, "expected": d.expected, "invoiced": d.actual,
-                               "delta": str(d.delta) if d.delta is not None else None}
-                              for d in rules.material(case) if d.type in KIND_FOR],
-            "requested": [ASK[k] for k in kinds], "due": str(due)}
+    risk = any(k == K.callback for k in kinds)
+    facts = {"vendor": vendor.name, "reference": f"[REC {case.id}]", "invoice_no": inv.invoice_no if inv else None,
+             "invoice_date": str(inv.invoice_date) if inv else None, "po_number": inv.po_number if inv else None,
+             "currency": inv.currency if inv else None, "invoice_total": str(inv.total) if inv else None,
+             "discrepancies": [] if risk else [
+                 {"issue": ISSUE.get(d.type, d.type.value), "type": d.type.value, "sku": d.sku, "line": d.line_no,
+                  "our_record": d.expected, "invoice_says": d.actual,
+                  "difference": str(d.delta) if d.delta is not None else None, "sources": _sources(d)}
+                 for d in rules.material(case) if d.type in KIND_FOR],
+             "requested": [ASK[k] for k in kinds], "due": str(due)}
+    if not risk and case.paid_amount is not None:
+        facts["paying_now"] = str(case.paid_amount)
+    if not risk and case.disputed_amount is not None:
+        facts["on_hold"] = str(case.disputed_amount)
+    return facts
 
 
 def _template(f: dict) -> str:
-    gaps = "; ".join(f"{d['type']} on {d['sku'] or 'the invoice'}" + (f" ({d['delta']} {f['currency']})" if d["delta"] else "")
-                     for d in f["discrepancies"])
-    lines = [f"Hello {f['vendor']} accounts receivable,", "",
-             f"Regarding invoice {f['invoice_no']} (PO {f['po_number']}), reference {f['reference']}: {gaps}.",
-             f"Please send {' and '.join(f['requested'])} by {f['due']}."]
+    cur = f["currency"] or ""
+    head = (f"Regarding invoice {f['invoice_no']} dated {f['invoice_date']} (PO {f['po_number'] or 'not quoted'}, "
+            f"total {f['invoice_total']} {cur}), reference {f['reference']}:" if f["invoice_no"]
+            else f"Regarding your recent message, reference {f['reference']}:")
+    lines = [f"Hello {f['vendor']} accounts receivable,", "", head]
+    if f["discrepancies"]:
+        lines += ["", "What we found:"]
+        for d in f["discrepancies"]:
+            where = f" on {d['sku']}" if d["sku"] else ""
+            line = f"- {d['issue']}{where}: invoice {d['invoice_says'] or 'n/a'}, our record {d['our_record'] or 'n/a'}"
+            if d["difference"]:
+                line += f" (difference {d['difference']} {cur})"
+            if d["sources"]:
+                line += f". Checked against {', '.join(d['sources'])}"
+            lines.append(line + ".")
+    if f.get("paying_now"):
+        lines += ["", f"We are paying the undisputed {f['paying_now']} {cur} on the normal terms"
+                      + (f"; {f['on_hold']} {cur} is on hold until this is resolved." if f.get("on_hold") else ".")]
+    lines += ["", f"Please send {' and '.join(f['requested'])} by {f['due']}."]
     if any("bank" in r for r in f["requested"]):
         lines.append("We will not change any bank details until we verify them by phone at the number on file. "
                      "Please do not send bank details by email.")
-    lines += ["", "Thank you,", "Helix Silicon Accounts Payable"]
+    lines += [f"When you reply, please keep {f['reference']} in the subject so it reaches this case.",
+              "", "Thank you,", "Helix Silicon Accounts Payable"]
     return "\n".join(lines)
 
 

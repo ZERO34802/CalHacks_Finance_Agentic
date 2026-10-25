@@ -25,6 +25,7 @@ class Ctx:
     policy: Policy = field(default_factory=load_policy)
     run_id: str = field(default_factory=lambda: f"run_{uuid4().hex[:8]}")
     now: Callable[[], datetime] = utcnow
+    human_signoff: bool = False  # live app: simulated reviewers only recommend; a real person signs (API sets it)
 
 
 class Stage(Protocol):

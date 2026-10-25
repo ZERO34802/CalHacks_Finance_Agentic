@@ -22,6 +22,8 @@ export const STAGES: Record<string, { label: string; color: string }> = {
   blocked: { label: "Payment blocked", color: "red" },
   scheduled: { label: "Scheduled", color: "blue" },
   paid: { label: "Paid", color: "green" },
+  failed: { label: "Payment failed", color: "red" },
+  partially_paid: { label: "Partially paid", color: "orange" },
   rejected: { label: "Rejected", color: "dark" },
 };
 export const REC: Record<string, { label: string; color: string }> = {

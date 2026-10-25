@@ -96,13 +96,14 @@ Fallbacks: Droid → Claude → a fixed template, labelled "deterministic fallba
 
 | Real | Simulated (labelled in the UI) |
 | --- | --- |
-| Claude reading PDFs/scans, Droid investigations, role-play reviewers, ledger (Beancount), matching, dedup, controls, evals, SpacetimeDB store | FX rates, supplier emails (drafted, not sent), approvers' identities, vendor API senders, SFTP/S3/ERP (folders + mock payloads), malware scan hook, employee records, callbacks, CRS (unless credentials are set), payment settlement, sanctions list |
+| Claude reading PDFs/scans, Droid investigations, role-play reviewers, ledger (Beancount), matching, dedup, controls, evals, SpacetimeDB store | FX rates, supplier emails to the fictional fixture vendors (delivered via Resend to a demo inbox, never to their domains), Coinbase amounts (real testnet USDC transfers, scaled down from the bill's USD), approvers' identities, vendor API senders, SFTP/S3/ERP (folders + mock payloads), malware scan hook, employee records, callbacks, CRS (unless credentials are set), payment settlement, sanctions list |
 
 ## Known limitations
 
 - The 48 cases are hand-built. Judges' own scenarios escalate when no skill fits, which is by design.
 - **Live reviewer wording can vary:** a re-plan count can flip between samples, but decisions are stable.
-- Format evolution (adapting to a vendor's new API/CSV shape), the auditor evidence pack, Coinbase and Cartesia are not built (P2).
+- Format evolution (adapting to a vendor's new API/CSV shape), the auditor evidence pack and Cartesia are not built (P2). Coinbase is testnet only.
+- Slack market numbers: Helix PO/contract history is the system of record, but the market reference table (`backend/slack/market_reference.json`) is simulated; live web notes are optional and labelled.
 - **Two onboarding paths:** the UI flow (`backend/vendors/`, with CRS) reuses the scored flow's checks (`backend/onboarding/`). The approval rules are duplicated.
 - The UI's payment-run clock is the wall clock, not a fixture's `as_of`.
 
@@ -167,6 +168,23 @@ CRS: set `CRS_BASE_URL`, `CRS_USERNAME`, `CRS_PASSWORD` (and `CRS_AUTH_HEADER` /
 Chat: Claude (`claude-opus-5-5`, no tools) from the case record when `ANTHROPIC_API_KEY` is set; otherwise deterministic answers from the same record. Not built (out of scope): IRS 1099 filing, card payments/cashback, real ERP sync.
 
 Other pages: `/prototype.html` (visual concept), `/legacy.html` (earlier dashboard).
+
+## Slack negotiation coach, Coinbase payments, supplier emails, memory timeline
+
+**Slack bot** (`backend/slack/`, Socket Mode, starts inside `make api` when `SLACK_BOT_TOKEN` + `SLACK_APP_TOKEN` are set; app manifest in `config/slack-manifest.yaml`):
+1. `/reconai negotiate <vendor>` in a channel with the supplier: the person who runs it is the Helix owner; the channel is told ReconAI is assisting Helix.
+2. While they talk, each time prices or terms move ReconAI privately (ephemeral, owner only) posts the numbers to negotiate with: where the quote sits vs our PO/contract history and the market (p25 / median / p75), the counter, target and walk-away, money at stake, and terms to ask for (early-pay discount, net 45, volume tiers, credit-note clause, callback-only bank changes). All numbers are Decimal math in `market.py`; Claude only phrases them.
+3. `/reconai contract` (owner only): a supply agreement PDF from a fixed clause template with the agreed items, totals (computed) and payment terms, plus an **Accept & start onboarding** button.
+4. The supplier (not Helix) clicks it and fills the onboarding form (last 4 of the bank account only). Every onboarding check runs (CRS + code). Policy `onboarding.auto_approve_low_risk`: a low-risk vendor is onboarded with no human click, on probation, with the contract's payment terms on the vendor master, and a confirmation email goes to the contact. Medium/high risk waits for a controller in Vendors → Onboarding; approving there sends the email and tells the Slack channel.
+Trust: chat text is untrusted and only reaches Claude calls with no tools; live market notes (web search) use our own canonical query, never chat text.
+
+**Coinbase rail** (`backend/ap/coinbase.py`): Bills → For payment → Review payments → *Release via Coinbase (USDC)*. A CDP server wallet (`reconai-treasury`) sends real USDC on **Base Sepolia testnet** to each vendor's `wallet_address` from the vendor master (never an address from an invoice), waits for the receipt and stores the tx hash + explorer link. Amounts are scaled for testnet (`COINBASE_USD_SCALE`, default 0.000001). Same controls as the bank rail: only booked bills, the payment guard re-checked at release, the preparer can't release. A failed transfer leaves the run partially paid; retry re-sends only the unpaid lines. The treasury card funds from the CDP faucet and creates demo payout wallets for vendors.
+
+**Supplier emails** (`backend/agents/supplier.py` drafts, `backend/notify/email.py` delivers): when the agents hold or escalate a bill that needs something from the vendor, one detailed email goes to the contact on file (never reply-to-sender): each issue with the invoice figure, our record and the document it was checked against, what is paid now and what is held, the exact ask and due date, and the `[REC case_id]` reference so replies link back. Delivered via Resend once per idempotency key; every email is kept in the outbox (Bill → Emails tab). Fixture vendors are fictional, so their mail only goes to `RECONAI_EMAIL_REDIRECT`. Pipeline runs, evals and tests only draft; the API layer sends.
+
+**Memory timeline** (`backend/memory/timeline.py`, Memory page): per vendor, every memory line with its full version history and provenance (system of record, computed from cases, controller/approver decisions, follow-up outcomes), forgotten lines, the decisions that read the memory (memory version from the trace) and skill changes driven by this vendor's cases, plus "what ReconAI knew on <date>".
+
+Endpoints: `GET /emails`, `POST /emails/{case_id}/send`, `GET /ap/coinbase`, `POST /ap/coinbase/faucet`, `POST /ap/coinbase/vendor-wallets`, `POST /ap/payments/{id}/release` (`rail: bank | coinbase`), `GET /contracts`, `GET /contracts/{id}/pdf`, `GET /memory/vendors/{id}/timeline`.
 
 ## For contributors
 
