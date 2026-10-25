@@ -5,13 +5,15 @@
   "description": "ReconAI demo video (Remotion)",
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts LogoIntro out/logo-intro.mp4",
-    "still": "remotion still src/index.ts LogoIntro out/logo-intro.png"
+    "render": "remotion render src/index.ts Demo out/demo-$(date +%Y%m%d-%H%M%S).mp4 --overwrite=false",
+    "render:logo": "remotion render src/index.ts LogoIntro out/logo-intro-$(date +%Y%m%d-%H%M%S).mp4 --overwrite=false",
+    "still": "remotion still src/index.ts Demo out/demo-$(date +%Y%m%d-%H%M%S).png --overwrite=false"
   },
   "dependencies": {
     "@remotion/cli": "4.0.538",
     "@remotion/google-fonts": "4.0.538",
     "@remotion/layout-utils": "4.0.538",
+    "@remotion/transitions": "4.0.538",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "remotion": "4.0.538"

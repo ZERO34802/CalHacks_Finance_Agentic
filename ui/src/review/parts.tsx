@@ -1,6 +1,6 @@
 // Small shared pieces: badges, signal list, stat card, bills table.
 import { Alert, Avatar, Badge, Card, Checkbox, Group, Loader, Paper, Stack, Table, Text, Tooltip, type MantineSpacing } from "@mantine/core";
-import { IconAlertTriangle, IconChevronRight } from "@tabler/icons-react";
+import { IconAlertOctagon, IconAlertTriangle, IconChevronRight } from "@tabler/icons-react";
 import type { ReactNode } from "react";
 import type { Bill, Signal } from "../types/contracts";
 import { useApp } from "./context";
@@ -9,7 +9,13 @@ import { amount, currencySymbol, day, due, REC, RISK, shortName, STAGES, sumMone
 export const StageBadge = ({ stage }: { stage: string }) =>
   stage === "processing"
     ? <Badge variant="light" color="gray" leftSection={<Loader size={10} color="gray" />}>Processing</Badge>
-    : <Badge variant="light" color={STAGES[stage]?.color ?? "gray"} maw="none" style={{ flexShrink: 0 }}>{STAGES[stage]?.label ?? stage}</Badge>;
+    : <Badge variant="light" color={STAGES[stage]?.color ?? "gray"} maw="none" style={{ flexShrink: 0 }} leftSection={<StageIcon stage={stage} size={12} />}>{STAGES[stage]?.label ?? stage}</Badge>;
+
+// needs review = warning (amber triangle); rejected / blocked / failed = danger (red octagon)
+export const DANGER = ["rejected", "blocked", "failed"];
+export const StageIcon = ({ stage, size = 13 }: { stage: string; size?: number }) =>
+  stage === "needs_review" ? <IconAlertTriangle size={size} style={{ flexShrink: 0 }} />
+    : DANGER.includes(stage) ? <IconAlertOctagon size={size} style={{ flexShrink: 0 }} /> : null;
 
 export const RecBadge = ({ rec }: { rec: string | null | undefined }) =>
   rec ? <Badge variant="outline" size="sm" color={REC[rec]?.color}>{REC[rec]?.label}</Badge> : <Text fz="xs" c="dimmed">—</Text>;

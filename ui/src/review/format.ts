@@ -22,7 +22,7 @@ export const due = (days: number | null | undefined) =>
 
 export const STAGES: Record<string, { label: string; color: string }> = {
   processing: { label: "Processing", color: "gray" },
-  needs_review: { label: "Needs review", color: "violet" },
+  needs_review: { label: "Needs review", color: "amber" },
   on_hold: { label: "On hold", color: "yellow" },
   ready_to_pay: { label: "Ready to pay", color: "brand" },
   blocked: { label: "Payment blocked", color: "red" },
@@ -30,7 +30,7 @@ export const STAGES: Record<string, { label: string; color: string }> = {
   paid: { label: "Paid", color: "green" },
   failed: { label: "Payment failed", color: "red" },
   partially_paid: { label: "Partially paid", color: "orange" },
-  rejected: { label: "Rejected", color: "dark" },
+  rejected: { label: "Rejected", color: "red" },
 };
 export const REC: Record<string, { label: string; color: string }> = {
   approve: { label: "Clear", color: "brand" }, hold: { label: "Hold", color: "yellow" },
@@ -43,8 +43,8 @@ export const stage = (s: string) => ({
   investigator: "Investigator", vendor_guard: "Vendor Guard", validators: "Validators", approver: "Approver", poster: "Poster",
 } as Record<string, string>)[s] ?? s;
 export const stepColor = (s: string) =>
-  s === "ok" ? "brand" : s === "failed" || s === "blocked" ? "red" : s === "escalated" ? "violet" : s === "running" ? "blue" : "gray";
-export const findingColor = (s: string) => (s === "ok" ? "brand" : s === "flag" ? "red" : s === "blocked" ? "orange" : "gray");
+  s === "ok" ? "brand" : s === "failed" || s === "blocked" ? "red" : s === "escalated" ? "amber" : s === "running" ? "blue" : "gray";
+export const findingColor = (s: string) => (s === "ok" ? "brand" : s === "flag" ? "amber" : s === "blocked" ? "red" : "gray");
 
 // Who's signed in. Mirrors the approval matrix in config/policy.yaml.
 export type Seat = "approver" | "controller" | "cfo" | "cto";

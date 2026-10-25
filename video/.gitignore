@@ -1,2 +1,6 @@
 node_modules/
 out/
+
+# third-party music (Pixabay licence: use in the video, no standalone redistribution); keep out of git
+public/audio/soundsurfer-*.mp3
+public/audio/soundtrack.wav

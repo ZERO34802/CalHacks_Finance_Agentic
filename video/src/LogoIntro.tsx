@@ -13,7 +13,7 @@ const FONT_SIZE = 196;
 const WORD = "RECON-AI";
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
-const Glyph: FC<{ frame: number }> = ({ frame }) => {
+const Glyph: FC<{ frame: number; ink: string }> = ({ frame, ink }) => {
   // stroke lengths for the draw-on effect (viewBox 100 x 100)
   const lines = [{ y: 30, x2: 70, start: 14 }, { y: 50, x2: 58, start: 19 }, { y: 70, x2: 40, start: 24 }];
   const check = interpolate(frame, [30, 44], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
@@ -22,17 +22,18 @@ const Glyph: FC<{ frame: number }> = ({ frame }) => {
       {lines.map((l) => {
         const len = l.x2 - 22;
         const p = interpolate(frame, [l.start, l.start + 12], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
-        return <line key={l.y} x1={22} y1={l.y} x2={l.x2} y2={l.y} stroke="#000" strokeWidth={9} strokeLinecap="round"
+        return <line key={l.y} x1={22} y1={l.y} x2={l.x2} y2={l.y} stroke={ink} strokeWidth={9} strokeLinecap="round"
           strokeDasharray={len} strokeDashoffset={len * (1 - p)} />;
       })}
       {/* the check: lands at the end of the shortest line, where the books close */}
-      <polyline points="52,70 62,80 82,56" fill="none" stroke="#000" strokeWidth={9} strokeLinecap="round"
+      <polyline points="52,70 62,80 82,56" fill="none" stroke={ink} strokeWidth={9} strokeLinecap="round"
         strokeLinejoin="round" strokeDasharray={48} strokeDashoffset={48 * (1 - check)} />
     </svg>
   );
 };
 
-export const LogoIntro: FC = () => {
+// `light`: dark tile and wordmark on a transparent frame, for the white cut.
+export const LogoIntro: FC<{ light?: boolean }> = ({ light = false }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const wordWidth = measureText({ text: WORD, fontFamily, fontSize: FONT_SIZE, fontWeight: "400", letterSpacing: "4px" }).width;
@@ -51,22 +52,22 @@ export const LogoIntro: FC = () => {
   const clipRight = Math.max(0, wordWidth - (clipLeft + reveal * (wordWidth + 40)));  // grows out with the reveal
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "#000", justifyContent: "center", alignItems: "center" }}>
+    <AbsoluteFill style={{ backgroundColor: light ? undefined : "#000", justifyContent: "center", alignItems: "center" }}>
       <div style={{ position: "relative", width: total, height: TILE }}>
         {/* icon tile */}
         <div style={{
           position: "absolute", left: "50%", top: 0, width: TILE, height: TILE, marginLeft: -TILE / 2,
           transform: `translateX(${iconX}px) scale(${0.6 + 0.4 * pop})`, opacity: Math.min(1, pop),
-          borderRadius: TILE * 0.2, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2,
+          borderRadius: TILE * 0.2, background: light ? "#0f1222" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2,
         }}>
-          <Glyph frame={frame} />
+          <Glyph frame={frame} ink={light ? "#fff" : "#000"} />
         </div>
         {/* wordmark: wiped in from behind the icon */}
         <div style={{
           position: "absolute", left: TILE + GAP, top: 0, height: TILE, display: "flex", alignItems: "center",
           transform: `translateX(${textX}px)`, clipPath: `inset(-20% ${clipRight}px -20% ${clipLeft}px)`, zIndex: 1,
         }}>
-          <span style={{ fontFamily, fontSize: FONT_SIZE, lineHeight: 1, letterSpacing: 4, color: "#fff", whiteSpace: "nowrap" }}>
+          <span style={{ fontFamily, fontSize: FONT_SIZE, lineHeight: 1, letterSpacing: 4, color: light ? "#0f1222" : "#fff", whiteSpace: "nowrap" }}>
             {WORD}
           </span>
         </div>

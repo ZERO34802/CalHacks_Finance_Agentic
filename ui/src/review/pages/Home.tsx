@@ -2,6 +2,7 @@
 import { BarChart } from "@mantine/charts";
 import { Alert, Anchor, Box, Card, Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import { useViewportSize } from "@mantine/hooks";
+import { IconAlertOctagon, IconAlertTriangle } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import type { ApReport } from "../../types/contracts";
 import { ap } from "../api";
@@ -56,7 +57,8 @@ export default function Home() {
               {attention.slice(0, short ? 5 : 6).map((b, i) => (
                 <Group key={b.case_id} justify="space-between" py={short ? 10 : 14} wrap="nowrap" style={{ borderTop: i ? "1px solid var(--mantine-color-gray-2)" : undefined, cursor: "pointer" }} onClick={() => go(`bill/${b.case_id}`)}>
                   <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: 8, flexShrink: 0, background: `var(--mantine-color-${b.risk === "high" || b.stage === "blocked" ? "red-7" : "brand-6"})` }} />
+                    <Box c={b.risk === "high" || b.stage === "blocked" ? "red.7" : b.stage === "needs_review" ? "amber.7" : "brand.6"} style={{ display: "flex", flexShrink: 0 }}>
+                      {b.risk === "high" || b.stage === "blocked" ? <IconAlertOctagon size={16} /> : b.stage === "needs_review" ? <IconAlertTriangle size={16} /> : <span style={{ width: 8, height: 8, margin: 4, borderRadius: 8, background: "currentColor" }} />}</Box>
                     <div style={{ minWidth: 0 }}>
                       <Text fw={500}>{shortName(b.vendor_name)}</Text>
                       <Text fz="sm" c="dimmed" lineClamp={1}>{b.payment_block ?? b.signals[0]?.title ?? b.warning ?? "Above the agents' approval limit"}</Text>

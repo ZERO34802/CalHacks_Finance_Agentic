@@ -2,7 +2,7 @@
 //   left   the queue you opened the bill from (same list and order as the Bills table), queue switch, search, Prev / Next (K / J)
 //   top    vendor + invoice, amount, due, PO, vendor history, and the decision buttons (always visible, never scrolled away)
 //   centre tabs: Review (verdict + failed checks, payment + approval chain + method, lines + 3-way match + GL coding),
-//          Activity (timeline with the emails sent to the vendor inline), Agent trace (each step with what that agent found),
+//          Activity (timeline with the emails sent to the vendor inline), Agent trace (flow chart of the pipeline phases; click one for its sub-steps),
 //          Ask ReconAI (chat, composer pinned)
 //   right  the invoice as extracted, every document, the email received. Supplier text is UNTRUSTED: plain text only.
 // After a decision the header offers the next bill in the queue, so the flow is: read why -> decide -> next.
@@ -13,12 +13,13 @@ import {
 import { notifications } from "@mantine/notifications";
 import { IconAlertTriangle, IconArrowLeft, IconCheck, IconCircleCheck, IconMail, IconSparkles, IconX } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { ApprovalDecision, BillDetail, ChatMessage, OutboundEmail, PaymentBatch, ReviewPacket, Step } from "../../types/contracts";
+import type { ApprovalDecision, BillDetail, ChatMessage, OutboundEmail, PaymentBatch, ReviewPacket } from "../../types/contracts";
 import { ap } from "../api";
 import { me, useApp } from "../context";
-import { amount, canRelease, day, due, findingColor, PEOPLE, RELEASE_RULE, shortName, STAGES, stage, stepColor, usd, when, type Seat } from "../format";
+import { amount, canRelease, day, due, PEOPLE, RELEASE_RULE, shortName, STAGES, usd, when, type Seat } from "../format";
+import { stepName, TraceFlow } from "../trace";
 import { EmailCard, emailGist, EmailStatusBadge, emailStatus } from "../emails";
-import { Avatarish, BILL_TABS, billQueue, CardHead, HEAD_BG, HEAD_BORDER, sortBills, StageBadge, symbols, tabOf } from "../parts";
+import { Avatarish, BILL_TABS, billQueue, CardHead, HEAD_BG, HEAD_BORDER, sortBills, StageBadge, StageIcon, symbols, tabOf } from "../parts";
 
 const short = (h?: string | null) => (h ? `${h.slice(0, 6)}…${h.slice(-4)}` : "—");
 
@@ -90,19 +91,19 @@ export default function BillPage({ id, tab: tabParam }: { id: string; tab?: stri
           <Tabs.List h={TABS_H} px="md" style={{ flexWrap: "nowrap" }}>
             <Tabs.Tab value="review">Review</Tabs.Tab>
             <Tabs.Tab value="activity" rightSection={ready ? <Badge size="xs" variant="light">{activityCount}</Badge> : null}>Activity</Tabs.Tab>
-            <Tabs.Tab value="trace" rightSection={packet ? <Badge size="xs" variant="light">{packet.trace.filter((s) => !s.parent_id).length}</Badge> : null}>Agent trace</Tabs.Tab>
+            <Tabs.Tab value="trace">Agent trace</Tabs.Tab>
             <Tabs.Tab value="ask" leftSection={<IconSparkles size={14} />}>Ask ReconAI</Tabs.Tab>
           </Tabs.List>
         </Tabs>
         {!ready ? <BodySkeleton />
           : d.bill.stage === "processing" ? <ScrollArea style={{ flex: 1 }} p="lg"><Running packet={packet} /></ScrollArea>
             : tab === "ask" ? <Chat id={id} packet={packet} msgs={msgs} setMsgs={setMsgs} />
+              : tab === "trace" ? <TraceFlow packet={packet} />
               : (
                 <ScrollArea style={{ flex: 1 }} type="auto">
                   <Box p="lg">
                     {tab === "review" ? <Review d={d} packet={packet} emails={emails} pay={pay} setPay={setPay} openTab={setTab} onAsk={(x) => { pendingQ.current = x; setTab("ask"); }} />
-                      : tab === "activity" ? <Activity id={id} d={d} emails={emails} reload={loadEmails} />
-                        : <Trace packet={packet} />}
+                      : <Activity id={id} d={d} emails={emails} reload={loadEmails} />}
                   </Box>
                 </ScrollArea>
               )}
@@ -161,7 +162,7 @@ function BillList({ id, q, idx, prev, next }: { id: string; q: Queue; idx: numbe
                     {b.risk === "high" && <IconAlertTriangle size={13} color="var(--mantine-color-red-6)" style={{ flexShrink: 0 }} />}</Group>
                   <Group gap={4} wrap="nowrap" justify="space-between">
                     <Text fz="xs" c="dimmed" truncate>{b.amount ? `${amount(b.payable ?? b.amount, b.currency)} · ${day(b.due_date).replace(/, \d{4}$/, "")}` : "not read"}</Text>
-                    {multi && <Text fz={10} fw={600} c={`${STAGES[b.stage]?.color ?? "gray"}.7`} style={{ flexShrink: 0 }}>{TAG[b.stage] ?? STAGES[b.stage]?.label}</Text>}
+                    {multi && <Group gap={3} wrap="nowrap" c={`${STAGES[b.stage]?.color ?? "gray"}.7`} style={{ flexShrink: 0 }}><StageIcon stage={b.stage} size={11} /><Text fz={10} fw={600} c="inherit">{TAG[b.stage] ?? STAGES[b.stage]?.label}</Text></Group>}
                   </Group>
                 </div>
               </Group>
@@ -529,55 +530,6 @@ function Activity({ id, d, emails, reload }: { id: string; d: BillDetail; emails
         ))}
       </Timeline>
     </Stack>
-  );
-}
-
-const stepName = (st: string) => {
-  const l = stage(st);
-  return l !== st ? l : (st.split(".").pop() ?? st).replace(/^a_/, "").replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
-};
-
-/* agent trace: every step in order, with what that agent concluded inline (no second list telling the same story) */
-function Trace({ packet }: { packet: ReviewPacket }) {
-  const [open, setOpen] = useState<string[]>([]);
-  const top = packet.trace.filter((s) => !s.parent_id);
-  const kids = (s: Step) => packet.trace.filter((x) => x.parent_id === s.id);
-  const used = new Set<number>();
-  const found = new Map(top.map((s) => {
-    const i = packet.findings.findIndex((f, j) => !used.has(j) && f.agent === stage(s.stage));
-    if (i >= 0) used.add(i);
-    return [s.id, i >= 0 ? packet.findings[i] : null] as const;
-  }));
-  const rest = packet.findings.filter((_, j) => !used.has(j));
-  const tech = (s: Step) => Object.entries(s.detail).filter(([k]) => k !== "stub").map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(" · ").slice(0, 900);
-  return (
-    <Timeline active={top.length + rest.length} bulletSize={22} lineWidth={2}>
-      {top.map((s, i) => {
-        const f = found.get(s.id), t = tech(s), ks = kids(s);
-        return (
-          <Timeline.Item key={s.id} color={stepColor(s.status)} bullet={<Text fz={10}>{i + 1}</Text>}
-            title={<Group gap={6} wrap="nowrap" justify="space-between">
-              <Group gap={6} wrap="nowrap"><Text fz="sm" fw={600}>{stepName(s.stage)}</Text>
-                {s.status !== "ok" && <Badge size="xs" variant="light" color={stepColor(s.status)}>{s.status}</Badge>}
-                {f && f.status !== "ok" && <Badge size="xs" variant="light" color={findingColor(f.status)}>{f.status === "unchecked" ? "not checked" : f.status}</Badge>}
-                {s.detail.stub === true && <Badge size="xs" variant="outline" color="gray">placeholder</Badge>}</Group>
-              <Text fz="xs" c="dimmed" style={{ whiteSpace: "nowrap" }}>{s.skill ? `${s.skill}@${s.skill_version} · ` : ""}{s.duration_ms ?? "…"} ms</Text>
-            </Group>}>
-            {f && <Text fz="sm" c={f.status === "flag" ? "red.8" : undefined}><b>{f.check}:</b> {symbols(f.detail)}</Text>}
-            {s.error && <Text fz="xs" c="red.7">{s.error}</Text>}
-            {ks.length > 0 && <Text fz="xs" c="dimmed">↳ {ks.map((k) => `${stepName(k.stage)} (${k.status})`).join(", ")}</Text>}
-            {t && <Anchor fz="xs" onClick={() => setOpen((o) => (o.includes(s.id) ? o.filter((x) => x !== s.id) : [...o, s.id]))}>{open.includes(s.id) ? "Hide details" : "Details"}</Anchor>}
-            {open.includes(s.id) && <Text fz="xs" ff="monospace" c="dimmed" style={{ wordBreak: "break-word" }}>{s.role} · {t}</Text>}
-          </Timeline.Item>
-        );
-      })}
-      {rest.map((f, i) => (
-        <Timeline.Item key={`r${i}`} color={findingColor(f.status)} bullet={<Text fz={10}>•</Text>}
-          title={<Group gap={6}><Text fz="sm" fw={600}>{f.agent}</Text>{f.status !== "ok" && <Badge size="xs" variant="light" color={findingColor(f.status)}>{f.status}</Badge>}</Group>}>
-          <Text fz="sm" c={f.status === "flag" ? "red.8" : undefined}><b>{f.check}:</b> {symbols(f.detail)}</Text>
-        </Timeline.Item>
-      ))}
-    </Timeline>
   );
 }
 
