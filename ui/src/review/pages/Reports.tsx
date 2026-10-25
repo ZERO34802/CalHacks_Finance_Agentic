@@ -1,122 +1,198 @@
-// Insights > Reports: Spending · AP aging · Efficiency (incl. agent accuracy vs the answer key).
-import { BarChart, DonutChart } from "@mantine/charts";
-import { Badge, Button, Card, Grid, Group, SimpleGrid, Table, Tabs, Text } from "@mantine/core";
-import { useEffect, useState } from "react";
-import type { ApReport, Scoreboard } from "../../types/contracts";
+// Insights: one screen, no tabs. Proof the agents work, what they caught, where the money goes, and time/cash.
+// Nothing here repeats Home (cash-out forecast, sign-offs, discount scheduling) or the Bills table.
+import { Box, Button, Card, Group, Stack, Text } from "@mantine/core";
+import { useViewportSize } from "@mantine/hooks";
+import { useEffect, useState, type ReactNode } from "react";
+import type { ApReport, Bill, EvalResult, Scoreboard } from "../../types/contracts";
 import { ap } from "../api";
 import { useApp } from "../context";
-import { amount, day, due, shortName, usd, usdShort } from "../format";
-import { Avatarish, Stat, StageBadge } from "../parts";
+import { shortName, usdShort, when } from "../format";
+import { HEAD_BG, HEAD_BORDER } from "../parts";
 
-const COLORS = ["brand.7", "violet.5", "orange.5", "cyan.6", "pink.5"];
+const pct = (r: number | null | undefined) => (r == null ? "—" : `${Math.round(r * 100)}%`);
+const border = "1px solid var(--mantine-color-gray-2)";
+
+/** Card header strip: tinted, bottom border, so the title reads as a header and never merges with the rows. */
+function Head({ title, right }: { title: ReactNode; right?: ReactNode }) {
+  return (
+    <Card.Section inheritPadding py="sm" bg={HEAD_BG} style={{ borderBottom: HEAD_BORDER }}>
+      <Group justify="space-between" wrap="nowrap" gap="sm">
+        <Text fw={600} fz={17} lh={1.3} truncate>{title}</Text>
+        {right}
+      </Group>
+    </Card.Section>
+  );
+}
+
+const cardStyle = { minHeight: 0, display: "flex", flexDirection: "column" as const, overflow: "hidden" };
+const scroll = { flex: 1, minHeight: 0, overflowY: "auto" as const };
+
+// Answer-key scenarios, grouped the way a controller thinks about risk. A case counts in every group it matches.
+const DIFF = ["qty_short", "price_over", "unapproved_freight", "total_mismatch", "currency_mismatch"];
+const GROUPS: [string, (r: EvalResult) => boolean][] = [
+  ["Fraud and injection", (r) => r.expected.tags.some((t) => ["attack", "injection", "memory-poisoning", "csv-injection", "macro", "unregistered-channel"].includes(t))],
+  ["Duplicate invoices", (r) => r.expected.tags.some((t) => ["dedup", "correction"].includes(t))],
+  ["Price, quantity, freight gaps", (r) => r.expected.discrepancies.some((d) => DIFF.includes(d))],
+  ["Approval limits and periods", (r) => r.expected.tags.some((t) => ["controls", "over-limit", "locked-period", "sla", "controller-reject"].includes(t))],
+  ["Bad files at intake", (r) => r.expected.tags.some((t) => ["ingest", "missing-file", "manifest", "encoding"].includes(t))],
+  ["Follow-ups and memory", (r) => r.expected.tags.some((t) => ["followup", "memory-matters", "skill-evolution"].includes(t))],
+  ["Clean bills, no false alarm", (r) => r.expected.tags.includes("clean")],
+];
+
+// Live issues by reason (counts only: per-reason dollars would need FX in the browser).
+const REASONS: { label: string; codes: string[]; bad?: boolean }[] = [
+  { label: "Bank change", codes: ["bank_mismatch", "lookalike_domain"], bad: true },
+  { label: "Prompt injection", codes: ["embedded_instructions"], bad: true },
+  { label: "Duplicate invoice", codes: ["duplicate"] },
+  { label: "Not on the PO", codes: ["not_on_po"] },
+  { label: "Short delivery", codes: ["qty_short"] },
+  { label: "Price above PO", codes: ["price_over"] },
+  { label: "Total or FX off", codes: ["total_mismatch", "currency_mismatch"] },
+  { label: "No matching PO", codes: ["no_po"] },
+];
+const flagged = (b: Bill) => !!b.recommendation && b.recommendation !== "approve";
+
+// row padding comes from --row-py on the page root: tighter on short screens so cards scroll less
+function Row({ children, first }: { children: ReactNode; first?: boolean }) {
+  return <Group justify="space-between" wrap="nowrap" gap="md" style={{ paddingBlock: "var(--row-py)", borderTop: first ? undefined : border }}>{children}</Group>;
+}
+
+function Bar({ value, max, color = "brand.6" }: { value: number; max: number; color?: string }) {
+  return (
+    <Box style={{ flex: 1, height: 8, borderRadius: 4, background: "var(--mantine-color-gray-1)", minWidth: 40 }}>
+      <Box h={8} style={{ width: `${max ? Math.max(2, (value / max) * 100) : 0}%`, borderRadius: 4, background: `var(--mantine-color-${color.replace(".", "-")})` }} />
+    </Box>
+  );
+}
 
 export default function Reports() {
-  const { bills, go } = useApp();
-  const [tab, setTab] = useState<string>("aging");
+  const { bills } = useApp();
   const [rep, setRep] = useState<ApReport | null>(null);
   const [board, setBoard] = useState<Scoreboard | null>(null);
   const [running, setRunning] = useState(false);
   useEffect(() => { ap.report().then(setRep).catch(() => {}); ap.scoreboard().then(setBoard).catch(() => setBoard(null)); }, [bills]);
   const grade = async () => { setRunning(true); try { setBoard(await ap.runEval()); } finally { setRunning(false); } };
+  const { height } = useViewportSize();
   if (!rep) return null;
-  const n = (v: string) => Number(v);   // chart geometry only; totals come from the backend
-  const outstanding = bills.filter((b) => !["paid", "rejected", "processing"].includes(b.stage)).sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? ""));
+
+  // spend: display shares only (Number for geometry/percent); totals come from the backend
+  const spend = rep.by_vendor.map((r) => ({ ...r, n: Number(r.amount_usd) }));
+  const spendTotal = spend.reduce((s, r) => s + r.n, 0);
+  const share = (v: number) => (spendTotal ? Math.round((v / spendTotal) * 100) : 0);
+  const vendorFlags = (name: string) => { const xs = bills.filter((b) => b.vendor_name === name); return { n: xs.length, f: xs.filter(flagged).length }; };
+  const worst = spend.map((r) => ({ name: r.label, ...vendorFlags(r.label) })).filter((v) => v.n >= 3).sort((a, b) => b.f / b.n - a.f / a.n)[0];
+
+  const reasons = REASONS.map((r) => ({ ...r, count: bills.filter((b) => b.signals.some((s) => r.codes.includes(s.code))).length }))
+    .concat([{ label: "Unsafe file", codes: [], count: bills.filter((b) => b.case_status === "quarantined").length }])
+    .filter((r) => r.count > 0).sort((a, b) => Number(!!b.bad) - Number(!!a.bad) || b.count - a.count);   // fraud first, then most frequent
+  const maxReason = Math.max(1, ...reasons.map((r) => r.count));
+
+  const late = rep.aging.filter((a) => a.label !== "Not due" && a.count > 0);
+  const m = board?.metrics;
+  const misses = board?.results.filter((r) => !r.passed) ?? [];
+  const tags = board?.results.flatMap((r) => r.expected.tags) ?? [];
+  const NAMES: Record<string, string> = { pdf: "PDF", image: "Scan", csv: "CSV", xlsx: "XLSX", api: "API", eml: "Email", erp: "ERP", email: "Email", sftp: "SFTP", s3: "S3" };
+  const list = (p: string) => [...new Set(tags.filter((t) => t.startsWith(p) && t !== `${p}none`).map((t) => t.slice(p.length)))].map((k) => NAMES[k] ?? k).join(" · ");
 
   return (
-    <>
-      <Text c="dimmed" fz="sm">Insights</Text>
-      <Text fz={34} fw={650} lh={1.1} mb="md">Reports</Text>
-      <Tabs value={tab} onChange={(t) => setTab(t ?? "aging")} mb="lg">
-        <Tabs.List><Tabs.Tab value="spending">Spending</Tabs.Tab><Tabs.Tab value="aging">AP aging</Tabs.Tab><Tabs.Tab value="efficiency">Efficiency</Tabs.Tab></Tabs.List>
-      </Tabs>
+    <Box style={{ height: "calc(100vh - 124px)", minHeight: 600, display: "flex", flexDirection: "column", ["--row-py" as string]: height > 0 && height < 860 ? "4px" : "6px" }}>
+      <Text fz={26} fw={650} mb="lg">Insights</Text>
 
-      {tab === "aging" && (
-        <Grid gutter="lg">
-          <Grid.Col span={{ base: 12, md: 6 }}>
-            <Card withBorder padding="lg"><Text fz="xs" c="dimmed">All time</Text><Text fw={600} mb="sm">AP aging · bills by days past due</Text>
-              <BarChart h={280} data={rep.aging.map((a) => ({ bucket: a.label, Bills: a.count }))} dataKey="bucket" series={[{ name: "Bills", color: "brand.6" }]}
-                withBarValueLabel />
-              <Group gap="lg" mt="sm">{rep.aging.map((a) => <Text key={a.label} fz="xs" c="dimmed">{a.label}: <b>{usdShort(a.amount_usd)}</b></Text>)}</Group>
-            </Card>
-          </Grid.Col>
-          <Grid.Col span={{ base: 12, md: 6 }}>
-            <Card withBorder padding={0}><Text fz="xs" c="dimmed" px="lg" pt="lg">All time</Text><Text fw={600} px="lg" mb="sm">Outstanding bills</Text>
-              <Table highlightOnHover verticalSpacing="sm">
-                <Table.Thead bg="gray.0"><Table.Tr><Table.Th>Payee</Table.Th><Table.Th>Due ↑</Table.Th><Table.Th>Status</Table.Th><Table.Th ta="right">Outstanding</Table.Th></Table.Tr></Table.Thead>
-                <Table.Tbody>{outstanding.map((b) => (
-                  <Table.Tr key={b.case_id} style={{ cursor: "pointer" }} onClick={() => go(`bill/${b.case_id}`)}>
-                    <Table.Td><Group gap="sm" wrap="nowrap"><Avatarish name={b.vendor_name} size={24} /><Text fz="sm">{shortName(b.vendor_name)}</Text></Group></Table.Td>
-                    <Table.Td><Text fz="sm">{day(b.due_date)}</Text><Text fz="xs" c="dimmed">{due(b.days_to_due)}</Text></Table.Td>
-                    <Table.Td><StageBadge stage={b.stage} /></Table.Td>
-                    <Table.Td ta="right" ff="monospace" fz="sm">{amount(b.amount, b.currency)}</Table.Td>
-                  </Table.Tr>))}</Table.Tbody>
-              </Table>
-            </Card>
-          </Grid.Col>
-          <Grid.Col span={12}>
-            <Card withBorder padding="lg"><Text fw={600}>Cash out by week</Text><Text fz="xs" c="dimmed" mb="sm">Open bills by due week, approved vs still pending · USD at simulated FX</Text>
-              <BarChart h={220} type="stacked" withLegend data={rep.forecast.map((w) => ({ week: w.week_start.slice(5), Approved: n(w.approved_usd), Pending: n(w.pending_usd) }))}
-                dataKey="week" series={[{ name: "Approved", color: "brand.7" }, { name: "Pending", color: "violet.4" }]} valueFormatter={(v) => usdShort(v)} />
-            </Card>
-          </Grid.Col>
-        </Grid>
-      )}
-
-      {tab === "spending" && (
-        <Grid gutter="lg">
-          <Grid.Col span={{ base: 12, md: 7 }}>
-            <Card withBorder padding="lg"><Text fw={600} mb="sm">Spend by vendor</Text>
-              <BarChart h={240} orientation="vertical" data={rep.by_vendor.map((r) => ({ vendor: shortName(r.label), USD: n(r.amount_usd) }))} dataKey="vendor"
-                series={[{ name: "USD", color: "brand.7" }]} valueFormatter={(v) => usdShort(v)} yAxisProps={{ width: 150 }} />
-            </Card>
-          </Grid.Col>
-          <Grid.Col span={{ base: 12, md: 5 }}>
-            <Card withBorder padding="lg"><Text fw={600} mb="sm">Spend by GL account</Text>
-              <Group align="center" wrap="nowrap">
-                <DonutChart size={160} thickness={26} data={rep.by_gl.map((r, i) => ({ name: r.label, value: n(r.amount_usd), color: COLORS[i % COLORS.length] }))} valueFormatter={(v) => usdShort(v)} />
-                <Table fz="xs"><Table.Tbody>{rep.by_gl.map((r, i) => (
-                  <Table.Tr key={r.label}><Table.Td><Badge size="xs" color={COLORS[i % COLORS.length]} circle /> {r.label}</Table.Td><Table.Td ta="right" ff="monospace">{usd(r.amount_usd)}</Table.Td></Table.Tr>
-                ))}</Table.Tbody></Table>
+      <Box style={{ flex: 1, minHeight: 0, display: "grid", gridTemplateColumns: "minmax(0, 5fr) minmax(0, 7fr)", gap: "var(--mantine-spacing-lg)" }}>
+        {/* 1. Proof: graded against the answer key, misses shown */}
+        <Card withBorder padding="md" style={cardStyle}>
+          <Head title="Agent accuracy" right={<Button size="compact-sm" variant="default" loading={running} onClick={grade}>Re-run</Button>} />
+          {board ? (
+            <>
+              <Group grow gap="md" py="md" style={{ borderBottom: border }}>
+                {([["Cases right", `${board.passed}/${board.total}`, board.passed === board.total ? "brand.7" : "red.7"],
+                  ["Caught", pct(board.catch_rate), undefined], ["False alarms", pct(board.false_alarm_rate), board.false_alarm_rate ? "red.7" : undefined],
+                  ["Controls held", pct(board.invariant_pass_rate), board.invariant_pass_rate === 1 ? undefined : "red.7"]] as const).map(([l, v, c]) => (
+                  <div key={l}><Text fz={26} fw={600} lh={1.1} c={c}>{v}</Text><Text fz="xs" c="dimmed" mt={4} style={{ whiteSpace: "nowrap" }}>{l}</Text></div>
+                ))}
               </Group>
-            </Card>
-          </Grid.Col>
-        </Grid>
-      )}
+              <Box style={scroll} pt={4}>
+                {misses.map((r) => (
+                  <Row key={r.case_id}><Text fz="sm" c="red.7" truncate>{r.case_id}: expected {r.expected.decision ?? "—"}, got {r.actual_decision ?? "—"}</Text>
+                    <Text fz="xs" c="dimmed" truncate>{Object.entries(r.checks).filter(([, ok]) => !ok).map(([k]) => k).join(", ")}</Text></Row>
+                ))}
+                {GROUPS.map(([label, test], i) => {
+                  const xs = board.results.filter(test), ok = xs.filter((r) => r.passed).length;
+                  return xs.length ? <Row key={label} first={i === 0 && !misses.length}><Text fz="sm">{label}</Text>
+                    <Text fz="sm" fw={600} c={ok === xs.length ? "brand.7" : "red.7"}>{ok}/{xs.length}</Text></Row> : null;
+                })}
+                {!!board.onboarding.length && <Row><Text fz="sm">Vendor onboarding</Text>
+                  <Text fz="sm" fw={600} c={board.onboarding.every((r) => r.passed) ? "brand.7" : "red.7"}>{board.onboarding.filter((r) => r.passed).length}/{board.onboarding.length}</Text></Row>}
+                <Row><Text fz="sm" c="dimmed">Formats</Text><Text fz="sm" c="dimmed" truncate>{list("format:")}</Text></Row>
+                <Row><Text fz="sm" c="dimmed">Channels</Text><Text fz="sm" c="dimmed" truncate>{list("channel:")}</Text></Row>
+              </Box>
+              <Text fz="xs" c="dimmed" pt="sm" style={{ borderTop: border }}>
+                {misses.length ? `${misses.length} missed` : "No misses"} · graded {when(board.at)}
+              </Text>
+            </>
+          ) : <Text fz="sm" c="dimmed" pt="md">Not graded yet.</Text>}
+        </Card>
 
-      {tab === "efficiency" && (
-        <>
-          <SimpleGrid cols={{ base: 2, md: 4 }} mb="lg">
-            <Stat label="Touchless" value={rep.touchless_rate == null ? "—" : `${Math.round(rep.touchless_rate * 100)}%`} sub="cleared with no human step" color="brand.7" />
-            <Stat label="Caught before payment" value={usdShort(rep.caught_usd)} sub="held, rejected or high-risk" />
-            <Stat label="Waiting on a human" value={rep.needs_review} sub="for approval" />
-            <Stat label="Payment-blocked" value={rep.blocked} sub="by the payment guard" color={rep.blocked ? "red.7" : undefined} />
-          </SimpleGrid>
-          <SimpleGrid cols={{ base: 2, md: 3 }} mb="lg">
-            <Stat label="Discounts captured" value={usdShort(rep.discounts_captured_usd)} sub="early-pay terms earned" color="green.8" />
-            <Stat label="Discounts available" value={usdShort(rep.discounts_available_usd)} sub="still inside the window" color="brand.7" />
-            <Stat label="Discounts missed" value={usdShort(rep.discounts_missed_usd)} sub="window closed before payment" color={Number(rep.discounts_missed_usd) ? "red.7" : undefined} />
-          </SimpleGrid>
-          <Card withBorder padding="lg">
-            <Group justify="space-between" mb="sm"><div><Text fw={600}>Agent accuracy</Text><Text fz="xs" c="dimmed">Graded against the answer key. Misses are shown, not hidden.</Text></div>
-              <Button size="xs" variant="light" loading={running} onClick={grade}>Grade again</Button></Group>
-            {board ? (
-              <>
-                <SimpleGrid cols={4} mb="sm">
-                  <Stat label="Cases right" value={`${board.passed}/${board.total}`} />
-                  <Stat label="Exceptions caught" value={`${Math.round(board.catch_rate * 100)}%`} />
-                  <Stat label="False alarms" value={`${Math.round(board.false_alarm_rate * 100)}%`} />
-                  <Stat label="Controls held" value={`${Math.round(board.invariant_pass_rate * 100)}%`} color={board.invariant_pass_rate === 1 ? "brand.7" : "red.7"} />
-                </SimpleGrid>
-                <Table fz="sm"><Table.Thead><Table.Tr><Table.Th>Case</Table.Th><Table.Th>Expected</Table.Th><Table.Th>Agents did</Table.Th><Table.Th>Missed checks</Table.Th></Table.Tr></Table.Thead>
-                  <Table.Tbody>{board.results.map((r) => (
-                    <Table.Tr key={r.case_id}><Table.Td>{r.passed ? "✓" : "✕"} {r.case_id}</Table.Td><Table.Td>{r.expected.decision}</Table.Td><Table.Td>{r.actual_decision ?? "—"}</Table.Td>
-                      <Table.Td c="dimmed" fz="xs">{Object.entries(r.checks).filter(([, ok]) => !ok).map(([k]) => k).join(", ") || "—"}</Table.Td></Table.Tr>
-                  ))}</Table.Tbody></Table>
-              </>
-            ) : <Text fz="sm" c="dimmed">Not graded yet.</Text>}
+        <Box style={{ minHeight: 0, display: "grid", gridTemplateRows: "auto minmax(0, 1fr)", gap: "var(--mantine-spacing-lg)" }}>
+          {/* 2. Where the money goes, and which vendors cause the work */}
+          <Card withBorder padding="md" style={cardStyle}>
+            <Head title="Where the money goes" />
+            {spend[0] && <Text fz="sm" c="dimmed" pt={8} pb={2}>
+              {shortName(spend[0].label)} is {share(spend[0].n)}% of spend{worst ? ` · ${shortName(worst.name).split(" ")[0]} has the most flags` : ""}
+            </Text>}
+            <Box style={scroll}>
+              {spend.map((r, i) => {
+                const v = vendorFlags(r.label);
+                return (
+                  <Row key={r.label} first={i === 0}>
+                    <Text fz="sm" w={150} truncate style={{ flexShrink: 0 }}>{shortName(r.label)}</Text>
+                    <Bar value={r.n} max={spend[0].n} />
+                    <Text fz="sm" fw={500} w={64} ta="right" style={{ flexShrink: 0 }}>{usdShort(r.amount_usd)}</Text>
+                    <Text fz="sm" c="dimmed" w={40} ta="right" style={{ flexShrink: 0 }}>{share(r.n)}%</Text>
+                    <Text fz="sm" w={92} ta="right" style={{ flexShrink: 0 }} c={v.f ? undefined : "dimmed"}>{v.f}/{v.n} flagged</Text>
+                  </Row>
+                );
+              })}
+            </Box>
           </Card>
-        </>
-      )}
-    </>
+
+          <Box style={{ minHeight: 0, display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: "var(--mantine-spacing-lg)" }}>
+            {/* 3. What the checks stopped, by reason */}
+            <Card withBorder padding="md" style={cardStyle}>
+              <Head title="Issues caught" right={<Text fz="sm" fw={600} c="brand.7">{usdShort(rep.caught_usd)} stopped</Text>} />
+              <Box style={scroll} pt={4}>
+                {reasons.map((r, i) => (
+                  <Row key={r.label} first={i === 0}>
+                    <Text fz="sm" c={r.bad ? "red.7" : undefined} truncate style={{ flex: "0 1 auto", minWidth: 0 }}>{r.label}</Text>
+                    <Group gap="sm" wrap="nowrap" w={92} style={{ flexShrink: 0 }}>
+                      <Bar value={r.count} max={maxReason} color={r.bad ? "red.6" : "brand.4"} />
+                      <Text fz="sm" fw={600} w={20} ta="right">{r.count}</Text>
+                    </Group>
+                  </Row>
+                ))}
+                {!reasons.length && <Text fz="sm" c="dimmed">Nothing caught yet.</Text>}
+              </Box>
+            </Card>
+
+            {/* 4. Time and cash */}
+            <Card withBorder padding="md" style={cardStyle}>
+              <Head title="Time and cash" />
+              <Stack gap={0} style={scroll} pt={4}>
+                <Row first><Text fz="sm">Open AP</Text><Text fz="sm" fw={600} style={{ whiteSpace: "nowrap" }}>{usdShort(rep.open_usd)}
+                  <Text span fz="sm" fw={400} c={Number(rep.overdue_usd) ? "red.7" : "dimmed"}> · {usdShort(rep.overdue_usd)} overdue</Text></Text></Row>
+                {late.map((a) => <Row key={a.label}><Text fz="sm" c="dimmed" pl="sm">{a.label}</Text><Text fz="sm">{usdShort(a.amount_usd)} · {a.count}</Text></Row>)}
+                <Row><Text fz="sm">Discounts</Text><Text fz="sm" fw={600} c="brand.7" style={{ whiteSpace: "nowrap" }}>{usdShort(rep.discounts_captured_usd)}
+                  <Text span fz="sm" fw={400} c={Number(rep.discounts_missed_usd) ? "red.7" : "dimmed"}> · {usdShort(rep.discounts_missed_usd)} missed</Text></Text></Row>
+                {m && <>
+                  <Row><Text fz="sm">Paid on time</Text><Text fz="sm" fw={600}>{pct(m.on_time_payment_rate)}</Text></Row>
+                  <Row><Text fz="sm">Avg time to resolve</Text><Text fz="sm" fw={600}>{m.avg_time_to_resolve_hours == null ? "—" : `${m.avg_time_to_resolve_hours}h`}</Text></Row>
+                  <Row><Text fz="sm">Hours saved <Text span fz="xs" c="dimmed">est.</Text></Text><Text fz="sm" fw={600}>{Math.round(Number(m.hours_saved_est))}h</Text></Row>
+                </>}
+              </Stack>
+            </Card>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 }

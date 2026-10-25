@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import type { ApSettings } from "../../types/contracts";
 import { ap } from "../api";
 import { PEOPLE, usd } from "../format";
-import { PageHead } from "../parts";
+import { CardHead, PageHead } from "../parts";
 
 const STATUS: Record<string, string> = { connected: "green", simulated: "yellow", not_connected: "gray" };
 
@@ -19,7 +19,7 @@ export default function Settings() {
       <PageHead title="Settings" sub="Enforced in code by validators and the Poster. Change them in config/policy.yaml (loosening needs a second sign-off)." />
       <Grid gutter="lg">
         <Grid.Col span={{ base: 12, md: 6 }}>
-          <Card withBorder padding="lg"><Text fw={600} mb="sm">Approval workflow</Text>
+          <Card withBorder padding="lg"><CardHead title="Approval workflow" mb="xs" />
             <Table fz="sm"><Table.Tbody>
               {Object.entries(s.approval_limits).map(([role, lim]) => row(`${PEOPLE[role as keyof typeof PEOPLE]?.title ?? role} may approve up to`, usd(lim)))}
               {row("Approval SLA", `${s.sla_hours} hours, then escalate to backup approver`)}
@@ -28,12 +28,12 @@ export default function Settings() {
               {row("Bank details", "Agents can never change them; payments go to the vendor master only")}
             </Table.Tbody></Table>
           </Card>
-          <Card withBorder padding="lg" mt="lg"><Text fw={600} mb="sm">People</Text>
+          <Card withBorder padding="lg" mt="lg"><CardHead title="People" mb="xs" />
             <Table fz="sm"><Table.Tbody>{Object.values(PEOPLE).map((p) => row(p.title, `${p.name} · ${p.email}`))}</Table.Tbody></Table>
           </Card>
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 6 }}>
-          <Card withBorder padding="lg"><Text fw={600} mb="sm">Matching & controls</Text>
+          <Card withBorder padding="lg"><CardHead title="Matching & controls" mb="xs" />
             <Table fz="sm"><Table.Tbody>
               {row("Materiality (auto-accept below)", `${usd(s.materiality_abs)} or ${(Number(s.materiality_pct) * 100).toFixed(1)}% of total`)}
               {row("Quantity tolerance", `${(Number(s.qty_tolerance_pct) * 100).toFixed(1)}%`)}
@@ -43,7 +43,7 @@ export default function Settings() {
               {row("FX to USD (simulated)", Object.entries(s.fx_rates).map(([c, r]) => `${c} ${r}`).join(" · "))}
             </Table.Tbody></Table>
           </Card>
-          <Card withBorder padding="lg" mt="lg"><Text fw={600} mb="sm">Integrations</Text>
+          <Card withBorder padding="lg" mt="lg"><CardHead title="Integrations" mb="xs" />
             <Table fz="sm"><Table.Tbody>{s.integrations.map((i) => (
               <Table.Tr key={i.name}><Table.Td><Text fz="sm" fw={500}>{i.name}</Text><Text fz="xs" c="dimmed">{i.note}</Text></Table.Td>
                 <Table.Td ta="right"><Badge variant="light" color={STATUS[i.status]}>{i.status.replace("_", " ")}</Badge></Table.Td></Table.Tr>
