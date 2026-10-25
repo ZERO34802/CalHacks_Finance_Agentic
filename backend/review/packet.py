@@ -200,7 +200,7 @@ def signoff_problem(case: Case, approver: str, role: str, decision: str, policy:
     bank change / look-alike / hidden instructions need the out-of-band callback first."""
     if decision != "approved":
         return None
-    if case.po and approver.lower() == case.po.requester.lower():
+    if case.po and approver.lower() == case.po.requester.lower() and role not in policy.self_approve_roles():
         return f"{approver} requested this purchase and cannot approve it."
     from backend.ap.state import oob_problem
     oob = oob_problem(case)

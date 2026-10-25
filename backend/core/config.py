@@ -44,6 +44,10 @@ class Policy(BaseModel):
     onboarding: dict[str, Any] = {}
     release: dict[str, Any] = {}
 
+    def self_approve_roles(self) -> frozenset[str]:
+        """Roles that may approve their own purchase (release.self_approve_roles); everyone else: requester != approver."""
+        return frozenset(str(r) for r in (self.release.get("self_approve_roles") or []))
+
 
 @lru_cache
 def load_policy(path: Path = POLICY_PATH) -> Policy:

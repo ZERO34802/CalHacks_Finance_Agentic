@@ -315,7 +315,7 @@ def approval_steps(store: Store, pay: PaymentStore, policy: Policy, case: Case, 
     else:
         status, who = ("waiting" if case.decision else "pending"), f"Any {ROLE_TITLE.get(role, role)}"
     note = (f"{ROLE_TITLE.get(role, role)} approves up to USD {limit:,.0f}" if limit is not None else "") + \
-        (f" · {requester} removed due to separation of duties" if requester else "")
+        (f" · {requester} removed due to separation of duties (unless CFO/CTO)" if requester else "")
     out.append(ApprovalStep(step=2, label=f"{ROLE_TITLE.get(role, role)} approval", who=who, status=status, note=note))
     p = b.payment
     batch = pay.get(p.batch_id) if p else None

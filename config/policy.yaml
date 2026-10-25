@@ -62,3 +62,4 @@ onboarding:           # vendor onboarding from a Slack contract (CLAUDE.md 10d)
 
 release:              # tiered maker-checker at payment release
   roles: [controller, cfo, cto]   # AP leads approve but never release; an AP-lead approval goes up one level
+  self_approve_roles: [cto, cfo]  # may approve (and release) their own purchase; AP leads and controllers can't

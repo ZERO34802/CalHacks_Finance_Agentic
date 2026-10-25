@@ -23,7 +23,7 @@ what problem it solves, what we built, and which sponsor tech it runs on.
 | 3 | 0:07 to 0:11 | Every channel in | Five channel icons sit around the edge: **Email, API, SFTP, ERP, Slack**. Documents fly from each one into a single ReconAI node in the centre. | "Every channel. One place." |
 | 4 | 0:11 to 0:15 | It checks everything | One bill card. Check rows tick in: ✓ 3-way match, ✓ not a duplicate, ✗ bank details changed. The card border turns red and a "Held" badge drops on. | "Checks every bill before you pay." |
 | 5 | 0:15 to 0:22 | All in Slack | A Slack channel with a supplier, who quotes a price. A grey **"Only visible to you"** message slides in with the counter, the walk-away price and the money at stake. The cursor clicks **Approve**. A toast slides in with a check that draws itself: "Paid · USDC". | "Negotiate, approve, pay. In Slack." |
-| 6 | 0:22 to 0:28 | Built with + outro | Logos stagger in on a grid: **Claude, Factory Droid, SpacetimeDB, CRS, Coinbase, Slack, Odoo**. Under them: "48/48 test cases · never pays without a second approver". Everything scales down to the ReconAI logo. | "Built at Cal Hacks 13.0" |
+| 6 | 0:22 to 0:28 | Built with + outro | Logos stagger in on a grid: **Claude, Factory Droid, SpacetimeDB, CRS, Coinbase, Slack, Odoo**. Under them: "48/48 test cases · never pays without a human sign-off". Everything scales down to the ReconAI logo. | "Built at Cal Hacks 13.0" |
 
 ## Scene notes
 

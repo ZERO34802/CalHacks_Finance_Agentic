@@ -102,8 +102,9 @@ def invariants(case: Case, steps: list[Step], ctx: Ctx, seen_keys: Optional[dict
     posted = _posted_ap(case, ctx)
     checks["inv_balanced"] = sum((p.amount for p in je.postings), Decimal(0)) == 0
     checks["inv_approved_before_post"] = bool(approved) and je.approved_by == approved[-1].approver
-    checks["inv_requester_ne_approver"] = je.approved_by is not None and je.approved_by != je.requested_by and all(
-        a.approver != je.requested_by for a in approved)
+    own = ctx.policy.self_approve_roles()  # CFO / CTO may approve their own purchase
+    checks["inv_requester_ne_approver"] = je.approved_by is not None and all(
+        a.approver != je.requested_by or a.role.value in own for a in approved)
     if case.decision == Decision.hold and case.invoice is not None:
         ceiling = case.invoice.total - actual_variance(case)
         checks["inv_disputed_not_paid"] = posted <= ceiling and (

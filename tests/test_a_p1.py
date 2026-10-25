@@ -381,9 +381,16 @@ def test_poster_cfo_can_book_above_controller_limit(ctx):
     cfo.approvals[0].limit = None  # no limit on the approval: the policy cfo limit applies
     cfo, s = step(ctx, cfo.id, Poster(), cfo)
     assert s.status == StepStatus.ok and cfo.paid_amount == D("1450000.00") and s.detail["effective_limit"] == "100000000.00"
-    # SoD still applies to the CFO
-    sod = approve(triage(ctx, mk_case(ctx, "cfo2", inv_("V-KESTREL", "KM-BIG2", date(2026, 10, 12), "USD", "PO-BIG",
-                                                       [("HBM3E-12H-24G", "10", "1450.00")]), as_of=date(2026, 10, 12))),
-                  decision=Decision.approve, approver="j.park@helix.example", role=Role.cfo, limit="100000000.00")
+    ctx.store.save_case(cfo)
+    # the CFO may approve their own purchase (policy release.self_approve_roles); a controller may not
+    mine = lambda cid, no: triage(ctx, mk_case(ctx, cid, inv_("V-KESTREL", no, date(2026, 10, 12), "USD", "PO-BIG",  # noqa: E731
+                                                              [("HBM3E-12H-24G", "10", "1450.00")]), as_of=date(2026, 10, 12)))
+    own = approve(mine("cfo2", "KM-BIG2"), decision=Decision.approve, approver="j.park@helix.example", role=Role.cfo,
+                  limit="100000000.00")
+    own, s = step(ctx, own.id, Poster(), own)
+    assert s.status == StepStatus.ok
+    ctx.store.save_case(own)
+    sod = approve(mine("cfo3", "KM-BIG3"), decision=Decision.approve, approver="j.park@helix.example",
+                  role=Role.controller, limit="1000000.00")
     sod, s = step(ctx, sod.id, Poster(), sod)
     assert s.status == StepStatus.blocked and "requester" in s.error

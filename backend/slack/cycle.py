@@ -506,11 +506,12 @@ class BillingCycle:
 
     def approvers_for(self, case: Case) -> tuple[list, bool]:
         """(role holders to ask, they are AP leads). AP leads when the amount is within their limit, else the
-        controller / CFO / CTO holders whose limit covers it. Never the requester."""
+        controller / CFO / CTO holders whose limit covers it. Never the requester, unless CFO / CTO (self-approve)."""
         policy = load_policy()
         amount = usd(case, policy) or Decimal(0)
         req = self._requester_email(case)
-        hs = [h for h in R.holders(self.store, APPROVE_ROLES) if h.email != req]
+        hs = [h for h in R.holders(self.store, APPROVE_ROLES)
+              if h.email != req or h.role.value in policy.self_approve_roles()]
         leads = [h for h in hs if h.role == Role.approver and amount <= policy.approval_limits.get("approver", 0)]
         if leads:
             return leads, True
@@ -523,7 +524,8 @@ class BillingCycle:
         approved = ap_state.last_approved(case)
         return [h for h in R.holders(self.store, release_roles(policy))
                 if amount <= policy.approval_limits.get(h.role.value, Decimal(0))
-                and not (approved and approved.approver.lower() == h.email)]
+                and not (approved and approved.role.value not in release_roles(policy)
+                         and approved.approver.lower() == h.email)]
 
     def notify_bill(self, case: Case) -> None:
         if not ap_state.is_bill(case, self.store.list_cases()):
@@ -558,7 +560,17 @@ class BillingCycle:
             None if case.invoice else self.vendor_deal(case.vendor_id))  # unreadable: the vendor's latest deal
         if d:
             to = vendor.contact_email if vendor and vendor.contact_email else "your contact on file"
-            self.say(d.channel, f"We found a difference on {inv_no}; details emailed to {to}.")
+            issues = billing.vendor_issues(case)
+            if not issues:  # nothing the vendor can fix (e.g. a bank-change check): never say which check tripped
+                return self.say(d.channel, f"We found a difference on {inv_no}; details emailed to {to}.")
+            tags = " ".join(f"<@{u.slack_user}>" for u in self.store.list_records(VendorUser, VENDOR_USER_KIND)
+                            if u.vendor_id == case.vendor_id)
+            po = case.invoice.po_number or d.po_number
+            self.say(d.channel, f"{tags} :warning: *{inv_no}* ({po}) didn't pass Helix's checks:\n"
+                                + "\n".join(f"• {i}" for i in issues)
+                                + f"\nPlease send a corrected invoice numbered *{billing.next_invoice_no(inv_no)}* "
+                                  f"with every line fixed: run `/reconai invoice {po}` or share the file here. "
+                                  f"Details also emailed to {to}.")
 
     def _ask_release(self, case: Case, head: str) -> None:
         policy = load_policy()

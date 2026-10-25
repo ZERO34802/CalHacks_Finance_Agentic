@@ -206,7 +206,8 @@ class Poster:
             return self._refuse(case, ctx, f"approval by role {approval.role.value} cannot authorize posting", detail)
         if not requester:
             return self._refuse(case, ctx, "requester unknown (no PO): segregation of duties cannot be checked", detail)
-        if any(a.approver.lower() == requester.lower() for a in approved):
+        if any(a.approver.lower() == requester.lower() and a.role.value not in pol.self_approve_roles()
+               for a in approved):
             return self._refuse(case, ctx, f"requester {requester} cannot approve their own purchase", detail)
         if usd is None:
             return self._refuse(case, ctx, f"no fx rate for {inv.currency}", detail)

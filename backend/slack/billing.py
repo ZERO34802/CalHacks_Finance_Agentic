@@ -24,7 +24,7 @@ from backend.core.config import Policy
 from backend.pipeline.lib.split import INFO
 from backend.review.checks import payment_block
 from backend.review.packet import money, usd
-from contracts import PO, Case, Decision, ReviewPacket, Vendor
+from contracts import PO, Case, Decision, DiscrepancyType as T, ReviewPacket, Vendor
 
 CENT = Decimal("0.01")
 INVOICE_NO = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\-_/.]{0,39}$")
@@ -100,6 +100,36 @@ def assess(case: Case, vendor: Optional[Vendor], policy: Policy, store, packet: 
             seen.add(w)
             out.append(w[:300])
     return not out, out
+
+
+def vendor_issues(case: Case) -> list[str]:
+    """What the vendor must fix, for the deal channel: invoice vs Helix's record, from the matcher's discrepancies.
+    Vendor-facing types only; internal checks (bank change, look-alike domain, hidden instructions) are never named."""
+    inv = case.invoice
+    if inv is None:
+        return []
+    ccy, out = inv.currency, []
+    for d in case.discrepancies:
+        if not d.material or d.type in INFO:
+            continue
+        over = f" ({ccy} {d.delta:,.2f} over)" if d.delta else ""
+        text = {T.qty_short: f"`{d.sku}`: billed {d.actual}, Helix received {d.expected}{over}",
+                T.price_over: f"`{d.sku}`: unit price {d.actual}, agreed price {d.expected}{over}",
+                T.unapproved_freight: f"Line {d.line_no}: {ccy} {d.actual} charge that isn't on the PO",
+                T.total_mismatch: f"Total {d.actual} doesn't equal the sum of the lines ({d.expected})",
+                T.currency_mismatch: f"Billed in {d.actual}, the PO is in {d.expected}",
+                T.fx_gap: "The converted amount doesn't match the agreed exchange basis",
+                T.unknown_po: f"PO {d.actual} isn't one of your Helix purchase orders",
+                T.duplicate_invoice: f"Invoice number {inv.invoice_no} was already submitted"}.get(d.type)
+        if text:
+            out.append(text)
+    return out
+
+
+def next_invoice_no(invoice_no: str) -> str:
+    """The number a corrected invoice should carry: INV-1 -> INV-1-R -> INV-1-R2 (adapters.derive_links links it)."""
+    m = re.match(r"^(.*\S)-R(\d?)$", invoice_no.strip(), re.I)
+    return f"{m.group(1)}-R{int(m.group(2) or 1) + 1}" if m else f"{invoice_no.strip()}-R"
 
 
 def facts(case: Case, vendor: Optional[Vendor], store, policy: Policy) -> list[str]:

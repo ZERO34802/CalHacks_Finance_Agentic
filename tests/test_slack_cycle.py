@@ -527,3 +527,50 @@ def test_negotiation_is_archived_with_the_contract_and_recovered_from_history(mo
     msgs, _, source = bot.conversation("C1", store.get_record(Session, "slack_session", "C1"), deals)
     assert source.startswith("Slack channel history") and [m.user for m in msgs] == ["U_VENDOR", "U_HELIX"]
     assert [m.internal for m in msgs] == [False, True]            # the registered vendor contact is the VENDOR side
+
+
+def _invoice_as(bot, fake, po, no, qty, price):
+    """The vendor overrides the prefilled form: bills `qty` at `price` on the PO's only line."""
+    bot.handle("invoice", po.po_number, "U_VENDOR", "C1", "trig-inv")
+    view = fake.views[-1]["view"]
+    vals = {"invoice_no": {"v": {"value": no}}, "invoice_date": {"v": {"selected_date": date.today().isoformat()}},
+            "qty_0": {"v": {"value": qty}}, "price_0": {"v": {"value": price}}, "notes": {"v": {"value": ""}}}
+    res = bot.submit_invoice("U_VENDOR", vals, json.loads(view["private_metadata"]))
+    assert res["errors"] == {}, res
+    return bot.process_invoice("U_VENDOR", res["invoice"], json.loads(view["private_metadata"]))
+
+
+def test_vendor_is_tagged_until_the_bill_is_right_then_the_cto_approves_their_own_deal(monkeypatch):
+    """The demo: two errors -> vendor tagged with both; one fixed -> tagged with the other; all fixed -> the CTO
+    (who negotiated, so the requester) approves and releases in one click (policy release.self_approve_roles)."""
+    monkeypatch.setenv("RECONAI_HUMAN_SIGNOFF", "on")
+    store = fresh_store()
+    client(monkeypatch, store)
+    import backend.api.app as app_module
+    bot, fake, contract, onb = _onboarded(monkeypatch, store)
+    bot.handle("role", "cto", "U_HELIX", "C1")
+    po = erp.get_po(store, "PO-9001")
+    bot.handle("receive", "PO-9001 8", "U_HELIX", "C1")
+
+    _invoice_as(bot, fake, po, "INV-1042", "10", "1250.00")        # 2 received short + price above the contract
+    tag = fake.posts[-1]
+    assert tag["channel"] == "C1" and tag["text"].startswith("<@U_VENDOR> :warning: *INV-1042* (PO-9001)")
+    assert "billed 10, Helix received 8" in tag["text"] and "unit price 1250.00, agreed price 1200.00" in tag["text"]
+    assert "numbered *INV-1042-R*" in tag["text"] and "details" not in tag["text"].split("\n")[0]
+    assert any("needs a look" in x["text"] for x in fake.to("U_HELIX"))   # the requester CTO hears it too
+
+    _invoice_as(bot, fake, po, "INV-1042-R", "8", "1250.00")       # quantity fixed, price still wrong
+    tag = fake.posts[-1]["text"]
+    assert "agreed price 1200.00" in tag and "received" not in tag and "numbered *INV-1042-R2*" in tag
+
+    case = _invoice_as(bot, fake, po, "INV-1042-R2", "8", "1200.00")
+    [go] = [b for b in fake.buttons("U_HELIX") if b["action_id"] == "bill_approve_release"]
+    assert go["value"] == case.id
+    bot.bill_action("bill_approve_release", "U_HELIX", case.id)
+    [batch] = app_module.payments.batches()
+    assert batch.status == "paid" and batch.payments[0].case_id == case.id
+    assert fake.posts[-1]["text"].startswith("Payment sent: USD 9,600.00 for INV-1042-R2")
+
+
+def test_next_corrected_invoice_number():
+    assert [billing.next_invoice_no(n) for n in ("INV-7", "INV-7-R", "INV-7-R2")] == ["INV-7-R", "INV-7-R2", "INV-7-R3"]
