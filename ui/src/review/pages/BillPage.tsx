@@ -16,7 +16,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { ApprovalDecision, BillDetail, ChatMessage, OutboundEmail, PaymentBatch, ReviewPacket, Step } from "../../types/contracts";
 import { ap } from "../api";
 import { me, useApp } from "../context";
-import { amount, day, due, findingColor, PEOPLE, shortName, STAGES, stage, stepColor, usd, when, type Seat } from "../format";
+import { amount, canRelease, day, due, findingColor, PEOPLE, RELEASE_RULE, shortName, STAGES, stage, stepColor, usd, when, type Seat } from "../format";
 import { EmailCard, emailGist, EmailStatusBadge, emailStatus } from "../emails";
 import { Avatarish, BILL_TABS, billQueue, CardHead, HEAD_BG, HEAD_BORDER, sortBills, StageBadge, symbols, tabOf } from "../parts";
 
@@ -360,6 +360,7 @@ function PaymentCard({ d, pay, setPay }: { d: BillDetail; pay: Pay | null; setPa
         })}
       </Group>
       {waiting?.note && s !== "paid" && <Text fz="xs" c="dimmed" mb={6}>{symbols(waiting.note)}</Text>}
+      {(s === "ready_to_pay" || s === "scheduled") && <Text fz="xs" c="dimmed" mb={6}>{RELEASE_RULE}</Text>}
       {b.payment_block && <Line color="red.8" icon={<IconAlertTriangle size={15} />}>{symbols(b.payment_block)}</Line>}
       {off && !locked && <Line color="brand.8" icon={<IconSparkles size={15} />}>
         Pay by {day(off.pay_by)} to save {amount(off.discount_amount, off.currency)} ({off.terms}, ≈{off.annualized_return_pct}%/yr){inWindow ? ": the date below is in the window" : ": the date below misses it"}</Line>}
@@ -389,7 +390,9 @@ function Actions({ d, pay, onDone }: { d: BillDetail; pay: Pay | null; onDone: (
     if (b.payment) ap.runs().then((rs) => setRun(rs.find((r) => r.id === b.payment!.batch_id) ?? null)).catch(() => {});
     else setRun(null);
   }, [b.payment?.batch_id, b.payment?.status]);
-  const canSign = b.needs === seat && !!b.invoice_no;   // nothing to approve when no invoice was read
+  const releaser = canRelease(who.role);
+  const top = (x: string) => x === "cfo" || x === "cto";   // the CTO has the CFO's authority
+  const canSign = (b.needs === seat || (top(b.needs) && top(seat))) && !!b.invoice_no;   // nothing to approve when no invoice was read
   const fail = (e: unknown, title: string) => notifications.show({ color: "red", title, message: e instanceof Error ? e.message : String(e) });
 
   const decide = async (dec: ApprovalDecision) => {
@@ -400,8 +403,8 @@ function Actions({ d, pay, onDone }: { d: BillDetail; pay: Pay | null; onDone: (
       notifications.show({ color: dec === "rejected" ? "red" : "yellow", title: "Recorded", message: text }); onDone(text);
     } catch (e) { fail(e, "Not allowed"); } finally { setBusy(null); }
   };
-  const schedule = async (approveFirst: boolean) => {
-    setBusy("schedule");
+  const schedule = async (approveFirst: boolean, releaseRail?: "coinbase") => {
+    setBusy(releaseRail ? "approve_release" : "schedule");
     try {
       let cur = b;
       if (approveFirst) {
@@ -413,17 +416,19 @@ function Actions({ d, pay, onDone }: { d: BillDetail; pay: Pay | null; onDone: (
         notifications.show({ color: "orange", title: "Approved, but not payable yet", message: why });
         onDone(`Approved by ${who.name}. Not scheduled: ${why}`); return;
       }
-      const r = await ap.createRun([b.case_id], pay?.date || new Date().toISOString().slice(0, 10), who.email,
+      const todayIso = new Date().toISOString().slice(0, 10);
+      const r = await ap.createRun([b.case_id], releaseRail ? todayIso : pay?.date || todayIso, who.email,
         { [b.case_id]: pay?.method ?? d.default_method ?? "ach" });
-      const text = `${approveFirst ? `Approved by ${who.name} and s` : "S"}cheduled in ${r.id} for ${day(r.pay_date)}. Someone other than ${who.name} must release it.`;
+      if (releaseRail) { await release(releaseRail, r); return; }
+      const text = `${approveFirst ? `Approved by ${who.name} and s` : "S"}cheduled in ${r.id} for ${day(r.pay_date)}. ${releaser ? "You can release it when it's due." : "A controller, CFO or CTO releases it."}`;
       notifications.show({ color: "brand", title: "Scheduled", message: text }); onDone(text);
-    } catch (e) { fail(e, approveFirst ? "Couldn't approve & schedule" : "Couldn't schedule"); onDone(); } finally { setBusy(null); }
+    } catch (e) { fail(e, releaseRail ? "Couldn't approve & release" : approveFirst ? "Couldn't approve & schedule" : "Couldn't schedule"); onDone(); } finally { setBusy(null); }
   };
-  const release = async (rail: "bank" | "coinbase") => {
-    if (!run) return;
+  const release = async (rail: "bank" | "coinbase", target: PaymentBatch | null = run) => {
+    if (!target) return;
     setBusy(rail);
     try {
-      const r = await ap.release(run.id, who.email, rail);
+      const r = await ap.release(target.id, who.email, rail, who.role);
       const p = r.payments.find((x) => x.case_id === b.case_id);
       const t = rail === "coinbase"
         ? (p?.status === "paid" ? `Released by ${who.name} via Coinbase: ${p.onchain_amount} USDC sent to ${short(p.payee_address)}${p.network === "sandbox" ? " (sandbox, simulated)" : ""} · tx ${short(p.tx_hash)}.`
@@ -431,7 +436,7 @@ function Actions({ d, pay, onDone }: { d: BillDetail; pay: Pay | null; onDone: (
         : `Released by ${who.name}. Paid (simulated bank transfer).`;
       notifications.show({ color: p?.status === "paid" || rail === "bank" ? "green" : "red", title: p?.status === "failed" ? "Not paid" : "Paid", message: t, autoClose: 9000 });
       onDone(t);
-    } catch (e) { fail(e, rail === "coinbase" ? "Can't release via Coinbase" : "Can't release"); } finally { setBusy(null); }
+    } catch (e) { fail(e, rail === "coinbase" ? "Can't release via Coinbase" : "Can't release"); onDone(); } finally { setBusy(null); }
   };
 
   let note: ReactNode = null, buttons: ReactNode = null;
@@ -441,8 +446,11 @@ function Actions({ d, pay, onDone }: { d: BillDetail; pay: Pay | null; onDone: (
       <Button variant="default" loading={busy === "ask"} onClick={() => decide("ask")}>Hold</Button>
       <Button variant="outline" color="red" leftSection={<IconX size={15} />} loading={busy === "rejected"} onClick={() => decide("rejected")}>Reject</Button>
       <Tooltip label={!b.invoice_no ? "No invoice was read: reject, or ask the vendor to resend." : `Approval needs the ${PEOPLE[b.needs as Seat]?.title}. Switch person (top right).`} disabled={canSign}>
-        <Button disabled={!canSign} loading={busy === "schedule"} leftSection={<IconCheck size={16} />} onClick={() => schedule(true)}>Approve & schedule</Button>
-      </Tooltip></>;
+        <Button variant={releaser ? "default" : "filled"} disabled={!canSign} loading={busy === "schedule"} leftSection={<IconCheck size={16} />} onClick={() => schedule(true)}>Approve & schedule</Button>
+      </Tooltip>
+      {releaser && canSign && <Tooltip label="Approve, schedule for today and release on Coinbase in one step (you have release authority)">
+        <Button loading={busy === "approve_release" || busy === "coinbase"} leftSection={<IconCheck size={16} />} onClick={() => schedule(true, "coinbase")}>Approve & release via Coinbase</Button>
+      </Tooltip>}</>;
   } else if (b.stage === "ready_to_pay") {
     note = `Approved by ${b.approved_by}`;
     buttons = <Button loading={busy === "schedule"} onClick={() => schedule(false)}>Schedule payment</Button>;
@@ -451,12 +459,11 @@ function Actions({ d, pay, onDone }: { d: BillDetail; pay: Pay | null; onDone: (
     buttons = <><Button variant="default" loading={busy === "ask"} onClick={() => decide("ask")}>Hold & verify</Button>
       <Button variant="outline" color="red" leftSection={<IconX size={15} />} loading={busy === "rejected"} onClick={() => decide("rejected")}>Reject</Button></>;
   } else if (b.stage === "scheduled") {
-    const self = run?.created_by === who.email;
-    note = !run ? "Scheduled" : self ? `${run.id} · you prepared it: someone else releases` : `${run.id} · prepared by ${run.created_by.split("@")[0]}`;
-    buttons = <Tooltip label="You prepared this payment. Someone else must release it." disabled={!self}>
+    note = !run ? "Scheduled" : releaser ? `${run.id} · scheduled by ${run.created_by.split("@")[0]}` : "Needs a controller, CFO or CTO to release";
+    buttons = <Tooltip label={RELEASE_RULE} disabled={releaser}>
       <Group gap="xs" wrap="nowrap">
-        <Button variant="default" disabled={self || !run} loading={busy === "bank"} onClick={() => release("bank")}>Release · bank (simulated)</Button>
-        <Button disabled={self || !run} loading={busy === "coinbase"} onClick={() => release("coinbase")}>Release · USDC</Button>
+        <Button variant="default" disabled={!releaser || !run} loading={busy === "bank"} onClick={() => release("bank")}>Release · bank (simulated)</Button>
+        <Button disabled={!releaser || !run} loading={busy === "coinbase"} onClick={() => release("coinbase")}>Release · USDC</Button>
       </Group></Tooltip>;
   } else if (b.stage === "paid") {
     const pm = b.payment;

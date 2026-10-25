@@ -22,11 +22,10 @@ from fastapi.responses import FileResponse
 from backend.core.config import load_policy
 from backend.core.runner import make_ctx, run_case
 from backend.core.stage import utcnow
-from backend.ap import state as ap_state
 from backend.ap import views as ap
-from backend.pipeline.lib.split import INFO, split
-from backend.ap.payments import (PaymentError, PaymentStore, create_batch, decide_prepayment, quote as prepay_quote,
-                                 release as release_batch, request_prepayment)
+from backend.ap import actions
+from backend.ap.payments import (PaymentError, PaymentForbidden, PaymentStore, create_batch, decide_prepayment,
+                                 quote as prepay_quote, release as release_batch, request_prepayment)
 from backend.vendors import onboarding as onb
 from backend.vendors.crs import make_crs
 from backend.ap import coinbase
@@ -35,19 +34,21 @@ from backend.notify import email as mail
 from backend.slack import bot as slack_bot
 from backend.slack import contract as slack_contract
 from backend.slack import onboard as slack_onboard
+from backend.slack import roles as slack_roles
 from backend.dashboard.views import approval_queue, business_metrics, failures, stage_stats
 from backend.evals.fixtures import case_dir, case_ids, load_fixture, seed
 from backend.intake.ingest import ingest
 from backend.evals.harness import run_eval
 from backend.review import chat as review_chat
-from backend.review.packet import build as build_packet, memory_for, signoff_problem
+from backend.review.packet import build as build_packet, memory_for
 from backend.store import get_store
 from backend.store.sqlite import DEFAULT_DB
 from contracts import (ApReport, ApSettings, EarlyPayOffer, OnboardingCase, OnboardingRequestIn, Prepayment, PrepaymentQuote,
-                       PrepaymentRequest, SignOff, Approval, ApprovalRequest, Bill, BillDetail, DashboardMetrics, PaymentBatch,
+                       PrepaymentRequest, SignOff, ApprovalRequest, Bill, BillDetail, DashboardMetrics, PaymentBatch,
                        PaymentBatchRequest, ReleaseRequest, Case, CaseDetail, CaseStatus, ChatReply, ChatRequest,
-                       Decision, Event, FailureItem, IntakeAccepted, MemoryEntry, OutboundEmail, QueueItem, ReviewPacket,
-                       Scoreboard, StageStat, TreasuryStatus, Vendor, VendorContract, VendorMemoryTimeline)
+                       Event, FailureItem, IntakeAccepted, MemoryEntry, OutboundEmail, QueueItem, ReviewPacket,
+                       Scoreboard, SlackRoleHolder, StageStat, TreasuryStatus, Vendor, VendorContract,
+                       VendorMemoryTimeline)
 
 store = get_store()
 payments = PaymentStore(getattr(store, "path", DEFAULT_DB))  # payment runs live next to the case store
@@ -61,7 +62,7 @@ async def _lifespan(_: FastAPI):
     global _loop
     _loop = asyncio.get_running_loop()  # pipeline threads hand WS events to this loop
     try:
-        slack_bot.start(store, payments)  # Socket Mode in background threads when SLACK_* tokens are set
+        slack_bot.start(store, payments, runner=_intake_now)  # Socket Mode in background threads when SLACK_* set
     except Exception as e:  # a bad Slack token must not take the API down
         print(f"Slack bot not started: {type(e).__name__}: {e}")
     yield
@@ -85,7 +86,7 @@ def _broadcast(event: Event) -> None:
 
 
 # Per-team routers: backend/api/routes_a.py, routes_b.py, routes_c.py each define `router = APIRouter()`.
-for _team in ("a", "b", "c"):
+for _team in ("a", "b", "c", "erp"):
     _mod = f"backend.api.routes_{_team}"
     if importlib.util.find_spec(_mod) is not None:
         app.include_router(importlib.import_module(_mod).router)
@@ -137,28 +138,47 @@ def _run_in_background(case: Case) -> None:
         _broadcast(Event(type="run.finished", case_id=final.id, status=final.status, at=utcnow()))
     except Exception:  # the failed step is already in the trace
         _broadcast(Event(type="run.failed", case_id=case.id, at=utcnow()))
+        return
+    _notify_slack(final)
+
+
+def _notify_slack(case: Case) -> None:
+    """Tell the right Slack role holders (and the vendor's deal channel) how the run came out."""
+    bot = slack_bot.BOT
+    if bot is None:
+        return
+    try:
+        bot.notify_bill(case)
+    except Exception as e:  # Slack trouble never blocks the AP flow
+        print(f"slack notify failed for {case.id}: {type(e).__name__}: {e}")
 
 
 def _deliver(case: Case) -> None:
-    """Send the supplier emails the agents drafted (once each; kept in the outbox either way)."""
-    try:
-        mail.deliver_case(store, case)
-    except Exception as e:  # email trouble never blocks the AP flow
-        print(f"email delivery failed for {case.id}: {e}")
+    actions.deliver(store, case)
 
 
 @app.post("/intake", response_model=IntakeAccepted, status_code=202)
 def intake(case: Case, background: BackgroundTasks) -> IntakeAccepted:
     """The trigger: an invoice arrives. Returns at once; the pipeline runs in the background and streams on WS
     /events (step.*, case.updated, then run.finished). The reviewer picks it up from GET /cases/{id}/review."""
+    _accept(case)
+    background.add_task(_run_in_background, case)
+    return IntakeAccepted(case_id=case.id, run_id="background")
+
+
+def _accept(case: Case) -> None:
     if case.status != CaseStatus.quarantined:  # intake already quarantined it: nothing for the agents to run
         case.status, case.decision = CaseStatus.new, None
     case.approvals, case.journal_entry = [], None
     case.created_at = utcnow()
     store.save_case(case)
     _broadcast(Event(type="run.started", case_id=case.id, status=case.status, at=utcnow()))
-    background.add_task(_run_in_background, case)
-    return IntakeAccepted(case_id=case.id, run_id="background")
+
+
+def _intake_now(case: Case) -> None:
+    """Same as POST /intake, run on the caller's thread (the Slack bot calls this off its socket thread)."""
+    _accept(case)
+    _run_in_background(case)
 
 
 def _packet(case_id: str):
@@ -191,59 +211,11 @@ def approve(case_id: str, req: ApprovalRequest) -> Case:
     approved -> the pipeline resumes at the Poster (`run_case(start_at="poster")`), which books the AP entry: the
     full invoice, or on a hold only the undisputed part (scope "undisputed", the default on a hold). Posting
     stays in one place; payment runs only pay what was booked. rejected -> rejected; ask -> on hold."""
-    case = store.get_case(case_id)
-    if case is None:
-        raise HTTPException(404, f"case {case_id} not found")
-    cases = store.list_cases()
-    if not ap_state.is_bill(case, cases):
-        target = ap_state.attachment_target(case, cases)
-        raise HTTPException(409, f"{case_id} is not a bill" + (f"; decide on {target}" if target else ""))
-    policy = load_policy()
-    decision = req.decision.value
-    disputed = [d for d in case.discrepancies if d.material and d.type not in INFO]
-    scope = req.scope or ("undisputed" if case.decision == Decision.hold and split(case)["separable"] else "full")
-    if scope not in ("full", "undisputed"):
-        raise HTTPException(400, "scope must be full or undisputed")
-    problem = signoff_problem(case, req.approver, req.role.value, decision, policy)
-    if problem:
-        raise HTTPException(403, problem)
-    if decision == "approved":
-        if case.invoice is None:
-            raise HTTPException(409, "Nothing to approve: no invoice was read from what arrived. Ask the vendor to resend.")
-        if case.status == CaseStatus.posted or (case.journal_entry and not ap_state.partial(case)):
-            raise HTTPException(409, "Already approved and booked.")
-        if case.journal_entry and ap_state.partial(case):
-            raise HTTPException(409, "The undisputed part is already approved and booked; the held part settles "
-                                     "through a credit note or a corrected invoice.")
-        if case.decision == Decision.reject:
-            raise HTTPException(409, "The agents rejected this bill (e.g. a duplicate). It can't be approved for payment.")
-        if case.decision == Decision.hold and scope == "full" and disputed:
-            raise HTTPException(409, "On a hold only the undisputed part can be approved; the disputed part stays held.")
-        if scope == "undisputed" and not split(case)["separable"]:
-            raise HTTPException(409, "The disputed part of this hold isn't separable (e.g. a currency or total "
-                                     "mismatch): ask for a corrected invoice.")
-    case.approvals.append(Approval(id=f"{ap_state.HUMAN_PREFIX}{case_id}_{len(case.approvals)}", case_id=case_id,
-                                   approver=req.approver, role=req.role, decision=req.decision,
-                                   scope=scope if decision == "approved" else None,
-                                   comment=req.comment, limit=policy.approval_limits.get(req.role.value), at=utcnow()))
-    case.pending_approval = None
-    if decision == "rejected":
-        case.status, case.decision = CaseStatus.rejected, Decision.reject
-    elif decision == "ask":
-        case.notes.append(f"On hold by {req.approver}: {req.comment}".rstrip(": "))
-    case.updated_at = utcnow()
-    store.save_case(case)
-    if decision == "approved":
-        if scope == "full":
-            case.decision, case.status = Decision.approve, CaseStatus.approved
-        elif case.status in (CaseStatus.paused, CaseStatus.resolved):
-            case.status = CaseStatus.awaiting_approval  # the runner stops at these; the gate re-checks the kill switch
-        ctx = make_ctx(store)
-        ctx.trace.subscribe(_broadcast)
-        case = run_case(case, ctx, start_at="poster")
-        _deliver(case)
-    _broadcast(Event(type="case.updated", case_id=case.id, status=case.status, at=utcnow()))
-    return case
+    try:
+        return actions.approve_bill(store, case_id, req.approver, req.role, req.decision, req.comment, req.scope,
+                                    broadcast=_broadcast)
+    except actions.ActionError as e:
+        raise HTTPException(e.status_code, e.detail)
 
 
 @app.get("/vendors", response_model=list[Vendor])
@@ -354,11 +326,17 @@ def ap_create_run(req: PaymentBatchRequest) -> PaymentBatch:
 
 @app.post("/ap/payments/{batch_id}/release", response_model=PaymentBatch)
 def ap_release_run(batch_id: str, req: ReleaseRequest) -> PaymentBatch:
-    """Release a run (simulated settlement). The person who prepared it can't release it (403)."""
+    """Release a run. Tiered maker-checker (403): AP leads never release; controller / CFO / CTO do (policy
+    release.roles); an AP-lead-approved bill is released by a higher tier; the releaser's limit covers it. `role`
+    missing: taken from the Slack role registry (/reconai role), else refused."""
+    role = req.role.value if req.role else slack_roles.role_for_email(store, req.released_by)
     try:
-        batch = release_batch(payments, batch_id, req.released_by, ap.utcnow(), store, load_policy(), rail=req.rail)
+        batch = release_batch(payments, batch_id, req.released_by, ap.utcnow(), store, load_policy(), rail=req.rail,
+                              role=role)
+    except PaymentForbidden as e:
+        raise HTTPException(403, str(e))
     except PaymentError as e:
-        raise HTTPException(403 if "cannot also release" in str(e) else 400, str(e))
+        raise HTTPException(400, str(e))
     for p in batch.payments:
         _broadcast(Event(type="case.updated", case_id=p.case_id, at=utcnow()))
     return batch
@@ -399,6 +377,13 @@ def ap_decide_prepayment(prepay_id: str, req: SignOff) -> Prepayment:
         return decide_prepayment(payments, prepay_id, req.approver, req.role.value, req.decision, ap.utcnow())
     except PaymentError as e:
         raise HTTPException(403 if "cannot approve" in str(e) or "need a" in str(e) else 400, str(e))
+
+
+@app.get("/vendors/onboarding/personas")
+def onboarding_personas() -> list[dict]:
+    """CRS sandbox test personas, to play a vendor's owner / authorized signer (no real person is looked up)."""
+    from backend.vendors.crs import persona_options
+    return persona_options()
 
 
 @app.get("/vendors/onboarding/samples")
@@ -444,7 +429,7 @@ def onboarding_decide(case_id: str, req: SignOff) -> OnboardingCase:
         c = onb.decide(_onb(case_id), req.approver, req.role.value, req.decision, req.comment, store, ap.utcnow())
     except onb.OnboardingError as e:
         raise HTTPException(403, str(e))
-    slack_onboard.finish(c, store, ap.utcnow())  # contract terms onto the vendor master + confirmation email
+    slack_onboard.finish(c, store, ap.utcnow())  # terms + PO from the contract + Slack channel + confirmation email
     payments.save_onboarding(c)
     if c.source == "slack" and slack_bot.BOT is not None:
         try:
@@ -531,6 +516,14 @@ def contract_pdf(contract_id: str):
     if not path.exists():
         path = slack_contract.render_pdf(c)
     return FileResponse(path, media_type="application/pdf", filename=path.name)
+
+
+# --- Slack roles -----------------------------------------------------------------------------------
+
+@app.get("/slack/roles", response_model=list[SlackRoleHolder])
+def slack_role_holders() -> list[SlackRoleHolder]:
+    """Who registered which AP role in Slack (/reconai role ...): they get the matching notifications and buttons."""
+    return slack_roles.holders(store)
 
 
 # --- per-vendor memory timeline ---------------------------------------------------------------------

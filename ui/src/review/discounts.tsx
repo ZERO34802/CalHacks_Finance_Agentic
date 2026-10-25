@@ -27,7 +27,7 @@ export function DiscountCard({ rows = 3 }: { rows?: number }) {
       list.forEach((o) => byDate.set(o.pay_by, [...(byDate.get(o.pay_by) ?? []), o.case_id]));
       const runs = await Promise.all([...byDate.entries()].map(([d, ids]) => ap.createRun(ids, d, who.email)));
       notifications.show({ color: "brand", title: `Scheduled to capture ${usd(sumMoney(list.map((o) => o.discount_usd)))}`,
-        message: `${runs.length} payment run(s) on the discount deadline. Someone other than ${who.name} must release them.` });
+        message: `${runs.length} payment run(s) on the discount deadline. A controller, CFO or CTO releases them.` });
       refresh();
     } catch (e) { notifications.show({ color: "red", title: "Couldn't schedule", message: e instanceof Error ? e.message : String(e) }); }
     finally { setBusy(null); }

@@ -8,7 +8,7 @@ from d_helpers import client, fresh_store, offline, run  # noqa: F401
 from backend.ap.discounts import offer
 from backend.core.config import load_policy
 from backend.vendors import onboarding as onb
-from backend.vendors.crs import SimulatedCRS
+from backend.vendors.crs import CRSUnavailable, RecordedCRS
 
 
 def test_discount_offer_is_computed_from_terms_not_the_invoice(offline):
@@ -62,24 +62,36 @@ def test_advance_payment_needs_a_controller_and_credit_is_applied(offline, monke
     assert c.get("/ap/prepayments", params={"vendor_id": "V-KESTREL"}).json()[0]["remaining"] == "0.00"
 
 
-def _run(label):
+def _run(label, crs=None):
     store = fresh_store()
     req = next(s for s in onb.samples() if s["label"] == label)["request"]
-    case = onb.submit(onb.OnboardingRequestIn.model_validate(req), store, SimulatedCRS(), onb.datetime.now())
+    case = onb.submit(onb.OnboardingRequestIn.model_validate(req), store, crs or RecordedCRS(), onb.datetime.now())
     return case, {c.name: c.status for c in case.checks}
 
 
 def test_onboarding_checks_catch_each_planted_vendor(offline):
-    case, st = _run("Clean new US supplier")
+    case, st = _run("Clean new US supplier")                       # owner = CRS persona P19, consented to a soft pull
     assert case.risk_tier == "low" and set(st.values()) == {"pass"}, st
+    assert onb.CREDIT in st and all(c.provider.startswith("CRS") for c in case.checks if c.name in (onb.IDENTITY, onb.CREDIT))
     case, st = _run("Same tax ID as Penang Pack & Test, new bank")
-    assert st["Duplicate vendor: tax ID"] == "fail" and st["Business credit"] == "not_covered" and case.risk_tier == "high"
-    assert _run("Watchlist (OFAC) hit")[1]["Sanctions (OFAC)"] == "fail"
+    assert st["Duplicate vendor: tax ID"] == "fail" and st[onb.IDENTITY] == "not_covered" and case.risk_tier == "high"
+    st = _run("Synthetic identity behind the vendor (CRS)")[1]    # P13: identity + fraud fail
+    assert st[onb.IDENTITY] == "fail" and st[onb.FRAUD] == "fail"
     assert _run("Bank account matches an employee")[1]["Bank account vs employees"] == "fail"   # world employees
-    assert _run("Look-alike of an existing vendor")[1]["Email domain"] == "fail"
+    st = _run("Look-alike of an existing vendor")[1]               # P12: SSN not the owner's, phone is someone else's
+    assert st["Email domain"] == "fail" and st[onb.IDENTITY] == "fail" and st[onb.PHONE] == "fail"
     assert _run("Missing tax form")[1]["Tax form"] == "fail"
-    assert _run("Financially risky (liens, bankruptcy)")[1]["Liens, judgments, bankruptcies"] == "fail"
-    assert set(_run("CRS times out")[1][k] for k in ("Business identity", "Sanctions (OFAC)")) == {"incomplete"}
+    st = _run("Owner with a bankruptcy (CRS)")[1]                  # P06: Chapter 7 on PitchPoint, credit 580
+    assert st[onb.COURT] == "fail" and st[onb.CREDIT] == "warn"
+
+    class Down:  # CRS outage: one retry, then every CRS check is "incomplete" (fail closed)
+        mode, calls = "sandbox", 0
+
+        def check_principal(self, pid, products):
+            Down.calls += 1
+            raise CRSUnavailable("timeout")
+    case, st = _run("Clean new US supplier", Down())
+    assert Down.calls == 2 and st[onb.IDENTITY] == "incomplete" and case.risk_tier == "medium"
 
 
 def test_onboarding_code_checks_agree_with_the_scored_flow(offline):
@@ -107,9 +119,9 @@ def test_onboarding_approval_rules(offline, monkeypatch):
     assert ok["status"] == "approved"
     v = c.get(f"/vendors/{ok['vendor_id']}").json()
     assert v["on_probation"] is True and v["probation_until"] is not None
-    ofac = c.post("/vendors/onboarding", json=sample("Watchlist (OFAC) hit")).json()
-    r = c.post(f"/vendors/onboarding/{ofac['id']}/decide", json={"approver": "m.chen@helix.example", "role": "cfo", "decision": "approved"})
-    assert r.status_code == 403                                   # sanctions can never be approved here
+    fake = c.post("/vendors/onboarding", json=sample("Synthetic identity behind the vendor (CRS)")).json()
+    r = c.post(f"/vendors/onboarding/{fake['id']}/decide", json={"approver": "m.chen@helix.example", "role": "cfo", "decision": "approved"})
+    assert r.status_code == 403                                   # a failed owner identity can never be approved here
     emp = c.post("/vendors/onboarding", json=sample("Bank account matches an employee")).json()
     r = c.post(f"/vendors/onboarding/{emp['id']}/decide", json={"approver": "m.chen@helix.example", "role": "controller", "decision": "approved"})
     assert r.status_code == 403

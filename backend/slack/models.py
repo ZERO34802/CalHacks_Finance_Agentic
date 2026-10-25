@@ -78,3 +78,62 @@ class Session(BaseModel):
     suggestions: int = 0
     contract_id: Optional[str] = None
     active: bool = True
+    qa: list[dict] = Field(default_factory=list, description="Private /recon questions and answers (owner only)")
+
+
+class NegotiationLog(BaseModel):
+    """The negotiation as it happened, archived when the contract is drafted (audit trail: why Helix agreed this)."""
+    contract_id: str
+    channel: str
+    owner: str
+    owner_name: str = ""
+    vendor_name: str = ""
+    started_at: datetime
+    archived_at: datetime
+    transcript: list[Message] = []
+    state: Optional[NegotiationState] = None
+    suggestions: int = 0
+
+
+NEGOTIATION_LOG_KIND = "slack_negotiation_log"  # contract id -> NegotiationLog
+
+
+# --- billing cycle in Slack (record kinds in the store) ---------------------------------------------
+SESSION_KIND = "slack_session"      # channel -> Session
+VENDOR_USER_KIND = "slack_vendor"   # Slack user id -> VendorUser (the vendor's registered contact)
+APPLICANT_KIND = "slack_applicant"  # contract id -> VendorUser (who submitted onboarding; vendor_id once approved)
+DEAL_KIND = "slack_deal"            # PO number -> Deal
+SHIPMENT_KIND = "slack_shipment"    # shipment notice id -> Shipment
+
+
+class VendorUser(BaseModel):
+    """The Slack user who submitted a vendor's onboarding form: the only one whose invoices / shipment notices
+    ReconAI takes for that vendor."""
+    slack_user: str
+    vendor_id: str = ""
+    name: str = ""
+    email: str = ""
+    channel: str = ""
+    contract_id: str = ""
+
+
+class Deal(BaseModel):
+    """A PO created from a Slack contract: where to talk about it and who to tell."""
+    po_number: str
+    contract_id: str
+    vendor_id: str
+    channel: str
+    vendor_user: Optional[str] = None
+    requester_user: Optional[str] = None
+    requester_email: str = ""
+
+
+class Shipment(BaseModel):
+    """A vendor's shipment notice. Only a CLAIM: the goods receipt is created by a Helix person's count."""
+    id: str
+    po_number: str
+    lines: dict[str, str] = Field(description="sku -> qty the vendor says it shipped (never a receipt)")
+    vendor_user: str
+    at: datetime
+    receipt_id: Optional[str] = None
+    received_by: Optional[str] = None

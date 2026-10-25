@@ -2,7 +2,7 @@
 // the table scrolls inside its card, header and actions stay pinned.
 // For approval: bulk approve / hold / reject (limits enforced server-side).
 // For payment: the payment panel sits next to the bills it pays. Tick approved bills -> schedule a run -> someone
-// other than the preparer releases it. Bank rail is SIMULATED; the Coinbase rail sends USDC on Base Sepolia testnet
+// a controller, CFO or CTO releases it (AP leads approve). Bank rail is SIMULATED; the Coinbase rail sends USDC on Base Sepolia testnet
 // (scaled-down amounts).
 import { Avatar, Badge, Box, Button, Card, Checkbox, Chip, Group, ScrollArea, Stack, Text, TextInput, Tooltip, UnstyledButton } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
@@ -12,7 +12,7 @@ import type { ApprovalDecision, Bill, PaymentBatch } from "../../types/contracts
 import { ap } from "../api";
 import { fmtUsdc, microOf, microUsdc, OnchainLine, TreasuryBar, useTreasury } from "../coinbase";
 import { me, useApp } from "../context";
-import { amount, day, PEOPLE, shortName, STAGES, sumMoney, usd, usdShort, when, type Seat } from "../format";
+import { amount, canRelease, day, PEOPLE, RELEASE_RULE, shortName, STAGES, sumMoney, usd, usdShort, when, type Seat } from "../format";
 import { Avatarish, BILL_TABS, billQueue, BillsFooter, BillsTable, HEAD_BG, HEAD_BORDER, sortBills } from "../parts";
 
 const METHOD = { ach: "ACH", wire: "Domestic wire", intl_wire: "Intl wire", check: "Check" } as Record<string, string>;
@@ -139,6 +139,7 @@ function PaymentPanel({ selected, onHover, onDone }: { selected: string[]; onHov
   const [busy, setBusy] = useState(false);
   const [wallets, setWallets] = useState<Record<string, string | null>>({});
   const who = me(seat);
+  const releaser = canRelease(who.role);
   const tr = useTreasury(true);
   useEffect(() => { ap.runs().then(setRuns).catch(() => {}); }, [lastEvent, bills]);
   const toSchedule = bills.filter((b) => selected.includes(b.case_id) && b.stage === "ready_to_pay");
@@ -149,7 +150,7 @@ function PaymentPanel({ selected, onHover, onDone }: { selected: string[]; onHov
   const noWallet = (r: PaymentBatch) => [...new Set(r.payments.filter((p) => p.status !== "paid" && !(wallets[p.vendor_id] ?? vendors[p.vendor_id]?.wallet_address)).map((p) => vname(p.vendor_id)))];
   const scale = tr.t?.usd_scale ?? "0.000001";
   const need = (rs: PaymentBatch[]) => rs.flatMap((r) => r.payments.filter((p) => p.status !== "paid")).reduce((n, p) => n + microUsdc(p.amount_usd, scale), 0n);
-  useEffect(() => { setPick(scheduled.filter((r) => r.created_by !== who.email).map((r) => r.id)); }, [scheduled.map((r) => r.id).join(), seat]);
+  useEffect(() => { setPick(releaser ? scheduled.map((r) => r.id) : []); }, [scheduled.map((r) => r.id).join(), seat]);
   const byDate = useMemo(() => {
     const m = new Map<string, PaymentBatch[]>();
     scheduled.forEach((r) => m.set(r.pay_date, [...(m.get(r.pay_date) ?? []), r]));
@@ -160,14 +161,14 @@ function PaymentPanel({ selected, onHover, onDone }: { selected: string[]; onHov
     setBusy(true);
     try {
       const r = await ap.createRun(toSchedule.map((b) => b.case_id), date, who.email);
-      notifications.show({ color: "brand", title: `${r.id} scheduled for ${day(r.pay_date)}`, message: `${r.payments.length} bill(s) · ${usd(r.total_usd)}. Someone other than you must release it.` });
+      notifications.show({ color: "brand", title: `${r.id} scheduled for ${day(r.pay_date)}`, message: `${r.payments.length} bill(s) · ${usd(r.total_usd)}. ${releaser ? "Release it below when ready." : "A controller, CFO or CTO releases it."}` });
       onDone(); setRuns(await ap.runs());
     } catch (e) { notifications.show({ color: "red", title: "Can't schedule", message: e instanceof Error ? e.message : String(e) }); }
     finally { setBusy(false); }
   };
   const release = async (ids: string[], rail: "bank" | "coinbase") => {
     setBusy(true);
-    const res = await Promise.allSettled(ids.map((id) => ap.release(id, who.email, rail)));
+    const res = await Promise.allSettled(ids.map((id) => ap.release(id, who.email, rail, who.role)));
     const bad = res.map((r, i) => (r.status === "rejected" ? `${ids[i]}: ${(r.reason as Error).message}` : null)).filter(Boolean);
     const done = res.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
     const failed = done.flatMap((b) => b.payments.filter((p) => p.status === "failed"));
@@ -234,19 +235,18 @@ function PaymentPanel({ selected, onHover, onDone }: { selected: string[]; onHov
               <Text fz="xs" fw={600} mt={8} mb={4}>{day(d)}</Text>
               <Stack gap={6}>
                 {rs.map((r) => {
-                  const mineRun = r.created_by === who.email;
                   const nw = tr.live ? noWallet(r) : [];
                   const on = pick.includes(r.id);
                   return (
                     <Box key={r.id} p={8} onMouseEnter={() => hover(r)}
                       style={{ border: `1px solid var(--mantine-color-${on ? "brand-3" : "gray-3"})`, borderRadius: 8, background: on ? "var(--mantine-color-brand-0)" : undefined }}>
                       <Group gap="sm" wrap="nowrap">
-                        <Tooltip label="You prepared this run: someone else must release it" disabled={!mineRun}><span><Checkbox size="xs" checked={on} disabled={mineRun}
+                        <Tooltip label={RELEASE_RULE} disabled={releaser}><span><Checkbox size="xs" checked={on} disabled={!releaser}
                           onChange={() => setPick((p) => (p.includes(r.id) ? p.filter((x) => x !== r.id) : [...p, r.id]))} aria-label={`Release ${r.id}`} /></span></Tooltip>
                         <Avatar.Group>{r.payments.slice(0, 3).map((p) => <Avatarish key={p.id} name={vendors[p.vendor_id]?.name ?? p.vendor_id} size={22} />)}</Avatar.Group>
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <Text fz="sm" fw={500} truncate>{[...new Set(r.payments.map((p) => vname(p.vendor_id)))].join(", ")}</Text>
-                          <Text fz="xs" c="dimmed" truncate>{mineRun ? "Prepared by you" : `By ${r.created_by.split("@")[0]}`} · {[...new Set(r.payments.map((p) => METHOD[p.method] ?? p.method))].join(", ")}</Text>
+                          <Text fz="xs" c="dimmed" truncate>{r.created_by === who.email ? "Scheduled by you" : `Scheduled by ${r.created_by.split("@")[0]}`} · {[...new Set(r.payments.map((p) => METHOD[p.method] ?? p.method))].join(", ")}</Text>
                         </div>
                         <Text fz="sm" ff="monospace" style={{ flexShrink: 0 }}>{usd(r.total_usd)}</Text>
                       </Group>
@@ -261,15 +261,14 @@ function PaymentPanel({ selected, onHover, onDone }: { selected: string[]; onHov
           {partial.length > 0 && <>
             <Box mt="md">{label("Partially paid on Coinbase")}</Box>
             {partial.map((r) => {
-              const mineRun = r.created_by === who.email;
               return (
                 <Box key={r.id} p={8} mb={6} style={{ border: "1px solid var(--mantine-color-orange-4)", borderRadius: 8 }}>
                   <Group justify="space-between" mb={4} wrap="nowrap"><Text fz="sm" fw={500}>{r.id} · {usd(r.total_usd)}</Text>
                     <Badge size="xs" color="orange" variant="light">{r.payments.filter((p) => p.status === "paid").length}/{r.payments.length} paid</Badge></Group>
                   {r.payments.map((p) => <OnchainLine key={p.id} p={p} vendor={vname(p.vendor_id)} />)}
                   <Group justify="flex-end" mt={4}>
-                    <Tooltip label={mineRun ? "You prepared this run" : "Coinbase isn't configured"} disabled={!mineRun && tr.live}>
-                      <span><Button size="compact-xs" color="orange" variant="light" disabled={mineRun || !tr.live} loading={busy} onClick={() => release([r.id], "coinbase")}>Retry failed</Button></span>
+                    <Tooltip label={!releaser ? RELEASE_RULE : "Coinbase isn't configured"} disabled={releaser && tr.live}>
+                      <span><Button size="compact-xs" color="orange" variant="light" disabled={!releaser || !tr.live} loading={busy} onClick={() => release([r.id], "coinbase")}>Retry failed</Button></span>
                     </Tooltip>
                   </Group>
                 </Box>
@@ -302,9 +301,9 @@ function PaymentPanel({ selected, onHover, onDone }: { selected: string[]; onHov
           <div style={{ whiteSpace: "nowrap" }}><Text fz="xs" c="dimmed">Release · {picked.length}</Text>
             <Text fz={20} fw={600} lh={1.2}>{usd(sumMoney(picked.map((r) => r.total_usd)))}</Text></div>
           <Group gap="xs" wrap="nowrap">
-            <Tooltip label="Simulated bank transfer to the vendor master's account"><Button size="xs" variant="default" disabled={!picked.length} loading={busy} onClick={() => release(picked.map((r) => r.id), "bank")}>Bank · simulated</Button></Tooltip>
-            <Tooltip multiline w={260} label={tr.live ? `USDC on ${tr.sandbox ? "the sandbox ledger" : "Base Sepolia testnet"}, scaled down${picked.length ? ` (${fmtUsdc(pickedNeed)})` : ""}. Always to the vendor master's wallet.` : "Coinbase isn't configured (CDP keys missing)"}>
-              <span><Button size="xs" disabled={!picked.length || !tr.live} loading={busy} onClick={() => release(picked.map((r) => r.id), "coinbase")}>Coinbase · USDC</Button></span>
+            <Tooltip label={releaser ? "Simulated bank transfer to the vendor master's account" : RELEASE_RULE}><span><Button size="xs" variant="default" disabled={!releaser || !picked.length} loading={busy} onClick={() => release(picked.map((r) => r.id), "bank")}>Bank · simulated</Button></span></Tooltip>
+            <Tooltip multiline w={260} label={!releaser ? RELEASE_RULE : tr.live ? `USDC on ${tr.sandbox ? "the sandbox ledger" : "Base Sepolia testnet"}, scaled down${picked.length ? ` (${fmtUsdc(pickedNeed)})` : ""}. Always to the vendor master's wallet.` : "Coinbase isn't configured (CDP keys missing)"}>
+              <span><Button size="xs" disabled={!releaser || !picked.length || !tr.live} loading={busy} onClick={() => release(picked.map((r) => r.id), "coinbase")}>Coinbase · USDC</Button></span>
             </Tooltip>
           </Group>
         </Group>

@@ -1395,7 +1395,8 @@
         "sftp",
         "s3",
         "erp",
-        "upload"
+        "upload",
+        "slack"
       ],
       "title": "Channel",
       "type": "string"
@@ -2020,6 +2021,53 @@
         "bank_last4"
       ],
       "title": "Employee",
+      "type": "object"
+    },
+    "ErpStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "description": "odoo | simulated",
+          "type": "string"
+        },
+        "connected": {
+          "type": "boolean"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "database": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "note": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "connected",
+        "url",
+        "database",
+        "note"
+      ],
+      "title": "ErpStatus",
       "type": "object"
     },
     "EvalResult": {
@@ -3597,6 +3645,23 @@
           ],
           "default": null,
           "description": "Becomes the verified contact on file once approved"
+        },
+        "principal_persona": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Owner / authorized signer, as a CRS sandbox test persona id (P01-P20): CRS identity, fraud and court-record checks run on them"
+        },
+        "credit_consent": {
+          "default": false,
+          "description": "The owner consented to a soft credit check (FCRA permissible purpose)",
+          "type": "boolean"
         }
       },
       "required": [
@@ -3617,7 +3682,9 @@
         "requested_by",
         "tax_form",
         "trade_names",
-        "contact_email"
+        "contact_email",
+        "principal_persona",
+        "credit_consent"
       ],
       "title": "OnboardingRequestIn",
       "type": "object"
@@ -3857,6 +3924,35 @@
         },
         "requester": {
           "type": "string"
+        },
+        "contract_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Supply agreement this PO was created from (Slack contract)"
+        },
+        "erp_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Record in the external ERP, e.g. odoo:purchase.order:42"
+        },
+        "status": {
+          "default": "ordered",
+          "description": "ordered | partially_received | received | invoiced | paid",
+          "type": "string"
         }
       },
       "required": [
@@ -3866,7 +3962,10 @@
         "po_date",
         "currency",
         "lines",
-        "requester"
+        "requester",
+        "contract_id",
+        "erp_ref",
+        "status"
       ],
       "title": "PO",
       "type": "object"
@@ -4782,6 +4881,74 @@
       "title": "Proposal",
       "type": "object"
     },
+    "PurchaseOrderView": {
+      "additionalProperties": false,
+      "description": "A PO as the Purchasing page shows it: ordered vs received vs invoiced, with its ERP record.",
+      "properties": {
+        "po": {
+          "$ref": "#/$defs/PO"
+        },
+        "vendor_name": {
+          "type": "string"
+        },
+        "receipts": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Receipt"
+          },
+          "type": "array"
+        },
+        "received": {
+          "additionalProperties": {
+            "description": "Decimal amount as string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "type": "string"
+          },
+          "description": "sku -> qty received so far",
+          "type": "object"
+        },
+        "invoices": {
+          "description": "case ids of bills billed against this PO",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "total": {
+          "description": "Decimal amount as string",
+          "pattern": "^-?\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        "status": {
+          "description": "ordered | partially_received | received | invoiced | paid",
+          "type": "string"
+        },
+        "erp_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Deep link to the record in the ERP (Odoo)"
+        }
+      },
+      "required": [
+        "po",
+        "vendor_name",
+        "receipts",
+        "received",
+        "invoices",
+        "total",
+        "status",
+        "erp_url"
+      ],
+      "title": "PurchaseOrderView",
+      "type": "object"
+    },
     "QueueItem": {
       "additionalProperties": false,
       "description": "One open case in the approval queue, sorted by priority (highest first).",
@@ -4943,6 +5110,23 @@
         },
         "received_by": {
           "type": "string"
+        },
+        "erp_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Record in the external ERP, e.g. odoo:stock.picking:17"
+        },
+        "source": {
+          "default": "erp",
+          "description": "erp | app | slack (always a Helix person, never the vendor)",
+          "type": "string"
         }
       },
       "required": [
@@ -4950,7 +5134,9 @@
         "po_number",
         "received_date",
         "lines",
-        "received_by"
+        "received_by",
+        "erp_ref",
+        "source"
       ],
       "title": "Receipt",
       "type": "object"
@@ -4974,11 +5160,52 @@
       "title": "ReceiptLine",
       "type": "object"
     },
+    "ReceiveRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "received_by": {
+          "type": "string"
+        },
+        "lines": {
+          "additionalProperties": {
+            "description": "Decimal amount as string",
+            "pattern": "^-?\\d+(\\.\\d+)?$",
+            "type": "string"
+          },
+          "description": "sku -> qty received now",
+          "type": "object"
+        },
+        "source": {
+          "default": "app",
+          "description": "app | slack",
+          "type": "string"
+        }
+      },
+      "required": [
+        "received_by",
+        "lines",
+        "source"
+      ],
+      "title": "ReceiveRequest",
+      "type": "object"
+    },
     "ReleaseRequest": {
       "additionalProperties": false,
       "properties": {
         "released_by": {
           "type": "string"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Role"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Releaser's role: AP leads can't release; controller/CFO/CTO can"
         },
         "rail": {
           "default": "bank",
@@ -4988,6 +5215,7 @@
       },
       "required": [
         "released_by",
+        "role",
         "rail"
       ],
       "title": "ReleaseRequest",
@@ -5081,6 +5309,7 @@
         "approver",
         "controller",
         "cfo",
+        "cto",
         "requester"
       ],
       "title": "Role",
@@ -5406,6 +5635,32 @@
         "git_sha"
       ],
       "title": "SkillVersion",
+      "type": "object"
+    },
+    "SlackRoleHolder": {
+      "additionalProperties": false,
+      "description": "A Slack user registered to an AP role with /reconai role (who gets which notifications and buttons).",
+      "properties": {
+        "slack_user": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        }
+      },
+      "required": [
+        "slack_user",
+        "name",
+        "email",
+        "role"
+      ],
+      "title": "SlackRoleHolder",
       "type": "object"
     },
     "SpendRow": {

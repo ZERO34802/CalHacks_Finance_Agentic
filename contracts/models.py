@@ -50,6 +50,7 @@ class Channel(str, Enum):
     s3 = "s3"
     erp = "erp"
     upload = "upload"
+    slack = "slack"           # invoice / shipment sent by the vendor's registered Slack user
 
 
 class CaseStatus(str, Enum):
@@ -117,6 +118,7 @@ class Role(str, Enum):
     approver = "approver"     # AP lead
     controller = "controller"
     cfo = "cfo"               # above the controller limit (human)
+    cto = "cto"               # same authority as the CFO (approve + release)
     requester = "requester"
 
 
@@ -230,6 +232,9 @@ class PO(Model):
     currency: str
     lines: list[POLine]
     requester: str
+    contract_id: Optional[str] = Field(None, description="Supply agreement this PO was created from (Slack contract)")
+    erp_ref: Optional[str] = Field(None, description="Record in the external ERP, e.g. odoo:purchase.order:42")
+    status: str = Field("ordered", description="ordered | partially_received | received | invoiced | paid")
 
 
 class ReceiptLine(Model):
@@ -243,6 +248,8 @@ class Receipt(Model):
     received_date: date
     lines: list[ReceiptLine]
     received_by: str
+    erp_ref: Optional[str] = Field(None, description="Record in the external ERP, e.g. odoo:stock.picking:17")
+    source: str = Field("erp", description="erp | app | slack (always a Helix person, never the vendor)")
 
 
 # --- Case + decision --------------------------------------------------------
@@ -886,7 +893,42 @@ class PaymentBatchRequest(Model):
 
 class ReleaseRequest(Model):
     released_by: str
+    role: Optional[Role] = Field(None, description="Releaser's role: AP leads can't release; controller/CFO/CTO can")
     rail: str = Field("bank", description="bank (simulated) | coinbase (USDC, Base Sepolia testnet)")
+
+
+class PurchaseOrderView(Model):
+    """A PO as the Purchasing page shows it: ordered vs received vs invoiced, with its ERP record."""
+    po: PO
+    vendor_name: str
+    receipts: list[Receipt] = []
+    received: dict[str, Money] = Field(default_factory=dict, description="sku -> qty received so far")
+    invoices: list[str] = Field(default_factory=list, description="case ids of bills billed against this PO")
+    total: Money
+    status: str = Field(description="ordered | partially_received | received | invoiced | paid")
+    erp_url: Optional[str] = Field(None, description="Deep link to the record in the ERP (Odoo)")
+
+
+class ReceiveRequest(Model):
+    received_by: str
+    lines: dict[str, Money] = Field(description="sku -> qty received now")
+    source: str = Field("app", description="app | slack")
+
+
+class ErpStatus(Model):
+    mode: str = Field(description="odoo | simulated")
+    connected: bool
+    url: Optional[str] = None
+    database: Optional[str] = None
+    note: str = ""
+
+
+class SlackRoleHolder(Model):
+    """A Slack user registered to an AP role with /reconai role (who gets which notifications and buttons)."""
+    slack_user: str
+    name: str
+    email: str
+    role: Role
 
 
 class TreasuryStatus(Model):
@@ -992,6 +1034,9 @@ class OnboardingRequestIn(Model):
     tax_form: Optional[str] = Field(None, description="W-9 (US) | W-8BEN-E (non-US); null = not received")
     trade_names: list[str] = []
     contact_email: Optional[str] = Field(None, description="Becomes the verified contact on file once approved")
+    principal_persona: Optional[str] = Field(None, description="Owner / authorized signer, as a CRS sandbox test persona "
+                                             "id (P01-P20): CRS identity, fraud and court-record checks run on them")
+    credit_consent: bool = Field(False, description="The owner consented to a soft credit check (FCRA permissible purpose)")
 
 
 class VendorCheck(Model):
@@ -1250,7 +1295,8 @@ ALL_MODELS: list[type[BaseModel]] = [
     Signal, MatchRow, GLLine, CheckResult, ApprovalStep, LastPaid, Payment, PaymentBatch, PaymentBatchRequest, ReleaseRequest, Bill, ActivityItem,
     BillDetail, AgingBucket, ForecastWeek, SpendRow, ApReport, Integration, ApSettings,
     PaymentTerms, EarlyPayOffer, PrepayApplication, Prepayment, PrepaymentRequest, PrepaymentQuote, SignOff,
-    OnboardingRequestIn, VendorCheck, OnboardingCase, TreasuryStatus, VendorContract, OutboundEmail,
+    OnboardingRequestIn, VendorCheck, OnboardingCase, TreasuryStatus, PurchaseOrderView, ReceiveRequest, ErpStatus,
+    SlackRoleHolder, VendorContract, OutboundEmail,
     MemoryVersion, MemorySlot, MemoryUse, MemoryEvent, VendorMemoryTimeline,
     CaseDetail, ApprovalRequest,
 ]

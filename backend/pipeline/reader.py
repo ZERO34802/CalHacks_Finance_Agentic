@@ -27,7 +27,7 @@ from backend.pipeline.lib import injection
 from backend.pipeline.lib.ids import normalize_invoice_no
 from backend.pipeline.lib.money import parse_decimal, q2
 from backend.pipeline.lib.refs import rec_refs
-from contracts import (Case, CaseLink, CaseLinkType, CaseStatus, Citation, Discrepancy, DiscrepancyType, DocKind,
+from contracts import (Case, CaseLink, CaseLinkType, CaseStatus, Channel, Citation, Discrepancy, DiscrepancyType, DocKind,
                        Document, Invoice, LineItem, Role)
 
 STRUCTURED = {"text/csv": "csv", "application/json": "json",
@@ -183,9 +183,17 @@ class Reader:
         for d in cands:
             kind = _mime_kind(d)
             try:
+                structured = None
                 if kind in ("csv", "json", "xlsx"):
                     data = raw.get(d.id) if raw.get(d.id) is not None else (d.text or "").encode()
-                    invoice, version = parse_structured(kind, data, d.id, case.vendor_id)
+                    try:
+                        structured = parse_structured(kind, data, d.id, case.vendor_id)
+                    except IngestError as e:
+                        if d.channel != Channel.slack or not (d.text or "").strip():
+                            raise
+                        detail["adapter_fallback"] = f"{kind} layout not recognised ({e}); read by the Reader"
+                if structured is not None:
+                    invoice, version = structured
                     detail["adapter"] = version
                 else:
                     res = llm.structured(ReaderOutput, SYSTEM, _content(d, raw.get(d.id)), role="reader")

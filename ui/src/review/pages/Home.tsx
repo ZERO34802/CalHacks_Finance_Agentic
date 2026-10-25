@@ -17,7 +17,8 @@ export default function Home() {
   const [rep, setRep] = useState<ApReport | null>(null);
   useEffect(() => { ap.report().then(setRep).catch(() => {}); }, [bills, lastEvent]);
   const who = me(seat);
-  const mine = bills.filter((b) => b.stage === "needs_review" && b.needs === seat);
+  const top = (x: string) => x === "cfo" || x === "cto";   // the CTO has the CFO's authority
+  const mine = bills.filter((b) => b.stage === "needs_review" && (b.needs === seat || (top(b.needs) && top(seat))));
   const fraud = mine.filter((b) => b.risk === "high").length;
   const ready = bills.filter((b) => b.stage === "ready_to_pay");
   const due7 = ready.filter((b) => b.days_to_due != null && b.days_to_due <= 7).length;

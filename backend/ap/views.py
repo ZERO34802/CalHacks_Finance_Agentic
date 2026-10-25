@@ -26,7 +26,7 @@ from contracts import (ActivityItem, AgingBucket, ApprovalStep, ApReport, ApSett
 SLA_HOURS = 24
 ZERO = Decimal("0.00")
 CENT = Decimal("0.01")
-ROLE_TITLE = {"approver": "AP lead", "controller": "Controller", "cfo": "CFO"}
+ROLE_TITLE = {"approver": "AP lead", "controller": "Controller", "cfo": "CFO", "cto": "CTO"}
 
 
 def _fx(amount: Optional[Decimal], currency: Optional[str], policy: Policy) -> Optional[Decimal]:
@@ -292,7 +292,8 @@ def _inv_no(store: Store, case_id: str) -> str:
 
 
 def approval_steps(store: Store, pay: PaymentStore, policy: Policy, case: Case, b: Bill) -> list[ApprovalStep]:
-    """The approval chain: agents prepare -> the role whose limit covers the amount approves -> someone else releases."""
+    """The approval chain: agents prepare -> the role whose limit covers the amount approves -> a controller, CFO or CTO
+    releases (an AP lead never releases; a controller/CFO/CTO may release what they approved)."""
     steps = [s for s in store.list_steps(case.id) if s.parent_id is None]
     out = [ApprovalStep(step=1, label="Prepared by ReconAI", who="Reader, Matcher, Vendor Guard and 7 more",
                         status="done" if case.decision else "waiting",
@@ -319,12 +320,13 @@ def approval_steps(store: Store, pay: PaymentStore, policy: Policy, case: Case, 
     p = b.payment
     batch = pay.get(p.batch_id) if p else None
     if batch and batch.released_by:
-        rel = ApprovalStep(step=3, label="Release payment", who=f"Released by {batch.released_by}", status="done", note="simulated")
+        rel = ApprovalStep(step=3, label="Release payment", who=f"Released by {batch.released_by}", status="done",
+                           note="Coinbase" if batch.rail == "coinbase" else "bank (simulated)")
     elif batch:
-        rel = ApprovalStep(step=3, label="Release payment", who=f"Anyone except {batch.created_by}", status="waiting",
+        rel = ApprovalStep(step=3, label="Release payment", who="A controller, CFO or CTO", status="waiting",
                            note=f"scheduled in {batch.id} for {batch.pay_date}")
     else:
-        rel = ApprovalStep(step=3, label="Release payment", who="Someone other than who schedules it", status="pending",
+        rel = ApprovalStep(step=3, label="Release payment", who="A controller, CFO or CTO (AP leads approve, never release)", status="pending",
                            note=b.payment_block or "")
     out.append(rel)
     return out
@@ -400,10 +402,12 @@ def settings(policy: Policy) -> ApSettings:
             Integration(name="SFTP / S3 drops", status="simulated", note="Watched folders, labelled simulated"),
             Integration(name="Bank payments (ACH / wire)", status="simulated", note="Payment runs are recorded, nothing is sent"),
             Integration(name="ERP (NetSuite / QuickBooks / Xero)", status="not_connected", note="Path to production: swap Beancount for the ERP API"),
-            Integration(name="CRS Credit API (business credit, public records, OFAC)",
-                        status="connected" if os.environ.get("CRS_BASE_URL") else "simulated",
-                        note="Vendor onboarding checks. Set CRS_BASE_URL / CRS_USERNAME / CRS_PASSWORD for the live API; "
-                             "otherwise a labelled sandbox with fictional businesses"),
+            Integration(name="CRS Credit API sandbox (identity, fraud, court records, phone, credit)",
+                        status="connected" if os.environ.get("CRS_USERNAME") and os.environ.get("CRS_PASSWORD")
+                        and os.environ.get("RECONAI_CRS", "").lower() != "off" else "simulated",
+                        note="Vendor onboarding verifies the owner / authorized signer: TransUnion identity, AtData Fraud "
+                             "Finder, PitchPoint bankruptcies/liens/judgments, AccurateAppend phone lookup, Experian soft "
+                             "pull with consent. CRS sandbox test personas only. Without credentials: recorded sandbox responses"),
             Integration(name="Coinbase (USDC on Base Sepolia testnet)",
                         status="connected" if all(os.environ.get(k) for k in ("CDP_API_KEY_ID", "CDP_API_KEY_SECRET", "CDP_WALLET_SECRET"))
                         else "simulated" if os.environ.get("COINBASE_MODE", "sandbox").lower() == "sandbox" else "not_connected",

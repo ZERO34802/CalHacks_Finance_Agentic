@@ -1,0 +1,3619 @@
+{
+  "source": "CalHacks13(20261022)-CRS-Sandbox",
+  "configs": {
+    "TransUnion": "tu-prequal-fico9",
+    "Equifax": "efx-prequal-vantage4",
+    "Experian": "exp-prequal-vantage4",
+    "Criminal": "(default: no config in the path)",
+    "Eviction": "(default: no config in the path)",
+    "FraudFinder": "fraud-finder",
+    "PitchPoint": "(default: no config in the path)",
+    "Reverse": "(default: no config in the path)",
+    "TU identity": "(default: no config in the path)"
+  },
+  "notes": {
+    "tu_identity_verification": "Uses the account's default TU identity verification config (TUC3002). Read addOnProducts[0].idManagerVerification.messages: empty = verified; 2101 is TransUnion's real address-mismatch code, 2201/2202/2301/2401 texts are authored for the hackathon. KBA/OTP (TUC3004) is not mocked."
+  },
+  "personas": [
+    {
+      "id": "P01",
+      "name": "MARGARET OKAFOR",
+      "profile": "Prime",
+      "decision": "APPROVE",
+      "summary": "Long, clean credit history, low utilization, no public records, identity verifies cleanly.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "MARGARET",
+            "lastName": "OKAFOR",
+            "ssn": "666701001",
+            "addresses": [
+              {
+                "addressLine1": "1420 WILLOW CREEK DR",
+                "city": "SAN JOSE",
+                "state": "CA",
+                "postalCode": "95125",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 790 / 790 / 790 clean"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "MARGARET",
+            "lastName": "OKAFOR",
+            "ssn": "666701001",
+            "addresses": [
+              {
+                "addressLine1": "1420 WILLOW CREEK DR",
+                "city": "SAN JOSE",
+                "state": "CA",
+                "postalCode": "95125",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 790 / 790 / 790 clean. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "MARGARET",
+            "lastName": "OKAFOR",
+            "ssn": "666701001",
+            "addresses": [
+              {
+                "addressLine1": "1420 WILLOW CREEK DR",
+                "city": "SAN JOSE",
+                "state": "CA",
+                "postalCode": "95125",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 790 / 790 / 790 clean"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "MARGARET",
+              "last": "OKAFOR",
+              "ssn": "666-70-1001",
+              "dob": "03-14-1984",
+              "zip": "95125"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "MARGARET",
+              "last": "OKAFOR",
+              "ssn": "666-70-1001",
+              "dob": "03-14-1984",
+              "zip": "95125"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "MARGARET",
+            "lastName": "OKAFOR",
+            "phoneNumber": "5550101001",
+            "email": "margaret.okafor@example.com",
+            "ipAddress": "203.0.113.11",
+            "address": {
+              "addressLine1": "1420 WILLOW CREEK DR",
+              "city": "SAN JOSE",
+              "state": "CA",
+              "postalCode": "95125"
+            }
+          },
+          "expected": "risk.score 11 (low). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "MARGARET",
+                    "lastName": "OKAFOR",
+                    "ssn": "666701001"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101001"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "MARGARET",
+            "lastName": "OKAFOR",
+            "ssn": "666701001",
+            "dob": "1984-03-14",
+            "street1": "1420 WILLOW CREEK DR",
+            "city": "SAN JOSE",
+            "state": "CA",
+            "zip": "95125"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P02",
+      "name": "DANIEL WHITFIELD",
+      "profile": "Super-prime mortgage holder",
+      "decision": "APPROVE",
+      "summary": "High balances but almost all of it is a mortgage; very low revolving utilization and one recent auto inquiry.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "DANIEL",
+            "lastName": "WHITFIELD",
+            "ssn": "666701002",
+            "addresses": [
+              {
+                "addressLine1": "88 LAKESHORE BLVD",
+                "city": "AUSTIN",
+                "state": "TX",
+                "postalCode": "78746",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 815 / 815 / 815 clean"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "DANIEL",
+            "lastName": "WHITFIELD",
+            "ssn": "666701002",
+            "addresses": [
+              {
+                "addressLine1": "88 LAKESHORE BLVD",
+                "city": "AUSTIN",
+                "state": "TX",
+                "postalCode": "78746",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 815 / 815 / 815 clean. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "DANIEL",
+            "lastName": "WHITFIELD",
+            "ssn": "666701002",
+            "addresses": [
+              {
+                "addressLine1": "88 LAKESHORE BLVD",
+                "city": "AUSTIN",
+                "state": "TX",
+                "postalCode": "78746",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 815 / 815 / 815 clean"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "DANIEL",
+              "last": "WHITFIELD",
+              "ssn": "666-70-1002",
+              "dob": "11-02-1972",
+              "zip": "78746"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "DANIEL",
+              "last": "WHITFIELD",
+              "ssn": "666-70-1002",
+              "dob": "11-02-1972",
+              "zip": "78746"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "DANIEL",
+            "lastName": "WHITFIELD",
+            "phoneNumber": "5550101002",
+            "email": "daniel.whitfield@example.com",
+            "ipAddress": "203.0.113.12",
+            "address": {
+              "addressLine1": "88 LAKESHORE BLVD",
+              "city": "AUSTIN",
+              "state": "TX",
+              "postalCode": "78746"
+            }
+          },
+          "expected": "risk.score 9 (low). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "DANIEL",
+                    "lastName": "WHITFIELD",
+                    "ssn": "666701002"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101002"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "DANIEL",
+            "lastName": "WHITFIELD",
+            "ssn": "666701002",
+            "dob": "1972-11-02",
+            "street1": "88 LAKESHORE BLVD",
+            "city": "AUSTIN",
+            "state": "TX",
+            "zip": "78746"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P03",
+      "name": "JASMINE REYES",
+      "profile": "Thin file / Gen Z",
+      "decision": "REVIEW",
+      "summary": "22 year old with one student card and one phone plan, 8 months of history, nothing negative but not much to score on.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "JASMINE",
+            "lastName": "REYES",
+            "ssn": "666701003",
+            "addresses": [
+              {
+                "addressLine1": "2210 UNIVERSITY AVE APT 4B",
+                "city": "BERKELEY",
+                "state": "CA",
+                "postalCode": "94704",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 660, thin file (1 / 1 / 5 tradelines)"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "JASMINE",
+            "lastName": "REYES",
+            "ssn": "666701003",
+            "addresses": [
+              {
+                "addressLine1": "2210 UNIVERSITY AVE APT 4B",
+                "city": "BERKELEY",
+                "state": "CA",
+                "postalCode": "94704",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 660, thin file (1 / 1 / 5 tradelines). Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "JASMINE",
+            "lastName": "REYES",
+            "ssn": "666701003",
+            "addresses": [
+              {
+                "addressLine1": "2210 UNIVERSITY AVE APT 4B",
+                "city": "BERKELEY",
+                "state": "CA",
+                "postalCode": "94704",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 660, thin file (1 / 1 / 5 tradelines)"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "JASMINE",
+              "last": "REYES",
+              "ssn": "666-70-1003",
+              "dob": "06-21-2004",
+              "zip": "94704"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "JASMINE",
+              "last": "REYES",
+              "ssn": "666-70-1003",
+              "dob": "06-21-2004",
+              "zip": "94704"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "JASMINE",
+            "lastName": "REYES",
+            "phoneNumber": "5550101003",
+            "email": "jasmine.reyes@example.com",
+            "ipAddress": "203.0.113.13",
+            "address": {
+              "addressLine1": "2210 UNIVERSITY AVE APT 4B",
+              "city": "BERKELEY",
+              "state": "CA",
+              "postalCode": "94704"
+            }
+          },
+          "expected": "risk.score 14 (low), email 3 yrs. Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "JASMINE",
+                    "lastName": "REYES",
+                    "ssn": "666701003"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101003"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "JASMINE",
+            "lastName": "REYES",
+            "ssn": "666701003",
+            "dob": "2004-06-21",
+            "street1": "2210 UNIVERSITY AVE APT 4B",
+            "city": "BERKELEY",
+            "state": "CA",
+            "zip": "94704"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P04",
+      "name": "TOMAS LINDQVIST",
+      "profile": "Credit invisible",
+      "decision": "NO_FILE",
+      "summary": "Recent immigrant with a valid SSN but no credit file at any bureau; identity verifies, records are clean.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "TOMAS",
+            "lastName": "LINDQVIST",
+            "ssn": "666701004",
+            "addresses": [
+              {
+                "addressLine1": "415 PINE ST UNIT 12",
+                "city": "SEATTLE",
+                "state": "WA",
+                "postalCode": "98101",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): NoFileReturnedNoHit at all three bureaus"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "TOMAS",
+            "lastName": "LINDQVIST",
+            "ssn": "666701004",
+            "addresses": [
+              {
+                "addressLine1": "415 PINE ST UNIT 12",
+                "city": "SEATTLE",
+                "state": "WA",
+                "postalCode": "98101",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): NoFileReturnedNoHit at all three bureaus. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "TOMAS",
+            "lastName": "LINDQVIST",
+            "ssn": "666701004",
+            "addresses": [
+              {
+                "addressLine1": "415 PINE ST UNIT 12",
+                "city": "SEATTLE",
+                "state": "WA",
+                "postalCode": "98101",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): NoFileReturnedNoHit at all three bureaus"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "TOMAS",
+              "last": "LINDQVIST",
+              "ssn": "666-70-1004",
+              "dob": "01-30-1990",
+              "zip": "98101"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "TOMAS",
+              "last": "LINDQVIST",
+              "ssn": "666-70-1004",
+              "dob": "01-30-1990",
+              "zip": "98101"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "TOMAS",
+            "lastName": "LINDQVIST",
+            "phoneNumber": "5550101004",
+            "email": "tomas.lindqvist@example.com",
+            "ipAddress": "203.0.113.14",
+            "address": {
+              "addressLine1": "415 PINE ST UNIT 12",
+              "city": "SEATTLE",
+              "state": "WA",
+              "postalCode": "98101"
+            }
+          },
+          "expected": "risk.score 18 (low), email 1 yr. Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "TOMAS",
+                    "lastName": "LINDQVIST",
+                    "ssn": "666701004"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101004"
+          },
+          "expected": "empty list (no match)"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "TOMAS",
+            "lastName": "LINDQVIST",
+            "ssn": "666701004",
+            "dob": "1990-01-30",
+            "street1": "415 PINE ST UNIT 12",
+            "city": "SEATTLE",
+            "state": "WA",
+            "zip": "98101"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P05",
+      "name": "RICKY DALTON",
+      "profile": "Subprime",
+      "decision": "DECLINE",
+      "summary": "Maxed out cards, several late payments, two collections and a lot of recent credit shopping.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "RICKY",
+            "lastName": "DALTON",
+            "ssn": "666701005",
+            "addresses": [
+              {
+                "addressLine1": "7031 SUNSET RIDGE RD",
+                "city": "ORLANDO",
+                "state": "FL",
+                "postalCode": "32819",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 540 / 540 / 540, collections, 90dpd"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "RICKY",
+            "lastName": "DALTON",
+            "ssn": "666701005",
+            "addresses": [
+              {
+                "addressLine1": "7031 SUNSET RIDGE RD",
+                "city": "ORLANDO",
+                "state": "FL",
+                "postalCode": "32819",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 540 / 540 / 540, collections, 90dpd. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "RICKY",
+            "lastName": "DALTON",
+            "ssn": "666701005",
+            "addresses": [
+              {
+                "addressLine1": "7031 SUNSET RIDGE RD",
+                "city": "ORLANDO",
+                "state": "FL",
+                "postalCode": "32819",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 540 / 540 / 540, collections, 90dpd"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "RICKY",
+              "last": "DALTON",
+              "ssn": "666-70-1005",
+              "dob": "09-09-1988",
+              "zip": "32819"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "RICKY",
+              "last": "DALTON",
+              "ssn": "666-70-1005",
+              "dob": "09-09-1988",
+              "zip": "32819"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "RICKY",
+            "lastName": "DALTON",
+            "phoneNumber": "5550101005",
+            "email": "ricky.dalton@example.com",
+            "ipAddress": "203.0.113.15",
+            "address": {
+              "addressLine1": "7031 SUNSET RIDGE RD",
+              "city": "ORLANDO",
+              "state": "FL",
+              "postalCode": "32819"
+            }
+          },
+          "expected": "risk.score 52 (medium). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "RICKY",
+                    "lastName": "DALTON",
+                    "ssn": "666701005"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101005"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "RICKY",
+            "lastName": "DALTON",
+            "ssn": "666701005",
+            "dob": "1988-09-09",
+            "street1": "7031 SUNSET RIDGE RD",
+            "city": "ORLANDO",
+            "state": "FL",
+            "zip": "32819"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P06",
+      "name": "ANGELA MORRISSEY",
+      "profile": "Chapter 7 discharged",
+      "decision": "REVIEW",
+      "summary": "Filed Chapter 7 in 2023, discharged 2024, rebuilding with one secured card; bankruptcy shows on bureau file and in PitchPoint.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "ANGELA",
+            "lastName": "MORRISSEY",
+            "ssn": "666701006",
+            "addresses": [
+              {
+                "addressLine1": "960 MAPLEWOOD AVE",
+                "city": "COLUMBUS",
+                "state": "OH",
+                "postalCode": "43209",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 580 x3, public record BankruptcyChapter7 Discharged"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "ANGELA",
+            "lastName": "MORRISSEY",
+            "ssn": "666701006",
+            "addresses": [
+              {
+                "addressLine1": "960 MAPLEWOOD AVE",
+                "city": "COLUMBUS",
+                "state": "OH",
+                "postalCode": "43209",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 580 x3, public record BankruptcyChapter7 Discharged. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "ANGELA",
+            "lastName": "MORRISSEY",
+            "ssn": "666701006",
+            "addresses": [
+              {
+                "addressLine1": "960 MAPLEWOOD AVE",
+                "city": "COLUMBUS",
+                "state": "OH",
+                "postalCode": "43209",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 580 x3, public record BankruptcyChapter7 Discharged"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "ANGELA",
+              "last": "MORRISSEY",
+              "ssn": "666-70-1006",
+              "dob": "04-18-1979",
+              "zip": "43209"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "ANGELA",
+              "last": "MORRISSEY",
+              "ssn": "666-70-1006",
+              "dob": "04-18-1979",
+              "zip": "43209"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "ANGELA",
+            "lastName": "MORRISSEY",
+            "phoneNumber": "5550101006",
+            "email": "angela.morrissey@example.com",
+            "ipAddress": "203.0.113.16",
+            "address": {
+              "addressLine1": "960 MAPLEWOOD AVE",
+              "city": "COLUMBUS",
+              "state": "OH",
+              "postalCode": "43209"
+            }
+          },
+          "expected": "risk.score 12 (low). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "ANGELA",
+                    "lastName": "MORRISSEY",
+                    "ssn": "666701006"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 1 bankruptcy Ch.7 discharged"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101006"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "ANGELA",
+            "lastName": "MORRISSEY",
+            "ssn": "666701006",
+            "dob": "1979-04-18",
+            "street1": "960 MAPLEWOOD AVE",
+            "city": "COLUMBUS",
+            "state": "OH",
+            "zip": "43209"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P07",
+      "name": "MARCUS BELLAMY",
+      "profile": "Chapter 13 active",
+      "decision": "DECLINE",
+      "summary": "In an active Chapter 13 repayment plan since 2025; paying as agreed on the plan but file is still marked.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "MARCUS",
+            "lastName": "BELLAMY",
+            "ssn": "666701007",
+            "addresses": [
+              {
+                "addressLine1": "1507 PEACHTREE INDUSTRIAL BLVD",
+                "city": "ATLANTA",
+                "state": "GA",
+                "postalCode": "30341",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 560 x3, public record BankruptcyChapter13 Filed 2025"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "MARCUS",
+            "lastName": "BELLAMY",
+            "ssn": "666701007",
+            "addresses": [
+              {
+                "addressLine1": "1507 PEACHTREE INDUSTRIAL BLVD",
+                "city": "ATLANTA",
+                "state": "GA",
+                "postalCode": "30341",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 560 x3, public record BankruptcyChapter13 Filed 2025. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "MARCUS",
+            "lastName": "BELLAMY",
+            "ssn": "666701007",
+            "addresses": [
+              {
+                "addressLine1": "1507 PEACHTREE INDUSTRIAL BLVD",
+                "city": "ATLANTA",
+                "state": "GA",
+                "postalCode": "30341",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 560 x3, public record BankruptcyChapter13 Filed 2025"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "MARCUS",
+              "last": "BELLAMY",
+              "ssn": "666-70-1007",
+              "dob": "12-05-1975",
+              "zip": "30341"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "MARCUS",
+              "last": "BELLAMY",
+              "ssn": "666-70-1007",
+              "dob": "12-05-1975",
+              "zip": "30341"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "MARCUS",
+            "lastName": "BELLAMY",
+            "phoneNumber": "5550101007",
+            "email": "marcus.bellamy@example.com",
+            "ipAddress": "203.0.113.17",
+            "address": {
+              "addressLine1": "1507 PEACHTREE INDUSTRIAL BLVD",
+              "city": "ATLANTA",
+              "state": "GA",
+              "postalCode": "30341"
+            }
+          },
+          "expected": "risk.score 12 (low). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "MARCUS",
+                    "lastName": "BELLAMY",
+                    "ssn": "666701007"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 1 bankruptcy Ch.13 open"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101007"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "MARCUS",
+            "lastName": "BELLAMY",
+            "ssn": "666701007",
+            "dob": "1975-12-05",
+            "street1": "1507 PEACHTREE INDUSTRIAL BLVD",
+            "city": "ATLANTA",
+            "state": "GA",
+            "zip": "30341"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P08",
+      "name": "PRIYA VENKATESAN",
+      "profile": "Tax lien and civil judgment",
+      "decision": "REVIEW",
+      "summary": "Decent credit, but PitchPoint shows an unpaid state tax lien and a civil judgment from a contractor dispute.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "PRIYA",
+            "lastName": "VENKATESAN",
+            "ssn": "666701008",
+            "addresses": [
+              {
+                "addressLine1": "3300 N LAKE SHORE DR APT 15C",
+                "city": "CHICAGO",
+                "state": "IL",
+                "postalCode": "60657",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 690 / 690 / 690"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "PRIYA",
+            "lastName": "VENKATESAN",
+            "ssn": "666701008",
+            "addresses": [
+              {
+                "addressLine1": "3300 N LAKE SHORE DR APT 15C",
+                "city": "CHICAGO",
+                "state": "IL",
+                "postalCode": "60657",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 690 / 690 / 690. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "PRIYA",
+            "lastName": "VENKATESAN",
+            "ssn": "666701008",
+            "addresses": [
+              {
+                "addressLine1": "3300 N LAKE SHORE DR APT 15C",
+                "city": "CHICAGO",
+                "state": "IL",
+                "postalCode": "60657",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 690 / 690 / 690"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "PRIYA",
+              "last": "VENKATESAN",
+              "ssn": "666-70-1008",
+              "dob": "07-27-1981",
+              "zip": "60657"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "PRIYA",
+              "last": "VENKATESAN",
+              "ssn": "666-70-1008",
+              "dob": "07-27-1981",
+              "zip": "60657"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "PRIYA",
+            "lastName": "VENKATESAN",
+            "phoneNumber": "5550101008",
+            "email": "priya.venkatesan@example.com",
+            "ipAddress": "203.0.113.18",
+            "address": {
+              "addressLine1": "3300 N LAKE SHORE DR APT 15C",
+              "city": "CHICAGO",
+              "state": "IL",
+              "postalCode": "60657"
+            }
+          },
+          "expected": "risk.score 10 (low). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "PRIYA",
+                    "lastName": "VENKATESAN",
+                    "ssn": "666701008"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 1 judgment $12,300 + 1 state tax lien $7,450"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101008"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "PRIYA",
+            "lastName": "VENKATESAN",
+            "ssn": "666701008",
+            "dob": "1981-07-27",
+            "street1": "3300 N LAKE SHORE DR APT 15C",
+            "city": "CHICAGO",
+            "state": "IL",
+            "zip": "60657"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P09",
+      "name": "DEREK HOLLOWAY",
+      "profile": "Felony conviction",
+      "decision": "DECLINE",
+      "summary": "Clean credit, but a 2021 felony conviction (burglary) shows on the criminal search; typical rental screening decline.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "DEREK",
+            "lastName": "HOLLOWAY",
+            "ssn": "666701009",
+            "addresses": [
+              {
+                "addressLine1": "4875 W COLFAX AVE",
+                "city": "DENVER",
+                "state": "CO",
+                "postalCode": "80204",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 700 / 700 / 700 clean"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "DEREK",
+            "lastName": "HOLLOWAY",
+            "ssn": "666701009",
+            "addresses": [
+              {
+                "addressLine1": "4875 W COLFAX AVE",
+                "city": "DENVER",
+                "state": "CO",
+                "postalCode": "80204",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 700 / 700 / 700 clean. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "DEREK",
+            "lastName": "HOLLOWAY",
+            "ssn": "666701009",
+            "addresses": [
+              {
+                "addressLine1": "4875 W COLFAX AVE",
+                "city": "DENVER",
+                "state": "CO",
+                "postalCode": "80204",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 700 / 700 / 700 clean"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "DEREK",
+              "last": "HOLLOWAY",
+              "ssn": "666-70-1009",
+              "dob": "02-11-1986",
+              "zip": "80204"
+            }
+          },
+          "expected": "1 FELONY burglary 2nd degree, Denver, CONVICTED 2021"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "DEREK",
+              "last": "HOLLOWAY",
+              "ssn": "666-70-1009",
+              "dob": "02-11-1986",
+              "zip": "80204"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "DEREK",
+            "lastName": "HOLLOWAY",
+            "phoneNumber": "5550101009",
+            "email": "derek.holloway@example.com",
+            "ipAddress": "203.0.113.19",
+            "address": {
+              "addressLine1": "4875 W COLFAX AVE",
+              "city": "DENVER",
+              "state": "CO",
+              "postalCode": "80204"
+            }
+          },
+          "expected": "risk.score 11 (low). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "DEREK",
+                    "lastName": "HOLLOWAY",
+                    "ssn": "666701009"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101009"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "DEREK",
+            "lastName": "HOLLOWAY",
+            "ssn": "666701009",
+            "dob": "1986-02-11",
+            "street1": "4875 W COLFAX AVE",
+            "city": "DENVER",
+            "state": "CO",
+            "zip": "80204"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P10",
+      "name": "LAUREN KOWALCZYK",
+      "profile": "Old dismissed misdemeanor",
+      "decision": "APPROVE",
+      "summary": "Good credit; one 2014 misdemeanor (disorderly conduct) that was dismissed. Edge case for lookback and disposition rules.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "LAUREN",
+            "lastName": "KOWALCZYK",
+            "ssn": "666701010",
+            "addresses": [
+              {
+                "addressLine1": "1181 WOODWARD AVE",
+                "city": "DETROIT",
+                "state": "MI",
+                "postalCode": "48226",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 720 / 720 / 720 clean"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "LAUREN",
+            "lastName": "KOWALCZYK",
+            "ssn": "666701010",
+            "addresses": [
+              {
+                "addressLine1": "1181 WOODWARD AVE",
+                "city": "DETROIT",
+                "state": "MI",
+                "postalCode": "48226",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 720 / 720 / 720 clean. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "LAUREN",
+            "lastName": "KOWALCZYK",
+            "ssn": "666701010",
+            "addresses": [
+              {
+                "addressLine1": "1181 WOODWARD AVE",
+                "city": "DETROIT",
+                "state": "MI",
+                "postalCode": "48226",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 720 / 720 / 720 clean"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "LAUREN",
+              "last": "KOWALCZYK",
+              "ssn": "666-70-1010",
+              "dob": "10-03-1992",
+              "zip": "48226"
+            }
+          },
+          "expected": "1 MISDEMEANOR disorderly conduct, Wayne County, DISMISSED 2014"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "LAUREN",
+              "last": "KOWALCZYK",
+              "ssn": "666-70-1010",
+              "dob": "10-03-1992",
+              "zip": "48226"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "LAUREN",
+            "lastName": "KOWALCZYK",
+            "phoneNumber": "5550101010",
+            "email": "lauren.kowalczyk@example.com",
+            "ipAddress": "203.0.113.20",
+            "address": {
+              "addressLine1": "1181 WOODWARD AVE",
+              "city": "DETROIT",
+              "state": "MI",
+              "postalCode": "48226"
+            }
+          },
+          "expected": "risk.score 10 (low). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "LAUREN",
+                    "lastName": "KOWALCZYK",
+                    "ssn": "666701010"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101010"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "LAUREN",
+            "lastName": "KOWALCZYK",
+            "ssn": "666701010",
+            "dob": "1992-10-03",
+            "street1": "1181 WOODWARD AVE",
+            "city": "DETROIT",
+            "state": "MI",
+            "zip": "48226"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P11",
+      "name": "BRANDON SZABO",
+      "profile": "Eviction history",
+      "decision": "DECLINE",
+      "summary": "Below-average credit and two eviction filings, the latest with a judgment for the landlord in 2024.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "BRANDON",
+            "lastName": "SZABO",
+            "ssn": "666701011",
+            "addresses": [
+              {
+                "addressLine1": "2640 HIGHLAND AVE APT 7",
+                "city": "NATIONAL CITY",
+                "state": "CA",
+                "postalCode": "91950",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 610 / 610 / 610"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "BRANDON",
+            "lastName": "SZABO",
+            "ssn": "666701011",
+            "addresses": [
+              {
+                "addressLine1": "2640 HIGHLAND AVE APT 7",
+                "city": "NATIONAL CITY",
+                "state": "CA",
+                "postalCode": "91950",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 610 / 610 / 610. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "BRANDON",
+            "lastName": "SZABO",
+            "ssn": "666701011",
+            "addresses": [
+              {
+                "addressLine1": "2640 HIGHLAND AVE APT 7",
+                "city": "NATIONAL CITY",
+                "state": "CA",
+                "postalCode": "91950",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 610 / 610 / 610"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "BRANDON",
+              "last": "SZABO",
+              "ssn": "666-70-1011",
+              "dob": "05-15-1995",
+              "zip": "91950"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "BRANDON",
+              "last": "SZABO",
+              "ssn": "666-70-1011",
+              "dob": "05-15-1995",
+              "zip": "91950"
+            }
+          },
+          "expected": "2 UD San Diego: 2022 dismissed, 2024 judgment $4,850"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "BRANDON",
+            "lastName": "SZABO",
+            "phoneNumber": "5550101011",
+            "email": "brandon.szabo@example.com",
+            "ipAddress": "203.0.113.21",
+            "address": {
+              "addressLine1": "2640 HIGHLAND AVE APT 7",
+              "city": "NATIONAL CITY",
+              "state": "CA",
+              "postalCode": "91950"
+            }
+          },
+          "expected": "risk.score 11 (low). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "BRANDON",
+                    "lastName": "SZABO",
+                    "ssn": "666701011"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 1 judgment $4,850"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101011"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "BRANDON",
+            "lastName": "SZABO",
+            "ssn": "666701011",
+            "dob": "1995-05-15",
+            "street1": "2640 HIGHLAND AVE APT 7",
+            "city": "NATIONAL CITY",
+            "state": "CA",
+            "zip": "91950"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P12",
+      "name": "VICTOR ANAND",
+      "profile": "Identity mismatch",
+      "decision": "DECLINE",
+      "summary": "Applicant supplies a name and DOB that do not belong to the SSN; bureaus return no file, TU identity fails, AtData flags it.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "VICTOR",
+            "lastName": "ANAND",
+            "ssn": "666701012",
+            "addresses": [
+              {
+                "addressLine1": "55 WATER ST FL 20",
+                "city": "NEW YORK",
+                "state": "NY",
+                "postalCode": "10041",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): NoFileReturnedNoHit at all three bureaus"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "VICTOR",
+            "lastName": "ANAND",
+            "ssn": "666701012",
+            "addresses": [
+              {
+                "addressLine1": "55 WATER ST FL 20",
+                "city": "NEW YORK",
+                "state": "NY",
+                "postalCode": "10041",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): NoFileReturnedNoHit at all three bureaus. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "VICTOR",
+            "lastName": "ANAND",
+            "ssn": "666701012",
+            "addresses": [
+              {
+                "addressLine1": "55 WATER ST FL 20",
+                "city": "NEW YORK",
+                "state": "NY",
+                "postalCode": "10041",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): NoFileReturnedNoHit at all three bureaus"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "VICTOR",
+              "last": "ANAND",
+              "ssn": "666-70-1012",
+              "dob": "08-08-1968",
+              "zip": "10041"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "VICTOR",
+              "last": "ANAND",
+              "ssn": "666-70-1012",
+              "dob": "08-08-1968",
+              "zip": "10041"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "VICTOR",
+            "lastName": "ANAND",
+            "phoneNumber": "5550101012",
+            "email": "v.anand.1968@example.com",
+            "ipAddress": "198.51.100.12",
+            "address": {
+              "addressLine1": "55 WATER ST FL 20",
+              "city": "NEW YORK",
+              "state": "NY",
+              "postalCode": "10041"
+            }
+          },
+          "expected": "risk.score 85 (high), phone owner no_match, IP > 1000 miles. Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "VICTOR",
+                    "lastName": "ANAND",
+                    "ssn": "666701012"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101012"
+          },
+          "expected": "one result for RAJESH MENON (a different person)"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "VICTOR",
+            "lastName": "ANAND",
+            "ssn": "666701012",
+            "dob": "1968-08-08",
+            "street1": "55 WATER ST FL 20",
+            "city": "NEW YORK",
+            "state": "NY",
+            "zip": "10041"
+          },
+          "expected": "result FAIL. SSN issued to a different name; DOB mismatch; address not associated with SSN"
+        }
+      ]
+    },
+    {
+      "id": "P13",
+      "name": "KAYLA BRENNAN",
+      "profile": "Synthetic identity / fraud",
+      "decision": "DECLINE",
+      "summary": "Looks like a new consumer but has 9 inquiries in 60 days, an email created days ago, phone registered to someone else, IP far from the address.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "KAYLA",
+            "lastName": "BRENNAN",
+            "ssn": "666701013",
+            "addresses": [
+              {
+                "addressLine1": "9021 KINGSTON PIKE",
+                "city": "KNOXVILLE",
+                "state": "TN",
+                "postalCode": "37923",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 640, thin file"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "KAYLA",
+            "lastName": "BRENNAN",
+            "ssn": "666701013",
+            "addresses": [
+              {
+                "addressLine1": "9021 KINGSTON PIKE",
+                "city": "KNOXVILLE",
+                "state": "TN",
+                "postalCode": "37923",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 640, thin file. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "KAYLA",
+            "lastName": "BRENNAN",
+            "ssn": "666701013",
+            "addresses": [
+              {
+                "addressLine1": "9021 KINGSTON PIKE",
+                "city": "KNOXVILLE",
+                "state": "TN",
+                "postalCode": "37923",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 640, thin file"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "KAYLA",
+              "last": "BRENNAN",
+              "ssn": "666-70-1013",
+              "dob": "12-24-1999",
+              "zip": "37923"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "KAYLA",
+              "last": "BRENNAN",
+              "ssn": "666-70-1013",
+              "dob": "12-24-1999",
+              "zip": "37923"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "KAYLA",
+            "lastName": "BRENNAN",
+            "phoneNumber": "5550101013",
+            "email": "kb.9921x@example.com",
+            "ipAddress": "198.51.100.13",
+            "address": {
+              "addressLine1": "9021 KINGSTON PIKE",
+              "city": "KNOXVILLE",
+              "state": "TN",
+              "postalCode": "37923"
+            }
+          },
+          "expected": "risk.score 88 (high), email 3 days old, phone owner no_match, voip prepaid. Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "KAYLA",
+                    "lastName": "BRENNAN",
+                    "ssn": "666701013"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101013"
+          },
+          "expected": "empty list (no match)"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "KAYLA",
+            "lastName": "BRENNAN",
+            "ssn": "666701013",
+            "dob": "1999-12-24",
+            "street1": "9021 KINGSTON PIKE",
+            "city": "KNOXVILLE",
+            "state": "TN",
+            "zip": "37923"
+          },
+          "expected": "result FAIL. SSN issue date inconsistent with DOB; multiple names linked to SSN"
+        }
+      ]
+    },
+    {
+      "id": "P14",
+      "name": "HAROLD PETTIGREW",
+      "profile": "Deceased indicator",
+      "decision": "DECLINE",
+      "summary": "SSN returns a file flagged deceased at the bureau; every downstream product should stop.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "HAROLD",
+            "lastName": "PETTIGREW",
+            "ssn": "666701014",
+            "addresses": [
+              {
+                "addressLine1": "310 ELM ST",
+                "city": "DAYTON",
+                "state": "OH",
+                "postalCode": "45402",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): errorMessages 'deceased' at all three bureaus, no creditFiles"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "HAROLD",
+            "lastName": "PETTIGREW",
+            "ssn": "666701014",
+            "addresses": [
+              {
+                "addressLine1": "310 ELM ST",
+                "city": "DAYTON",
+                "state": "OH",
+                "postalCode": "45402",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): errorMessages 'deceased' at all three bureaus, no creditFiles. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "HAROLD",
+            "lastName": "PETTIGREW",
+            "ssn": "666701014",
+            "addresses": [
+              {
+                "addressLine1": "310 ELM ST",
+                "city": "DAYTON",
+                "state": "OH",
+                "postalCode": "45402",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): errorMessages 'deceased' at all three bureaus, no creditFiles"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "HAROLD",
+              "last": "PETTIGREW",
+              "ssn": "666-70-1014",
+              "dob": "01-19-1948",
+              "zip": "45402"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "HAROLD",
+              "last": "PETTIGREW",
+              "ssn": "666-70-1014",
+              "dob": "01-19-1948",
+              "zip": "45402"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "HAROLD",
+            "lastName": "PETTIGREW",
+            "phoneNumber": "5550101014",
+            "email": "harold.pettigrew@example.com",
+            "ipAddress": "203.0.113.24",
+            "address": {
+              "addressLine1": "310 ELM ST",
+              "city": "DAYTON",
+              "state": "OH",
+              "postalCode": "45402"
+            }
+          },
+          "expected": "risk.score 80 (high), email invalid, phone dead. Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "HAROLD",
+                    "lastName": "PETTIGREW",
+                    "ssn": "666701014"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101014"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "HAROLD",
+            "lastName": "PETTIGREW",
+            "ssn": "666701014",
+            "dob": "1948-01-19",
+            "street1": "310 ELM ST",
+            "city": "DAYTON",
+            "state": "OH",
+            "zip": "45402"
+          },
+          "expected": "result FAIL. SSN reported as belonging to a deceased person (Death Master File)"
+        }
+      ]
+    },
+    {
+      "id": "P15",
+      "name": "NICOLE FARRAGUT",
+      "profile": "Security freeze at one bureau",
+      "decision": "REVIEW",
+      "summary": "Good credit, but the TransUnion file is frozen; Equifax and Experian return normally. Tests partial 3-bureau results.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "NICOLE",
+            "lastName": "FARRAGUT",
+            "ssn": "666701015",
+            "addresses": [
+              {
+                "addressLine1": "7700 NE 72ND AVE",
+                "city": "PORTLAND",
+                "state": "OR",
+                "postalCode": "97218",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): TU NoFileReturnedCreditFreeze / EFX 740 / EXP 740"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "NICOLE",
+            "lastName": "FARRAGUT",
+            "ssn": "666701015",
+            "addresses": [
+              {
+                "addressLine1": "7700 NE 72ND AVE",
+                "city": "PORTLAND",
+                "state": "OR",
+                "postalCode": "97218",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): TU NoFileReturnedCreditFreeze / EFX 740 / EXP 740. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "NICOLE",
+            "lastName": "FARRAGUT",
+            "ssn": "666701015",
+            "addresses": [
+              {
+                "addressLine1": "7700 NE 72ND AVE",
+                "city": "PORTLAND",
+                "state": "OR",
+                "postalCode": "97218",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): TU NoFileReturnedCreditFreeze / EFX 740 / EXP 740"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "NICOLE",
+              "last": "FARRAGUT",
+              "ssn": "666-70-1015",
+              "dob": "03-30-1983",
+              "zip": "97218"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "NICOLE",
+              "last": "FARRAGUT",
+              "ssn": "666-70-1015",
+              "dob": "03-30-1983",
+              "zip": "97218"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "NICOLE",
+            "lastName": "FARRAGUT",
+            "phoneNumber": "5550101015",
+            "email": "nicole.farragut@example.com",
+            "ipAddress": "203.0.113.25",
+            "address": {
+              "addressLine1": "7700 NE 72ND AVE",
+              "city": "PORTLAND",
+              "state": "OR",
+              "postalCode": "97218"
+            }
+          },
+          "expected": "risk.score 10 (low). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "NICOLE",
+                    "lastName": "FARRAGUT",
+                    "ssn": "666701015"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101015"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "NICOLE",
+            "lastName": "FARRAGUT",
+            "ssn": "666701015",
+            "dob": "1983-03-30",
+            "street1": "7700 NE 72ND AVE",
+            "city": "PORTLAND",
+            "state": "OR",
+            "zip": "97218"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P16",
+      "name": "SAMUEL OYELARAN",
+      "profile": "Fraud alert on file",
+      "decision": "REVIEW",
+      "summary": "Good credit with an initial fraud alert the consumer placed; lenders must verify identity before extending credit, so TU identity asks for KBA.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "SAMUEL",
+            "lastName": "OYELARAN",
+            "ssn": "666701016",
+            "addresses": [
+              {
+                "addressLine1": "1200 BRICKELL BAY DR APT 2203",
+                "city": "MIAMI",
+                "state": "FL",
+                "postalCode": "33131",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 730 / 730 / 730 (fraud alert not reproduced)"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "SAMUEL",
+            "lastName": "OYELARAN",
+            "ssn": "666701016",
+            "addresses": [
+              {
+                "addressLine1": "1200 BRICKELL BAY DR APT 2203",
+                "city": "MIAMI",
+                "state": "FL",
+                "postalCode": "33131",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 730 / 730 / 730 (fraud alert not reproduced). Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "SAMUEL",
+            "lastName": "OYELARAN",
+            "ssn": "666701016",
+            "addresses": [
+              {
+                "addressLine1": "1200 BRICKELL BAY DR APT 2203",
+                "city": "MIAMI",
+                "state": "FL",
+                "postalCode": "33131",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 730 / 730 / 730 (fraud alert not reproduced)"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "SAMUEL",
+              "last": "OYELARAN",
+              "ssn": "666-70-1016",
+              "dob": "06-12-1977",
+              "zip": "33131"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "SAMUEL",
+              "last": "OYELARAN",
+              "ssn": "666-70-1016",
+              "dob": "06-12-1977",
+              "zip": "33131"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "SAMUEL",
+            "lastName": "OYELARAN",
+            "phoneNumber": "5550101016",
+            "email": "samuel.oyelaran@example.com",
+            "ipAddress": "203.0.113.26",
+            "address": {
+              "addressLine1": "1200 BRICKELL BAY DR APT 2203",
+              "city": "MIAMI",
+              "state": "FL",
+              "postalCode": "33131"
+            }
+          },
+          "expected": "risk.score 50 (medium). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "SAMUEL",
+                    "lastName": "OYELARAN",
+                    "ssn": "666701016"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101016"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "SAMUEL",
+            "lastName": "OYELARAN",
+            "ssn": "666701016",
+            "dob": "1977-06-12",
+            "street1": "1200 BRICKELL BAY DR APT 2203",
+            "city": "MIAMI",
+            "state": "FL",
+            "zip": "33131"
+          },
+          "expected": "result KBA_REQUIRED. basic verification passes but fraud alert triggers step-up; KBA questions then OTP to phone on file (needs TUC3004 on the quote)"
+        }
+      ]
+    },
+    {
+      "id": "P17",
+      "name": "ELENA CASTELLANOS",
+      "profile": "Bureau divergence",
+      "decision": "REVIEW",
+      "summary": "Three bureaus disagree: TU excellent, Equifax has no file, Experian shows a collection. Exercises 3-bureau merge logic.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "ELENA",
+            "lastName": "CASTELLANOS",
+            "ssn": "666701017",
+            "addresses": [
+              {
+                "addressLine1": "4400 N CENTRAL EXPY STE 100",
+                "city": "DALLAS",
+                "state": "TX",
+                "postalCode": "75206",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): TU 760 / EFX NoFileReturnedNoHit / EXP 700 with 1 charge-off"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "ELENA",
+            "lastName": "CASTELLANOS",
+            "ssn": "666701017",
+            "addresses": [
+              {
+                "addressLine1": "4400 N CENTRAL EXPY STE 100",
+                "city": "DALLAS",
+                "state": "TX",
+                "postalCode": "75206",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): TU 760 / EFX NoFileReturnedNoHit / EXP 700 with 1 charge-off. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "ELENA",
+            "lastName": "CASTELLANOS",
+            "ssn": "666701017",
+            "addresses": [
+              {
+                "addressLine1": "4400 N CENTRAL EXPY STE 100",
+                "city": "DALLAS",
+                "state": "TX",
+                "postalCode": "75206",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): TU 760 / EFX NoFileReturnedNoHit / EXP 700 with 1 charge-off"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "ELENA",
+              "last": "CASTELLANOS",
+              "ssn": "666-70-1017",
+              "dob": "11-20-1987",
+              "zip": "75206"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "ELENA",
+              "last": "CASTELLANOS",
+              "ssn": "666-70-1017",
+              "dob": "11-20-1987",
+              "zip": "75206"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "ELENA",
+            "lastName": "CASTELLANOS",
+            "phoneNumber": "5550101017",
+            "email": "elena.castellanos@example.com",
+            "ipAddress": "203.0.113.27",
+            "address": {
+              "addressLine1": "4400 N CENTRAL EXPY STE 100",
+              "city": "DALLAS",
+              "state": "TX",
+              "postalCode": "75206"
+            }
+          },
+          "expected": "risk.score 11 (low). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "ELENA",
+                    "lastName": "CASTELLANOS",
+                    "ssn": "666701017"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101017"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "ELENA",
+            "lastName": "CASTELLANOS",
+            "ssn": "666701017",
+            "dob": "1987-11-20",
+            "street1": "4400 N CENTRAL EXPY STE 100",
+            "city": "DALLAS",
+            "state": "TX",
+            "zip": "75206"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P18",
+      "name": "TERRENCE ABERNATHY",
+      "profile": "Rebuilding",
+      "decision": "REVIEW",
+      "summary": "Two charge-offs in 2020 that were later paid, nothing negative since, score climbing; the classic second-chance applicant.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "TERRENCE",
+            "lastName": "ABERNATHY",
+            "ssn": "666701018",
+            "addresses": [
+              {
+                "addressLine1": "2102 S HALSTED ST",
+                "city": "CHICAGO",
+                "state": "IL",
+                "postalCode": "60608",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 650 / 650 / 650"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "TERRENCE",
+            "lastName": "ABERNATHY",
+            "ssn": "666701018",
+            "addresses": [
+              {
+                "addressLine1": "2102 S HALSTED ST",
+                "city": "CHICAGO",
+                "state": "IL",
+                "postalCode": "60608",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 650 / 650 / 650. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "TERRENCE",
+            "lastName": "ABERNATHY",
+            "ssn": "666701018",
+            "addresses": [
+              {
+                "addressLine1": "2102 S HALSTED ST",
+                "city": "CHICAGO",
+                "state": "IL",
+                "postalCode": "60608",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 650 / 650 / 650"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "TERRENCE",
+              "last": "ABERNATHY",
+              "ssn": "666-70-1018",
+              "dob": "02-29-1980",
+              "zip": "60608"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "TERRENCE",
+              "last": "ABERNATHY",
+              "ssn": "666-70-1018",
+              "dob": "02-29-1980",
+              "zip": "60608"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "TERRENCE",
+            "lastName": "ABERNATHY",
+            "phoneNumber": "5550101018",
+            "email": "terrence.abernathy@example.com",
+            "ipAddress": "203.0.113.28",
+            "address": {
+              "addressLine1": "2102 S HALSTED ST",
+              "city": "CHICAGO",
+              "state": "IL",
+              "postalCode": "60608"
+            }
+          },
+          "expected": "risk.score 12 (low). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "TERRENCE",
+                    "lastName": "ABERNATHY",
+                    "ssn": "666701018"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101018"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "TERRENCE",
+            "lastName": "ABERNATHY",
+            "ssn": "666701018",
+            "dob": "1980-02-29",
+            "street1": "2102 S HALSTED ST",
+            "city": "CHICAGO",
+            "state": "IL",
+            "zip": "60608"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P19",
+      "name": "GRACE NAKAMURA",
+      "profile": "Small-business owner",
+      "decision": "APPROVE",
+      "summary": "Owner-operator of a cafe with strong personal credit.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "GRACE",
+            "lastName": "NAKAMURA",
+            "ssn": "666701019",
+            "addresses": [
+              {
+                "addressLine1": "1850 SOLANO AVE",
+                "city": "BERKELEY",
+                "state": "CA",
+                "postalCode": "94707",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 770 / 770 / 770 clean"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "GRACE",
+            "lastName": "NAKAMURA",
+            "ssn": "666701019",
+            "addresses": [
+              {
+                "addressLine1": "1850 SOLANO AVE",
+                "city": "BERKELEY",
+                "state": "CA",
+                "postalCode": "94707",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 770 / 770 / 770 clean. Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "GRACE",
+            "lastName": "NAKAMURA",
+            "ssn": "666701019",
+            "addresses": [
+              {
+                "addressLine1": "1850 SOLANO AVE",
+                "city": "BERKELEY",
+                "state": "CA",
+                "postalCode": "94707",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): 770 / 770 / 770 clean"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "GRACE",
+              "last": "NAKAMURA",
+              "ssn": "666-70-1019",
+              "dob": "09-16-1976",
+              "zip": "94707"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "GRACE",
+              "last": "NAKAMURA",
+              "ssn": "666-70-1019",
+              "dob": "09-16-1976",
+              "zip": "94707"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "GRACE",
+            "lastName": "NAKAMURA",
+            "phoneNumber": "5550101019",
+            "email": "grace.nakamura@example.com",
+            "ipAddress": "203.0.113.29",
+            "address": {
+              "addressLine1": "1850 SOLANO AVE",
+              "city": "BERKELEY",
+              "state": "CA",
+              "postalCode": "94707"
+            }
+          },
+          "expected": "risk.score 9 (low). Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "GRACE",
+                    "lastName": "NAKAMURA",
+                    "ssn": "666701019"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101019"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "GRACE",
+            "lastName": "NAKAMURA",
+            "ssn": "666701019",
+            "dob": "1976-09-16",
+            "street1": "1850 SOLANO AVE",
+            "city": "BERKELEY",
+            "state": "CA",
+            "zip": "94707"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    },
+    {
+      "id": "P20",
+      "name": "DOLORES WHITCOMB",
+      "profile": "Retiree with stale file",
+      "decision": "REVIEW",
+      "summary": "74 year old with decades of history but every account closed and no activity in years; bureaus return a file but no score.",
+      "requests": [
+        {
+          "product": "credit_report",
+          "variant": "TransUnion",
+          "method": "POST",
+          "path": "/transunion/credit-report/standard/{config}",
+          "config": "tu-prequal-fico9",
+          "body": {
+            "firstName": "DOLORES",
+            "lastName": "WHITCOMB",
+            "ssn": "666701020",
+            "addresses": [
+              {
+                "addressLine1": "612 OCEAN VIEW DR",
+                "city": "SANTA BARBARA",
+                "state": "CA",
+                "postalCode": "93109",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): FileReturned, no score (TU/EFX noScoreReasonType=ScoringNotAvailable)"
+        },
+        {
+          "product": "credit_report",
+          "variant": "Equifax",
+          "method": "POST",
+          "path": "/equifax/credit-report/standard/{config}",
+          "config": "efx-prequal-vantage4",
+          "body": {
+            "firstName": "DOLORES",
+            "lastName": "WHITCOMB",
+            "ssn": "666701020",
+            "addresses": [
+              {
+                "addressLine1": "612 OCEAN VIEW DR",
+                "city": "SANTA BARBARA",
+                "state": "CA",
+                "postalCode": "93109",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): FileReturned, no score (TU/EFX noScoreReasonType=ScoringNotAvailable). Equifax output carries no subject name (sandbox files)."
+        },
+        {
+          "product": "credit_report",
+          "variant": "Experian",
+          "method": "POST",
+          "path": "/experian/credit-report/standard/{config}",
+          "config": "exp-prequal-vantage4",
+          "body": {
+            "firstName": "DOLORES",
+            "lastName": "WHITCOMB",
+            "ssn": "666701020",
+            "addresses": [
+              {
+                "addressLine1": "612 OCEAN VIEW DR",
+                "city": "SANTA BARBARA",
+                "state": "CA",
+                "postalCode": "93109",
+                "borrowerResidencyType": "Current"
+              }
+            ]
+          },
+          "expected": "(TU / EFX / EXP): FileReturned, no score (TU/EFX noScoreReasonType=ScoringNotAvailable)"
+        },
+        {
+          "product": "criminal",
+          "variant": "Criminal",
+          "method": "POST",
+          "path": "/criminal/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "DOLORES",
+              "last": "WHITCOMB",
+              "ssn": "666-70-1020",
+              "dob": "05-04-1952",
+              "zip": "93109"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "eviction",
+          "variant": "Eviction",
+          "method": "POST",
+          "path": "/eviction/new-request",
+          "config": null,
+          "body": {
+            "subjectInfo": {
+              "first": "DOLORES",
+              "last": "WHITCOMB",
+              "ssn": "666-70-1020",
+              "dob": "05-04-1952",
+              "zip": "93109"
+            }
+          },
+          "expected": "clean"
+        },
+        {
+          "product": "fraud_finder",
+          "variant": "FraudFinder",
+          "method": "POST",
+          "path": "/fraud-finder/{config}",
+          "config": "fraud-finder",
+          "body": {
+            "firstName": "DOLORES",
+            "lastName": "WHITCOMB",
+            "phoneNumber": "5550101020",
+            "email": "dolores.whitcomb@example.com",
+            "ipAddress": "203.0.113.30",
+            "address": {
+              "addressLine1": "612 OCEAN VIEW DR",
+              "city": "SANTA BARBARA",
+              "state": "CA",
+              "postalCode": "93109"
+            }
+          },
+          "expected": "risk.score 8 (low), landline. Send name, phone, email and address; ipAddress is free."
+        },
+        {
+          "product": "pitchpoint_blj",
+          "variant": "PitchPoint",
+          "method": "POST",
+          "path": "/pp/fcrablj/data",
+          "config": null,
+          "body": {
+            "terms": {
+              "term": [
+                {
+                  "person": {
+                    "firstName": "DOLORES",
+                    "lastName": "WHITCOMB",
+                    "ssn": "666701020"
+                  }
+                }
+              ]
+            }
+          },
+          "expected": "BankruptciesFound/JudgmentsFound/LiensFound: 0/0/0"
+        },
+        {
+          "product": "accurate_append",
+          "variant": "Reverse",
+          "method": "POST",
+          "path": "/accurate-append/reverse",
+          "config": null,
+          "body": {
+            "phoneNumber": "5550101020"
+          },
+          "expected": "one result for the persona"
+        },
+        {
+          "product": "tu_identity_verification",
+          "variant": "TU identity",
+          "method": "POST",
+          "path": "/transunion/identity-manager-verification/basic",
+          "config": null,
+          "body": {
+            "firstName": "DOLORES",
+            "lastName": "WHITCOMB",
+            "ssn": "666701020",
+            "dob": "1952-05-04",
+            "street1": "612 OCEAN VIEW DR",
+            "city": "SANTA BARBARA",
+            "state": "CA",
+            "zip": "93109"
+          },
+          "expected": "result PASS. name, SSN, DOB and address all verify"
+        }
+      ]
+    }
+  ]
+}

@@ -30,7 +30,7 @@ from backend.pipeline.registry import find_invoice_case
 from contracts import (Approval, ApprovalDecision, Case, CaseStatus, Decision, JournalEntry, Posting, Role,
                        StepStatus)
 
-APPROVER_ROLES = {Role.approver, Role.controller, Role.cfo}  # humans; the agent never holds these
+APPROVER_ROLES = {Role.approver, Role.controller, Role.cfo, Role.cto}  # humans; the agent never holds these
 
 
 def ap_account(ctx: Ctx, vendor_id: str) -> str:
@@ -212,7 +212,7 @@ class Poster:
             return self._refuse(case, ctx, f"no fx rate for {inv.currency}", detail)
         # effective limit: the approval's own limit capped by the policy limit for its role (cfo: approval_limits.cfo)
         limits = [x for x in (approval.limit, pol.approval_limits.get(approval.role.value)) if x is not None]
-        limit = min(limits) if limits and (approval.limit is not None or approval.role == Role.cfo) else None
+        limit = min(limits) if limits and (approval.limit is not None or approval.role in (Role.cfo, Role.cto)) else None
         detail["effective_limit"] = str(limit) if limit is not None else None
         if limit is None or usd > limit:
             return self._refuse(case, ctx, f"amount USD {usd} exceeds {approval.approver}'s limit "
